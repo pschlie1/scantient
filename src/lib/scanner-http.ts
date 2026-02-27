@@ -2,6 +2,8 @@ import { addHours } from "date-fns";
 import { db } from "@/lib/db";
 import {
   checkClientSideAuthBypass,
+  checkInlineScripts,
+  checkMetaAndConfig,
   checkSecurityHeaders,
   scanJavaScriptForKeys,
 } from "@/lib/security";
@@ -20,10 +22,13 @@ async function fetchJsAssets(baseUrl: string, html: string): Promise<string[]> {
   );
 
   const payloads: string[] = [];
-  for (const src of scriptSrcs.slice(0, 10)) {
+  for (const src of scriptSrcs.slice(0, 15)) {
     const assetUrl = src.startsWith("http") ? src : new URL(src, baseUrl).toString();
     try {
-      const res = await fetch(assetUrl, { method: "GET" });
+      const res = await fetch(assetUrl, {
+        method: "GET",
+        signal: AbortSignal.timeout(10000),
+      });
       if (res.ok) payloads.push(await res.text());
     } catch {
       // ignore asset fetch failures
@@ -31,6 +36,17 @@ async function fetchJsAssets(baseUrl: string, html: string): Promise<string[]> {
   }
 
   return payloads;
+}
+
+/** Deduplicate findings by code + title */
+function dedup(findings: SecurityFinding[]): SecurityFinding[] {
+  const seen = new Set<string>();
+  return findings.filter((f) => {
+    const key = `${f.code}::${f.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function runHttpScanForApp(appId: string) {
@@ -55,17 +71,22 @@ export async function runHttpScanForApp(appId: string) {
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",
+      signal: AbortSignal.timeout(30000),
     });
 
     const html = await response.text();
+    const headers = new Headers(response.headers);
     const jsPayloads = await fetchJsAssets(app.url, html);
 
-    const findings = [
-      ...checkSecurityHeaders(new Headers(response.headers)),
+    const rawFindings: SecurityFinding[] = [
+      ...checkSecurityHeaders(headers),
       ...scanJavaScriptForKeys(jsPayloads),
       ...checkClientSideAuthBypass(html),
+      ...checkInlineScripts(html),
+      ...checkMetaAndConfig(html, headers),
     ];
 
+    const findings = dedup(rawFindings);
     const responseTimeMs = Date.now() - start;
     const status = calcStatus(findings);
 
@@ -76,7 +97,7 @@ export async function runHttpScanForApp(appId: string) {
         responseTimeMs,
         summary: findings.length
           ? `${findings.length} issue(s) detected`
-          : "No critical issues detected",
+          : "All checks passed — no issues detected",
         completedAt: new Date(),
         findings: {
           create: findings,
@@ -95,12 +116,15 @@ export async function runHttpScanForApp(appId: string) {
       },
     });
 
-    return { appId: app.id, status, findingsCount: findings.length };
+    return { appId: app.id, status, findingsCount: findings.length, responseTimeMs };
   } catch (error) {
+    const elapsed = Date.now() - start;
+
     await db.monitorRun.update({
       where: { id: run.id },
       data: {
         status: "CRITICAL",
+        responseTimeMs: elapsed,
         summary: error instanceof Error ? error.message : "Unknown scan error",
         completedAt: new Date(),
       },
@@ -128,12 +152,13 @@ export async function runDueHttpScans(limit = 20) {
     orderBy: [{ nextCheckAt: "asc" }],
   });
 
-  const results: Array<{ appId: string; status: string; error?: string }> = [];
+  const results: Array<{ appId: string; status: string; findingsCount?: number; error?: string }> =
+    [];
 
   for (const app of dueApps) {
     try {
       const result = await runHttpScanForApp(app.id);
-      results.push({ appId: app.id, status: result.status });
+      results.push({ appId: app.id, status: result.status, findingsCount: result.findingsCount });
     } catch (error) {
       results.push({
         appId: app.id,
