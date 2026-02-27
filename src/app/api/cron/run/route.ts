@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runDueMonitors } from "@/lib/monitor";
+import { runDueHttpScans } from "@/lib/scanner-http";
 
 export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
@@ -9,6 +9,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const results = await runDueMonitors(50);
+  const results = await runDueHttpScans(50);
   return NextResponse.json({ ok: true, processed: results.length, results });
 }

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { runMonitorForApp } from "@/lib/monitor";
+import { runHttpScanForApp } from "@/lib/scanner-http";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   try {
-    const result = await runMonitorForApp(id);
+    const result = await runHttpScanForApp(id);
     return NextResponse.json({ result });
   } catch (error) {
     return NextResponse.json(
