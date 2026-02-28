@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { runDueHttpScans } from "@/lib/scanner-http";
 import { logApiError } from "@/lib/observability";
+import { db } from "@/lib/db";
 
 export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
@@ -12,6 +13,32 @@ export async function GET(req: Request) {
 
   try {
     const results = await runDueHttpScans(50);
+
+    const byOrg = new Map<string, { processed: number; critical: number; warning: number }>();
+    for (const r of results) {
+      if (!byOrg.has(r.orgId)) byOrg.set(r.orgId, { processed: 0, critical: 0, warning: 0 });
+      const bucket = byOrg.get(r.orgId)!;
+      bucket.processed += 1;
+      if (r.status === "CRITICAL") bucket.critical += 1;
+      if (r.status === "WARNING") bucket.warning += 1;
+    }
+
+    if (byOrg.size > 0) {
+      await db.auditLog.createMany({
+        data: Array.from(byOrg.entries()).map(([orgId, agg]) => ({
+          orgId,
+          action: "CRON_HEARTBEAT",
+          resource: "scan_scheduler",
+          details: JSON.stringify({
+            processed: agg.processed,
+            critical: agg.critical,
+            warning: agg.warning,
+            timestamp: new Date().toISOString(),
+          }),
+        })),
+      });
+    }
+
     return NextResponse.json({ ok: true, processed: results.length, results });
   } catch (error) {
     logApiError(error, {

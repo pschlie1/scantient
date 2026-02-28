@@ -213,7 +213,7 @@ export async function runDueHttpScans(limit = 20) {
     orderBy: [{ nextCheckAt: "asc" }],
   });
 
-  const results: Array<{ appId: string; status: string; findingsCount?: number; error?: string }> =
+  const results: Array<{ orgId: string; appId: string; status: string; findingsCount?: number; error?: string }> =
     [];
 
   const CONCURRENCY = 5;
@@ -234,6 +234,7 @@ export async function runDueHttpScans(limit = 20) {
       const settled = batchResults[j];
       if (settled.status === "fulfilled") {
         results.push({
+          orgId: batch[j].orgId,
           appId: batch[j].id,
           status: settled.value.status,
           findingsCount: settled.value.findingsCount,
@@ -241,6 +242,7 @@ export async function runDueHttpScans(limit = 20) {
       } else {
         const err = settled.reason;
         results.push({
+          orgId: batch[j].orgId,
           appId: batch[j].id,
           status: "CRITICAL",
           error: err instanceof Error ? err.message : "Unknown error",
