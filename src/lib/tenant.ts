@@ -12,8 +12,9 @@ export async function getOrgLimits(orgId: string) {
   const defaults: Record<string, { maxApps: number; maxUsers: number }> = {
     FREE: { maxApps: 2, maxUsers: 1 },
     STARTER: { maxApps: 5, maxUsers: 2 },
-    PRO: { maxApps: 15, maxUsers: 5 },
-    ENTERPRISE: { maxApps: 50, maxUsers: 999 },
+    PRO: { maxApps: 15, maxUsers: 10 },
+    ENTERPRISE: { maxApps: 100, maxUsers: 50 },
+    ENTERPRISE_PLUS: { maxApps: 999, maxUsers: 999 },
     EXPIRED: { maxApps: 0, maxUsers: 0 },
   };
 

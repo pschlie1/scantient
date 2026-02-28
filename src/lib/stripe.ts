@@ -25,15 +25,22 @@ export const PLANS = {
     name: "Pro",
     priceId: process.env.STRIPE_PRO_PRICE_ID ?? "",
     maxApps: 15,
-    maxUsers: 5,
+    maxUsers: 10,
     price: 399,
   },
   ENTERPRISE: {
     name: "Enterprise",
     priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID ?? "",
-    maxApps: 50,
+    maxApps: 100,
+    maxUsers: 50,
+    price: 1500,
+  },
+  ENTERPRISE_PLUS: {
+    name: "Enterprise Plus",
+    priceId: process.env.STRIPE_ENTERPRISE_PLUS_PRICE_ID ?? "",
+    maxApps: 999,
     maxUsers: 999,
-    price: 799,
+    price: 2500,
   },
 } as const;
 
