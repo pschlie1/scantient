@@ -21,8 +21,18 @@ const tiers = [
     name: "Starter",
     price: "$199",
     period: "/month",
-    desc: "For teams getting started with AI app governance",
-    features: ["5 monitored apps", "2 team members", "8-hour scan intervals", "Email alerts", "Weekly governance report"],
+    desc: "For IT teams with a small portfolio of AI-built apps",
+    features: [
+      "5 monitored apps",
+      "2 team members",
+      "8-hour scan intervals",
+      "27 security checks per scan",
+      "Exposed API key detection",
+      "Security header analysis",
+      "SSL certificate expiry alerts",
+      "Email alerts",
+      "Weekly governance report",
+    ],
     cta: "Start free trial",
     highlighted: false,
   },
@@ -30,8 +40,21 @@ const tiers = [
     name: "Pro",
     price: "$399",
     period: "/month",
-    desc: "For IT teams managing a growing AI app portfolio",
-    features: ["15 monitored apps", "5 team members", "4-hour scan intervals", "Email + Slack alerts", "PDF compliance reports", "API access", "Audit log"],
+    desc: "For IT teams managing a growing AI-built app portfolio",
+    features: [
+      "15 monitored apps",
+      "5 team members",
+      "4-hour scan intervals",
+      "All 27 security checks",
+      "Endpoint fuzzing (15 attack paths)",
+      "Third-party script risk scoring",
+      "Performance regression alerts",
+      "Content change detection",
+      "Email + Slack alerts",
+      "PDF compliance reports",
+      "API access",
+      "Full audit log",
+    ],
     cta: "Start free trial",
     highlighted: true,
   },
@@ -39,8 +62,21 @@ const tiers = [
     name: "Enterprise",
     price: "$799",
     period: "/month",
-    desc: "For organizations with compliance requirements",
-    features: ["50 monitored apps", "Unlimited team members", "1-hour scan intervals", "All alert channels", "PDF compliance reports", "SSO/SAML", "Custom checks", "Dedicated support"],
+    desc: "For organizations with compliance and governance requirements",
+    features: [
+      "50 monitored apps",
+      "Unlimited team members",
+      "1-hour scan intervals",
+      "All 27 security checks",
+      "SOC 2, ISO 27001, NIST CSF reports",
+      "Custom compliance report templates",
+      "SSO/SAML",
+      "All alert channels",
+      "Dependency CVE tracking",
+      "API access",
+      "Dedicated support",
+      "Custom checks on request",
+    ],
     cta: "Contact sales",
     highlighted: false,
   },
@@ -102,6 +138,14 @@ const faqs = [
   {
     q: "What compliance frameworks does VibeSafe support?",
     a: "Our reports map to SOC 2, ISO 27001, and NIST CSF controls. Enterprise plans include customizable compliance report templates for auditor-ready documentation.",
+  },
+  {
+    q: "Does VibeSafe test for exposed admin and debug endpoints?",
+    a: "Yes. Every scan probes 15 common dangerous paths: .env files, .git/HEAD, /api/admin, /api/debug, phpinfo.php, Spring Boot actuators, and more. These are the first paths attackers check. VibeSafe checks them first.",
+  },
+  {
+    q: "Does VibeSafe monitor SSL certificate expiry?",
+    a: "Yes. VibeSafe checks your SSL certificate on every scan and alerts you at 30, 14, and 7 days before expiry. A lapsed certificate takes your site offline for every user.",
   },
   {
     q: "Can I try VibeSafe before committing?",
@@ -219,10 +263,10 @@ export default function LandingPage() {
       <section className="border-b border-alabaster-grey-200 bg-white py-16">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-12 px-6 text-center">
           {[
-            { value: "21+", label: "security checks per scan" },
-            { value: "170+", label: "Loveable apps breached in one CVE" },
-            { value: "$50K–$500K", label: "cost per undetected breach" },
-            { value: "Zero setup", label: "no SDK, no code changes" },
+            { value: "27+", label: "security checks per scan" },
+            { value: "15", label: "attack paths probed per app" },
+            { value: "$50K–$500K", label: "average cost of one undetected breach" },
+            { value: "2 min", label: "from signup to first scan" },
           ].map((stat, i) => (
             <div key={stat.value} className="flex items-center gap-12">
               <div>
@@ -239,7 +283,7 @@ export default function LandingPage() {
       <section id="features" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">What we catch</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          21 check categories. Every scan. No developer required.
+          27 check categories. Every scan. No developer required.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {checks.map((check) => (
@@ -267,7 +311,7 @@ export default function LandingPage() {
             <div className="space-y-16">
               {[
                 { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-                { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 21+ security and health checks from the outside. No access required." },
+                { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 27+ security and health checks from the outside. No access required." },
                 { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
                 { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
               ].map((item, idx) => {
@@ -312,7 +356,7 @@ export default function LandingPage() {
           <div className="md:hidden space-y-12">
             {[
               { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-              { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 21+ security and health checks from the outside. No access required." },
+              { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 27+ security and health checks from the outside. No access required." },
               { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
               { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
             ].map((item) => (
