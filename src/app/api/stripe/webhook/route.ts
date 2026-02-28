@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getStripe, PLANS } from "@/lib/stripe";
 import type { PlanKey } from "@/lib/stripe";
+import type { SubscriptionTier } from "@prisma/client";
+
+/**
+ * Map a Stripe PlanKey to a DB SubscriptionTier.
+ * ENTERPRISE_PLUS maps to ENTERPRISE because the DB enum does not include it.
+ */
+function toDbTier(planKey: PlanKey): SubscriptionTier {
+  if (planKey === "ENTERPRISE_PLUS") return "ENTERPRISE";
+  return planKey as SubscriptionTier;
+}
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -34,7 +44,7 @@ export async function POST(req: Request) {
       await db.subscription.upsert({
         where: { orgId },
         update: {
-          tier: planKey,
+          tier: toDbTier(planKey),
           status: "ACTIVE",
           stripeSubscriptionId: subscriptionId,
           stripePriceId: plan.priceId,
@@ -44,7 +54,7 @@ export async function POST(req: Request) {
         },
         create: {
           orgId,
-          tier: planKey,
+          tier: toDbTier(planKey),
           status: "ACTIVE",
           stripeSubscriptionId: subscriptionId,
           stripePriceId: plan.priceId,
