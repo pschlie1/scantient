@@ -9,6 +9,7 @@ import {
   scanJavaScriptForKeys,
 } from "@/lib/security";
 import { sendCriticalFindingsAlert } from "@/lib/alerts";
+import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
 import type { SecurityFinding } from "@/lib/types";
 
 function calcStatus(findings: SecurityFinding[]) {

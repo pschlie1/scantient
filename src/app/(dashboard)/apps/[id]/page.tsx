@@ -10,6 +10,7 @@ import { DeleteAppButton } from "@/components/delete-app-button";
 import { StatusBadge, SeverityBadge } from "@/components/status-badge";
 import { FindingActions } from "@/components/finding-actions";
 import { FindingAssignment } from "@/components/finding-assignment";
+import { FindingTimeline } from "@/components/finding-timeline";
 import { TrendCharts } from "@/components/trend-chart-dynamic";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -123,6 +124,7 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
                           {f.fixPrompt}
                         </pre>
                       </details>
+                      <FindingTimeline findingId={f.id} />
                     </div>
                   ))}
                 </div>
