@@ -1,5 +1,6 @@
 import { addHours } from "date-fns";
 import { db } from "@/lib/db";
+import { getOrgLimits } from "@/lib/tenant";
 import {
   checkClientSideAuthBypass,
   checkInlineScripts,
@@ -107,12 +108,23 @@ export async function runHttpScanForApp(appId: string) {
 
     await sendCriticalFindingsAlert(app.id, findings);
 
+    // Determine scan interval based on org tier
+    const orgLimits = await getOrgLimits(app.orgId);
+    const scanIntervalHours: Record<string, number> = {
+      ENTERPRISE: 1,
+      PRO: 4,
+      STARTER: 8,
+      FREE: 24,
+      EXPIRED: 24,
+    };
+    const intervalHours = scanIntervalHours[orgLimits.tier] ?? 24;
+
     await db.monitoredApp.update({
       where: { id: app.id },
       data: {
         status,
         lastCheckedAt: new Date(),
-        nextCheckAt: addHours(new Date(), 4),
+        nextCheckAt: addHours(new Date(), intervalHours),
       },
     });
 
@@ -144,6 +156,8 @@ export async function runHttpScanForApp(appId: string) {
 }
 
 export async function runDueHttpScans(limit = 20) {
+  const deadline = Date.now() + 55_000; // 55s total timeout (5s buffer for Vercel 60s limit)
+
   const dueApps = await db.monitoredApp.findMany({
     where: {
       OR: [{ nextCheckAt: null }, { nextCheckAt: { lte: new Date() } }],
@@ -155,16 +169,36 @@ export async function runDueHttpScans(limit = 20) {
   const results: Array<{ appId: string; status: string; findingsCount?: number; error?: string }> =
     [];
 
-  for (const app of dueApps) {
-    try {
-      const result = await runHttpScanForApp(app.id);
-      results.push({ appId: app.id, status: result.status, findingsCount: result.findingsCount });
-    } catch (error) {
-      results.push({
-        appId: app.id,
-        status: "CRITICAL",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+  const CONCURRENCY = 5;
+
+  for (let i = 0; i < dueApps.length; i += CONCURRENCY) {
+    if (Date.now() >= deadline) {
+      const skipped = dueApps.slice(i).map((a) => a.id);
+      console.log(`[cron] Timeout reached. Skipping ${skipped.length} apps: ${skipped.join(", ")}`);
+      break;
+    }
+
+    const batch = dueApps.slice(i, i + CONCURRENCY);
+    const batchResults = await Promise.allSettled(
+      batch.map((app) => runHttpScanForApp(app.id)),
+    );
+
+    for (let j = 0; j < batch.length; j++) {
+      const settled = batchResults[j];
+      if (settled.status === "fulfilled") {
+        results.push({
+          appId: batch[j].id,
+          status: settled.value.status,
+          findingsCount: settled.value.findingsCount,
+        });
+      } else {
+        const err = settled.reason;
+        results.push({
+          appId: batch[j].id,
+          status: "CRITICAL",
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
     }
   }
 

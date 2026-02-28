@@ -4,9 +4,14 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/generated/prisma/enums";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "vibesafe-dev-secret-change-in-production";
+const JWT_SECRET: string = (() => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET environment variable is required");
+  return secret;
+})();
 const SESSION_COOKIE = "vibesafe-session";
-const SESSION_DURATION = 7 * 24 * 60 * 60; // 7 days in seconds
+const SESSION_DURATION = 24 * 60 * 60; // 24 hours in seconds
+const REFRESH_THRESHOLD = 12 * 60 * 60; // 12 hours in seconds
 
 export type SessionUser = {
   id: string;
@@ -32,7 +37,7 @@ function signToken(payload: SessionUser): string {
 
 function verifyToken(token: string): SessionUser | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as SessionUser;
+    return jwt.verify(token, JWT_SECRET) as unknown as SessionUser;
   } catch {
     return null;
   }
@@ -61,7 +66,7 @@ export async function createSession(userId: string): Promise<SessionUser> {
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     maxAge: SESSION_DURATION,
     path: "/",
   });
@@ -78,7 +83,42 @@ export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  return verifyToken(token);
+  const session = verifyToken(token);
+  if (!session) return null;
+
+  // Refresh if token is older than 12 hours
+  const decoded = jwt.decode(token) as { iat?: number } | null;
+  if (decoded?.iat) {
+    const age = Math.floor(Date.now() / 1000) - decoded.iat;
+    if (age > REFRESH_THRESHOLD) {
+      // Re-fetch user from DB and issue new token
+      const user = await db.user.findUnique({
+        where: { id: session.id },
+        include: { org: true },
+      });
+      if (!user) return null;
+      const refreshed: SessionUser = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role as UserRole,
+        orgId: user.orgId,
+        orgName: user.org.name,
+        orgSlug: user.org.slug,
+      };
+      const newToken = signToken(refreshed);
+      cookieStore.set(SESSION_COOKIE, newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: SESSION_DURATION,
+        path: "/",
+      });
+      return refreshed;
+    }
+  }
+
+  return session;
 }
 
 export async function requireSession(): Promise<SessionUser> {

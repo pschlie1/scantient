@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -11,6 +12,15 @@ const signupSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  const limit = checkRateLimit(`signup:${ip}`, { maxAttempts: 3, windowMs: 60 * 60 * 1000 });
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "Too many signup attempts. Please try again later." }, {
+      status: 429,
+      headers: { "Retry-After": String(limit.retryAfterSeconds) },
+    });
+  }
+
   const body = await req.json();
   const parsed = signupSchema.safeParse(body);
 

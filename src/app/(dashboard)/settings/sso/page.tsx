@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SSOPage() {
-  // Placeholder: in production, fetch from org context
-  const isEnterprise = false;
+  const [tier, setTier] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/org/limits")
+      .then((res) => res.json())
+      .then((data) => setTier(data.tier ?? "FREE"))
+      .catch(() => setTier("FREE"));
+  }, []);
 
   const [idpUrl, setIdpUrl] = useState("");
   const [certificate, setCertificate] = useState("");
@@ -13,10 +19,15 @@ export default function SSOPage() {
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    // Placeholder — would POST to /api/settings/sso
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
+
+  if (tier === null) {
+    return <div className="p-8 text-center text-gray-500">Loading…</div>;
+  }
+
+  const isEnterprise = tier === "ENTERPRISE";
 
   return (
     <div>
@@ -46,47 +57,17 @@ export default function SSOPage() {
           </a>
         </div>
       ) : (
-        <form onSubmit={handleSave} className="space-y-6 max-w-xl">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Identity Provider URL</label>
-            <input
-              type="url"
-              value={idpUrl}
-              onChange={(e) => setIdpUrl(e.target.value)}
-              placeholder="https://your-idp.example.com/sso/saml"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+            <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Entity ID</label>
-            <input
-              type="text"
-              value={entityId}
-              onChange={(e) => setEntityId(e.target.value)}
-              placeholder="urn:vibesafe:saml"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">X.509 Certificate</label>
-            <textarea
-              rows={5}
-              value={certificate}
-              onChange={(e) => setCertificate(e.target.value)}
-              placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              className="rounded-lg bg-black px-6 py-2 text-sm font-medium text-white hover:bg-gray-800 transition"
-            >
-              Save Configuration
-            </button>
-            {saved && <span className="text-sm text-green-600">✓ Saved</span>}
-          </div>
-        </form>
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">Coming Soon</h3>
+          <p className="text-sm text-gray-600">
+            SSO/SAML integration is under development. We&apos;ll notify you when it&apos;s ready.
+          </p>
+        </div>
       )}
     </div>
   );

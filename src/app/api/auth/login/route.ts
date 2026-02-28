@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -9,6 +10,15 @@ const loginSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  const limit = checkRateLimit(`login:${ip}`, { maxAttempts: 5, windowMs: 15 * 60 * 1000 });
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "Too many login attempts. Please try again later." }, {
+      status: 429,
+      headers: { "Retry-After": String(limit.retryAfterSeconds) },
+    });
+  }
+
   const body = await req.json();
   const parsed = loginSchema.safeParse(body);
 

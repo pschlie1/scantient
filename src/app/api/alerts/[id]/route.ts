@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+
+const updateAlertSchema = z.object({
+  enabled: z.boolean().optional(),
+});
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -8,6 +13,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params;
   const body = await req.json();
+  const parsed = updateAlertSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
 
   const config = await db.alertConfig.findFirst({
     where: { id, orgId: session.orgId },
@@ -16,7 +25,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const updated = await db.alertConfig.update({
     where: { id },
-    data: { enabled: body.enabled ?? config.enabled },
+    data: { enabled: parsed.data.enabled ?? config.enabled },
   });
 
   return NextResponse.json({ config: updated });

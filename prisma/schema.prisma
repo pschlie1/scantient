@@ -159,6 +159,7 @@ model MonitoredApp {
 
   @@unique([orgId, url])
   @@index([orgId, status])
+  @@index([nextCheckAt])
 }
 
 // ─── Core: Monitor Runs ─────────────────────────────

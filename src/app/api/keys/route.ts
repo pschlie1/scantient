@@ -3,7 +3,7 @@ import { z } from "zod";
 import crypto from "node:crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { logAudit } from "@/lib/tenant";
+import { logAudit, getOrgLimits } from "@/lib/tenant";
 
 function generateApiKey(): { plain: string; hash: string; prefix: string } {
   const raw = crypto.randomBytes(32).toString("base64url");
@@ -34,6 +34,14 @@ export async function POST(req: Request) {
 
   if (!["OWNER", "ADMIN"].includes(session.role)) {
     return NextResponse.json({ error: "Only admins can create API keys" }, { status: 403 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE"].includes(limits.tier)) {
+    return NextResponse.json(
+      { error: "API key access is available on Pro and Enterprise plans. Please upgrade to continue." },
+      { status: 403 },
+    );
   }
 
   const body = await req.json();

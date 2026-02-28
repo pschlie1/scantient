@@ -1,18 +1,58 @@
 import { subDays } from "date-fns";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
+
+function buildReport(apps: Array<{ name: string; ownerEmail: string | null; status: string; lastCheckedAt: Date | null; monitorRuns: Array<{ findings: Array<{ severity: string }> }> }>) {
+  return apps.map((app) => {
+    const findings = app.monitorRuns.flatMap((r) => r.findings);
+    const critical = findings.filter((f) => ["CRITICAL", "HIGH"].includes(f.severity)).length;
+    return {
+      app: app.name,
+      owner: app.ownerEmail,
+      status: app.status,
+      runs: app.monitorRuns.length,
+      criticalFindings: critical,
+      lastCheckedAt: app.lastCheckedAt,
+    };
+  });
+}
 
 export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  const since = subDays(new Date(), 7);
 
-  if (!process.env.CRON_SECRET || auth !== expected) {
+  // Cron path: iterate per-org
+  const auth = req.headers.get("authorization");
+  const isCron = process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
+
+  if (isCron) {
+    const orgs = await db.organization.findMany({ select: { id: true, name: true } });
+    const reports = [];
+
+    for (const org of orgs) {
+      const apps = await db.monitoredApp.findMany({
+        where: { orgId: org.id },
+        include: {
+          monitorRuns: {
+            where: { startedAt: { gte: since } },
+            include: { findings: true },
+          },
+        },
+      });
+      reports.push({ orgId: org.id, orgName: org.name, report: buildReport(apps) });
+    }
+
+    return NextResponse.json({ generatedAt: new Date(), reports });
+  }
+
+  // Authenticated user path: scope by session orgId
+  const session = await getSession();
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const since = subDays(new Date(), 7);
-
   const apps = await db.monitoredApp.findMany({
+    where: { orgId: session.orgId },
     include: {
       monitorRuns: {
         where: { startedAt: { gte: since } },
@@ -21,20 +61,5 @@ export async function GET(req: Request) {
     },
   });
 
-  const report = apps.map((app) => {
-    const totalRuns = app.monitorRuns.length;
-    const findings = app.monitorRuns.flatMap((r) => r.findings);
-    const critical = findings.filter((f) => ["CRITICAL", "HIGH"].includes(f.severity)).length;
-
-    return {
-      app: app.name,
-      owner: app.ownerEmail,
-      status: app.status,
-      runs: totalRuns,
-      criticalFindings: critical,
-      lastCheckedAt: app.lastCheckedAt,
-    };
-  });
-
-  return NextResponse.json({ generatedAt: new Date(), report });
+  return NextResponse.json({ generatedAt: new Date(), report: buildReport(apps) });
 }

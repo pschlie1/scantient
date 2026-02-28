@@ -9,18 +9,30 @@ import type { SessionUser } from "@/lib/auth";
 export async function getOrgLimits(orgId: string) {
   const sub = await db.subscription.findUnique({ where: { orgId } });
 
-  const defaults = {
+  const defaults: Record<string, { maxApps: number; maxUsers: number }> = {
     FREE: { maxApps: 2, maxUsers: 1 },
     STARTER: { maxApps: 5, maxUsers: 2 },
     PRO: { maxApps: 15, maxUsers: 5 },
     ENTERPRISE: { maxApps: 50, maxUsers: 999 },
+    EXPIRED: { maxApps: 0, maxUsers: 0 },
   };
 
-  const tier = sub?.tier ?? "FREE";
+  let tier: string = sub?.tier ?? "FREE";
+  const status = sub?.status ?? "TRIALING";
+
+  // Check trial expiry: if trial has ended and no active subscription, mark as EXPIRED
+  if (
+    sub?.trialEndsAt &&
+    new Date(sub.trialEndsAt) < new Date() &&
+    status !== "ACTIVE"
+  ) {
+    tier = "EXPIRED";
+  }
+
   return {
     tier,
-    status: sub?.status ?? "TRIALING",
-    ...defaults[tier],
+    status,
+    ...defaults[tier] ?? defaults.FREE,
     trialEndsAt: sub?.trialEndsAt,
     cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
   };

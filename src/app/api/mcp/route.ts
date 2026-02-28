@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authenticateApiKey } from "@/lib/api-auth";
 
 // MCP JSON-RPC compatible endpoint
 // Spec: https://modelcontextprotocol.io
@@ -45,6 +46,12 @@ function executeTool(name: string, args: Record<string, unknown>) {
 }
 
 export async function POST(req: Request) {
+  // Require API key authentication
+  const orgId = await authenticateApiKey(req);
+  if (!orgId) {
+    return NextResponse.json({ error: "Unauthorized: valid API key required via Authorization header" }, { status: 401 });
+  }
+
   let body: JsonRpcRequest;
   try {
     body = await req.json();

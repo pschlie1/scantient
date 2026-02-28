@@ -10,7 +10,7 @@ import { DeleteAppButton } from "@/components/delete-app-button";
 import { StatusBadge, SeverityBadge } from "@/components/status-badge";
 import { FindingActions } from "@/components/finding-actions";
 import { FindingAssignment } from "@/components/finding-assignment";
-import { TrendCharts } from "@/components/trend-chart";
+import { TrendCharts } from "@/components/trend-chart-dynamic";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
