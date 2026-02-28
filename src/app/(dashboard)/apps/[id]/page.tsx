@@ -9,6 +9,7 @@ import { ScanButton } from "@/components/scan-button";
 import { DeleteAppButton } from "@/components/delete-app-button";
 import { StatusBadge, SeverityBadge } from "@/components/status-badge";
 import { FindingActions } from "@/components/finding-actions";
+import { FindingAssignment } from "@/components/finding-assignment";
 import { TrendCharts } from "@/components/trend-chart";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,13 +22,29 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
     include: {
       monitorRuns: {
         orderBy: { startedAt: "desc" },
-        include: { findings: { orderBy: { severity: "asc" } } },
+        include: {
+          findings: {
+            orderBy: { severity: "asc" },
+            include: {
+              assignments: {
+                include: { user: { select: { id: true, name: true, email: true } } },
+                take: 1,
+              },
+            },
+          },
+        },
         take: 20,
       },
     },
   });
 
   if (!app) notFound();
+
+  const teamMembers = await db.user.findMany({
+    where: { orgId: session.orgId },
+    select: { id: true, name: true, email: true },
+    orderBy: { createdAt: "asc" },
+  });
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -90,6 +107,11 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
                       <div className="mb-1 flex items-center gap-2">
                         <SeverityBadge severity={f.severity} />
                         <span className="flex-1 text-sm font-medium">{f.title}</span>
+                        <FindingAssignment
+                          findingId={f.id}
+                          currentAssigneeId={f.assignments[0]?.userId ?? null}
+                          teamMembers={teamMembers}
+                        />
                         <FindingActions findingId={f.id} currentStatus={f.status} />
                       </div>
                       <p className="mb-2 text-sm text-gray-600">{f.description}</p>

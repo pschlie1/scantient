@@ -14,6 +14,7 @@ export default function AlertsPage() {
   const [configs, setConfigs] = useState<AlertConfig[]>([]);
   const [form, setForm] = useState({ channel: "EMAIL", destination: "", minSeverity: "HIGH" });
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/alerts").then((r) => r.json()).then((d) => setConfigs(d.configs ?? []));
@@ -23,10 +24,12 @@ export default function AlertsPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      // Teams is stored as WEBHOOK (detected by URL pattern in alerts.ts)
+      const payload = { ...form, channel: form.channel === "TEAMS" ? "WEBHOOK" : form.channel };
       const res = await fetch("/api/alerts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const d = await res.json();
@@ -45,6 +48,27 @@ export default function AlertsPage() {
       body: JSON.stringify({ enabled: !enabled }),
     });
     setConfigs((prev) => prev.map((c) => (c.id === id ? { ...c, enabled: !enabled } : c)));
+  }
+
+  async function handleTest(id: string) {
+    setTesting(id);
+    try {
+      const res = await fetch("/api/alerts/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ configId: id }),
+      });
+      if (res.ok) {
+        alert("Test notification sent!");
+      } else {
+        const d = await res.json();
+        alert(`Failed: ${d.error ?? "Unknown error"}`);
+      }
+    } catch {
+      alert("Failed to send test notification");
+    } finally {
+      setTesting(null);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -84,7 +108,14 @@ export default function AlertsPage() {
                       {c.enabled ? "Active" : "Paused"}
                     </button>
                   </td>
-                  <td className="py-2">
+                  <td className="py-2 space-x-2">
+                    <button
+                      onClick={() => handleTest(c.id)}
+                      disabled={testing === c.id}
+                      className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+                    >
+                      {testing === c.id ? "Sending…" : "Test"}
+                    </button>
                     <button onClick={() => handleDelete(c.id)} className="text-xs text-red-500 hover:underline">
                       Remove
                     </button>
@@ -106,11 +137,12 @@ export default function AlertsPage() {
           >
             <option value="EMAIL">Email</option>
             <option value="SLACK">Slack webhook</option>
+            <option value="TEAMS">Microsoft Teams</option>
             <option value="WEBHOOK">Custom webhook</option>
           </select>
           <input
             required
-            placeholder={form.channel === "EMAIL" ? "alerts@company.com" : "https://hooks.slack.com/..."}
+            placeholder={form.channel === "EMAIL" ? "alerts@company.com" : form.channel === "TEAMS" ? "https://outlook.webhook.office.com/..." : "https://hooks.slack.com/..."}
             className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
             value={form.destination}
             onChange={(e) => setForm({ ...form, destination: e.target.value })}

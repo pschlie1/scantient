@@ -10,6 +10,7 @@ import { ScanButton } from "@/components/scan-button";
 import { StatusBadge } from "@/components/status-badge";
 import { SummaryCards } from "@/components/summary-cards";
 import { getOrgLimits } from "@/lib/tenant";
+import { OnboardingWrapper } from "@/components/onboarding-wrapper";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -38,6 +39,8 @@ export default async function DashboardPage() {
   );
 
   return (
+    <>
+      <OnboardingWrapper hasApps={apps.length > 0} />
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-end justify-between">
         <div>
@@ -141,5 +144,6 @@ export default async function DashboardPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

@@ -1,12 +1,13 @@
 import { chromium } from "playwright";
 import { addHours } from "date-fns";
 import { db } from "@/lib/db";
-import { sendCriticalFindingsAlert } from "@/lib/alerts";
+import { sendCriticalFindingsAlert, sendChangeDetectedAlert } from "@/lib/alerts";
 import {
   checkClientSideAuthBypass,
   checkSecurityHeaders,
   scanJavaScriptForKeys,
 } from "@/lib/security";
+import { computeContentHash, detectChange, embedHashInSummary } from "@/lib/change-detector";
 import type { SecurityFinding } from "@/lib/types";
 
 function calcStatus(findings: SecurityFinding[]) {
@@ -64,14 +65,26 @@ export async function runMonitorForApp(appId: string) {
     const responseTimeMs = Date.now() - start;
     const status = calcStatus(findings);
 
+    // Change detection: hash HTML + security headers
+    const responseHeaders: Record<string, string> = {};
+    if (response) {
+      for (const [k, v] of Object.entries(response.headers())) {
+        responseHeaders[k.toLowerCase()] = v;
+      }
+    }
+    const contentHash = computeContentHash(html, responseHeaders);
+    const { changed } = await detectChange(app.id, contentHash);
+
+    const baseSummary = findings.length
+      ? `${findings.length} issue(s) detected`
+      : "No critical issues detected";
+
     await db.monitorRun.update({
       where: { id: run.id },
       data: {
         status,
         responseTimeMs,
-        summary: findings.length
-          ? `${findings.length} issue(s) detected`
-          : "No critical issues detected",
+        summary: embedHashInSummary(contentHash, changed ? `⚡ Content changed. ${baseSummary}` : baseSummary),
         completedAt: new Date(),
         findings: {
           create: findings,
@@ -79,6 +92,10 @@ export async function runMonitorForApp(appId: string) {
       },
     });
 
+    // Send alerts
+    if (changed) {
+      await sendChangeDetectedAlert(app.id, app.name, app.url);
+    }
     await sendCriticalFindingsAlert(app.id, findings);
 
     await db.monitoredApp.update({

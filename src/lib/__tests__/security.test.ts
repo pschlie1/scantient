@@ -5,6 +5,13 @@ import {
   checkMetaAndConfig,
   checkSecurityHeaders,
   scanJavaScriptForKeys,
+  checkOpenRedirects,
+  checkCookieSecurity,
+  checkCORSMisconfiguration,
+  checkInformationDisclosure,
+  checkSSLIssues,
+  checkDependencyExposure,
+  checkAPISecurity,
 } from "@/lib/security";
 
 describe("checkSecurityHeaders", () => {
@@ -121,5 +128,250 @@ describe("checkMetaAndConfig", () => {
     const headers = new Headers({ server: "Apache/2.4", "x-powered-by": "Express" });
     const findings = checkMetaAndConfig("<html></html>", headers);
     expect(findings.some((f) => f.code === "SERVER_INFO_DISCLOSURE")).toBe(true);
+  });
+});
+
+// ────────────────────────────────────────────
+// 6. Open Redirect Detection
+// ────────────────────────────────────────────
+
+describe("checkOpenRedirects", () => {
+  it("detects redirect parameter with external URL", () => {
+    const html = `<a href="/login?redirect=https://evil.com/phish">Login</a>`;
+    const findings = checkOpenRedirects(html);
+    expect(findings.some((f) => f.code === "OPEN_REDIRECT")).toBe(true);
+  });
+
+  it("detects URL-encoded redirect parameter", () => {
+    const html = `<a href="/auth?url=https%3A%2F%2Fevil.com">Go</a>`;
+    const findings = checkOpenRedirects(html);
+    expect(findings.some((f) => f.code === "OPEN_REDIRECT")).toBe(true);
+  });
+
+  it("detects JS-based open redirect", () => {
+    const html = `<script>window.location = searchParams</script>`;
+    const findings = checkOpenRedirects(html);
+    expect(findings.some((f) => f.code === "OPEN_REDIRECT_JS")).toBe(true);
+  });
+
+  it("returns empty for safe HTML", () => {
+    const html = `<a href="/dashboard">Go</a>`;
+    const findings = checkOpenRedirects(html);
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 7. Cookie Security
+// ────────────────────────────────────────────
+
+describe("checkCookieSecurity", () => {
+  it("detects missing Secure, HttpOnly, SameSite flags", () => {
+    const headers = new Headers();
+    headers.set("set-cookie", "session=abc123; Path=/");
+    const findings = checkCookieSecurity(headers);
+    expect(findings.some((f) => f.code === "COOKIE_MISSING_SECURE")).toBe(true);
+    expect(findings.some((f) => f.code === "COOKIE_MISSING_HTTPONLY")).toBe(true);
+    expect(findings.some((f) => f.code === "COOKIE_MISSING_SAMESITE")).toBe(true);
+  });
+
+  it("returns no findings for secure cookie", () => {
+    const headers = new Headers();
+    headers.set("set-cookie", "session=abc123; Path=/; Secure; HttpOnly; SameSite=Strict");
+    const findings = checkCookieSecurity(headers);
+    expect(findings.length).toBe(0);
+  });
+
+  it("returns empty when no set-cookie header", () => {
+    const findings = checkCookieSecurity(new Headers());
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 8. CORS Misconfiguration
+// ────────────────────────────────────────────
+
+describe("checkCORSMisconfiguration", () => {
+  it("detects wildcard origin with credentials", () => {
+    const headers = new Headers({
+      "access-control-allow-origin": "*",
+      "access-control-allow-credentials": "true",
+    });
+    const findings = checkCORSMisconfiguration(headers);
+    expect(findings.some((f) => f.code === "CORS_WILDCARD_CREDENTIALS")).toBe(true);
+    expect(findings[0].severity).toBe("CRITICAL");
+  });
+
+  it("detects null origin", () => {
+    const headers = new Headers({ "access-control-allow-origin": "null" });
+    const findings = checkCORSMisconfiguration(headers);
+    expect(findings.some((f) => f.code === "CORS_NULL_ORIGIN")).toBe(true);
+  });
+
+  it("detects wildcard methods", () => {
+    const headers = new Headers({ "access-control-allow-methods": "*" });
+    const findings = checkCORSMisconfiguration(headers);
+    expect(findings.some((f) => f.code === "CORS_WILDCARD_METHODS")).toBe(true);
+  });
+
+  it("detects wildcard headers", () => {
+    const headers = new Headers({ "access-control-allow-headers": "*" });
+    const findings = checkCORSMisconfiguration(headers);
+    expect(findings.some((f) => f.code === "CORS_WILDCARD_HEADERS")).toBe(true);
+  });
+
+  it("returns empty for restrictive CORS", () => {
+    const headers = new Headers({
+      "access-control-allow-origin": "https://myapp.com",
+      "access-control-allow-methods": "GET, POST",
+    });
+    const findings = checkCORSMisconfiguration(headers);
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 9. Information Disclosure
+// ────────────────────────────────────────────
+
+describe("checkInformationDisclosure", () => {
+  it("detects stack traces in response", () => {
+    const html = `<pre>Error: something failed\n    at Module._compile (/app/server.js:42:15)</pre>`;
+    const findings = checkInformationDisclosure(html, new Headers());
+    expect(findings.some((f) => f.code === "STACK_TRACE_EXPOSED")).toBe(true);
+  });
+
+  it("detects Python tracebacks", () => {
+    const html = `<pre>Traceback (most recent call last):\n  File "app.py", line 10</pre>`;
+    const findings = checkInformationDisclosure(html, new Headers());
+    expect(findings.some((f) => f.code === "STACK_TRACE_EXPOSED")).toBe(true);
+  });
+
+  it("detects debug page references", () => {
+    const html = `<a href="/__debug">Debug</a>`;
+    const findings = checkInformationDisclosure(html, new Headers());
+    expect(findings.some((f) => f.code === "DEBUG_PAGE_EXPOSED")).toBe(true);
+  });
+
+  it("detects version headers", () => {
+    const headers = new Headers({ "x-aspnet-version": "4.0.30319" });
+    const findings = checkInformationDisclosure("<html></html>", headers);
+    expect(findings.some((f) => f.code === "VERSION_HEADER_DISCLOSURE")).toBe(true);
+  });
+
+  it("returns empty for clean response", () => {
+    const findings = checkInformationDisclosure("<html><body>Hello</body></html>", new Headers());
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 10. SSL/TLS Issues
+// ────────────────────────────────────────────
+
+describe("checkSSLIssues", () => {
+  it("detects mixed content", () => {
+    const html = `<img src="http://cdn.example.com/image.png">`;
+    const findings = checkSSLIssues(html, new Headers());
+    expect(findings.some((f) => f.code === "MIXED_CONTENT")).toBe(true);
+  });
+
+  it("ignores localhost mixed content", () => {
+    const html = `<img src="http://localhost:3000/image.png">`;
+    const findings = checkSSLIssues(html, new Headers());
+    expect(findings.some((f) => f.code === "MIXED_CONTENT")).toBe(false);
+  });
+
+  it("detects HSTS without includeSubDomains", () => {
+    const headers = new Headers({ "strict-transport-security": "max-age=31536000" });
+    const findings = checkSSLIssues("<html></html>", headers);
+    expect(findings.some((f) => f.code === "HSTS_NO_SUBDOMAINS")).toBe(true);
+  });
+
+  it("detects HSTS without preload", () => {
+    const headers = new Headers({ "strict-transport-security": "max-age=31536000; includeSubDomains" });
+    const findings = checkSSLIssues("<html></html>", headers);
+    expect(findings.some((f) => f.code === "HSTS_NO_PRELOAD")).toBe(true);
+  });
+
+  it("detects non-HTTPS URL", () => {
+    const findings = checkSSLIssues("<html></html>", new Headers(), "http://example.com");
+    expect(findings.some((f) => f.code === "NO_HTTPS")).toBe(true);
+  });
+
+  it("does not flag localhost HTTP", () => {
+    const findings = checkSSLIssues("<html></html>", new Headers(), "http://localhost:3000");
+    expect(findings.some((f) => f.code === "NO_HTTPS")).toBe(false);
+  });
+
+  it("returns empty for full HSTS", () => {
+    const headers = new Headers({ "strict-transport-security": "max-age=31536000; includeSubDomains; preload" });
+    const findings = checkSSLIssues("<html></html>", headers);
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 11. Dependency Exposure
+// ────────────────────────────────────────────
+
+describe("checkDependencyExposure", () => {
+  it("detects linked package.json", () => {
+    const html = `<a href="package.json">Download</a>`;
+    const findings = checkDependencyExposure(html);
+    expect(findings.some((f) => f.code === "DEPENDENCY_FILE_EXPOSED")).toBe(true);
+  });
+
+  it("detects .env file exposure as CRITICAL", () => {
+    const html = `<a href=".env">Config</a>`;
+    const findings = checkDependencyExposure(html);
+    expect(findings.some((f) => f.code === "DEPENDENCY_FILE_EXPOSED" && f.severity === "CRITICAL")).toBe(true);
+  });
+
+  it("detects node_modules references", () => {
+    const html = `<script src="node_modules/lodash/lodash.js"></script>`;
+    const findings = checkDependencyExposure(html);
+    expect(findings.some((f) => f.code === "NODE_MODULES_EXPOSED")).toBe(true);
+  });
+
+  it("returns empty for clean HTML", () => {
+    const findings = checkDependencyExposure("<html><body>Hello</body></html>");
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 12. API Security
+// ────────────────────────────────────────────
+
+describe("checkAPISecurity", () => {
+  it("detects missing rate limiting headers", () => {
+    const findings = checkAPISecurity("<html></html>", new Headers());
+    expect(findings.some((f) => f.code === "NO_RATE_LIMITING")).toBe(true);
+  });
+
+  it("no rate limit finding when header present", () => {
+    const headers = new Headers({ "x-ratelimit-limit": "100" });
+    const findings = checkAPISecurity("<html></html>", headers);
+    expect(findings.some((f) => f.code === "NO_RATE_LIMITING")).toBe(false);
+  });
+
+  it("detects GraphQL introspection", () => {
+    const html = `<script>{"data":{"__schema":{"types":[]}}}</script>`;
+    const findings = checkAPISecurity(html, new Headers());
+    expect(findings.some((f) => f.code === "GRAPHQL_INTROSPECTION_EXPOSED")).toBe(true);
+  });
+
+  it("detects exposed Swagger UI", () => {
+    const html = `<div id="swagger-ui"></div>`;
+    const findings = checkAPISecurity(html, new Headers());
+    expect(findings.some((f) => f.code === "API_DOCS_EXPOSED")).toBe(true);
+  });
+
+  it("returns minimal findings for secure setup", () => {
+    const headers = new Headers({ "x-ratelimit-limit": "100" });
+    const findings = checkAPISecurity("<html><body>App</body></html>", headers);
+    expect(findings.length).toBe(0);
   });
 });
