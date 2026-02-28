@@ -12,6 +12,7 @@ import { FindingActions } from "@/components/finding-actions";
 import { FindingAssignment } from "@/components/finding-assignment";
 import { FindingTimeline } from "@/components/finding-timeline";
 import { TrendCharts } from "@/components/trend-chart-dynamic";
+import { JiraTicketButton } from "@/components/jira-ticket-button";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -108,6 +109,7 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
                       <div className="mb-1 flex items-center gap-2">
                         <SeverityBadge severity={f.severity} />
                         <span className="flex-1 text-sm font-medium">{f.title}</span>
+                        <JiraTicketButton findingId={f.id} />
                         <FindingAssignment
                           findingId={f.id}
                           currentAssigneeId={f.assignments[0]?.userId ?? null}

@@ -77,6 +77,8 @@ model Organization {
   alertConfigs      AlertConfig[]
   apiKeys           ApiKey[]
   auditLogs         AuditLog[]
+  integrations      IntegrationConfig[]
+  ssoConfig         SSOConfig?
 }
 
 // ─── Auth: User ─────────────────────────────────────
@@ -275,4 +277,37 @@ model AuditLog {
   createdAt DateTime     @default(now())
 
   @@index([orgId, createdAt])
+}
+
+// ─── Enterprise: Integration Config ─────────────────
+
+model IntegrationConfig {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  type      String       // "jira" | "github_actions" | "slack"
+  config    Json         // provider-specific config blob
+  enabled   Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([orgId, type])
+  @@index([orgId])
+}
+
+// ─── Enterprise: SSO Config ──────────────────────────
+
+model SSOConfig {
+  id           String       @id @default(cuid())
+  orgId        String       @unique
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  provider     String       // "oidc" | "saml"
+  clientId     String?
+  clientSecret String?
+  tenantId     String?      // Azure AD tenant / Okta domain
+  domain       String       // email domain for auto-routing (e.g. "acme.com")
+  discoveryUrl String?      // OIDC discovery endpoint
+  enabled      Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 }

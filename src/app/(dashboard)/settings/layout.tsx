@@ -9,6 +9,7 @@ const tabs = [
   { href: "/settings/alerts", label: "Alerts" },
   { href: "/settings/api-keys", label: "API Keys" },
   { href: "/settings/sso", label: "SSO" },
+  { href: "/settings/integrations/jira", label: "Jira" },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

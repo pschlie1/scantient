@@ -130,7 +130,19 @@ export default function DocsPage() {
         </p>
       </section>
 
-      {/* Rate limits */}
+      {/* CI Integration */}
+      <section className="mt-12">
+        <h2 className="mb-4 text-xl font-semibold">CI / CD Integration</h2>
+        <p className="mb-3 text-sm text-gray-600">
+          Run automated security scans on every push or pull request. VibeSafe&apos;s CI endpoint
+          returns structured JSON and uses HTTP 422 when the scan fails.
+        </p>
+        <a href="/docs/github-actions" className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium hover:bg-gray-50">
+          GitHub Actions Integration Guide →
+        </a>
+      </section>
+
+            {/* Rate limits */}
       <section className="mt-12">
         <h2 className="mb-4 text-xl font-semibold">Rate Limits</h2>
         <div className="rounded-lg border border-gray-200 p-4 text-sm text-gray-600">
