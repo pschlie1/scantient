@@ -49,6 +49,9 @@ Open http://localhost:3000
 | `CRON_SECRET` | Yes | Bearer token for cron endpoints |
 | `RESEND_API_KEY` | No | Resend.com API key for email alerts |
 | `ALERT_FROM_EMAIL` | No | From address for alert emails |
+| `SENTRY_DSN` | No | Sentry DSN for API/server error capture |
+| `SENTRY_ENVIRONMENT` | No | Environment tag (e.g. production, staging) |
+| `HEALTH_CRON_STALE_MINUTES` | No | Threshold for stale cron freshness in `/api/health` |
 
 ## API Endpoints
 
@@ -69,6 +72,17 @@ GitHub Actions workflow in `.github/workflows/ci.yml`:
 - Typecheck (TypeScript strict)
 - Tests (Vitest with coverage)
 - Production build
+
+Local full verification:
+```bash
+npm run ci
+```
+
+## Reliability & Operations Docs
+
+- SLOs and alert thresholds: `docs/slo-and-alerts.md`
+- Incident runbooks: `docs/runbooks/`
+- Backup and restore drill: `docs/backup-restore.md`
 
 ## Production Deployment (Vercel)
 
