@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
+import { trackEvent } from "@/lib/analytics";
 
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -14,7 +15,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   if (!app) return NextResponse.json({ error: "App not found" }, { status: 404 });
 
   try {
-    const result = await runHttpScanForApp(id);
+    await trackEvent({
+      event: "scan_triggered",
+      orgId: session.orgId,
+      userId: session.id,
+      properties: { appId: id, source: "manual" },
+    });
+
+    const result = await runHttpScanForApp(id, { source: "manual", userId: session.id });
     return NextResponse.json({ result });
   } catch (error) {
     return NextResponse.json(

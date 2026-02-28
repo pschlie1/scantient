@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!limit.allowed) {
     return NextResponse.json({ error: "Too many login attempts. Please try again later." }, {
       status: 429,
-      headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      headers: { "Retry-After": String(limit.retryAfterSeconds ?? 60) },
     });
   }
 

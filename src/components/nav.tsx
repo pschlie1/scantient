@@ -8,6 +8,7 @@ import type { SessionUser } from "@/lib/auth";
 const navItems = [
   { href: "/dashboard", label: "Portfolio" },
   { href: "/reports", label: "Reports" },
+  { href: "/ops", label: "Ops" },
   { href: "/settings", label: "Settings" },
 ];
 

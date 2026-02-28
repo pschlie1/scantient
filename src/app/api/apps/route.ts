@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { canAddApp, logAudit } from "@/lib/tenant";
 import { createAppSchema } from "@/lib/types";
 import { logApiError } from "@/lib/observability";
+import { trackEvent } from "@/lib/analytics";
 
 export async function GET() {
   const session = await getSession();
@@ -75,6 +76,12 @@ export async function POST(req: Request) {
     });
 
     await logAudit(session, "app.created", app.id, `Registered ${app.name} (${app.url})`);
+    await trackEvent({
+      event: "app_created",
+      orgId: session.orgId,
+      userId: session.id,
+      properties: { appId: app.id, criticality: app.criticality },
+    });
 
     return NextResponse.json({ app }, { status: 201 });
   } catch (error) {

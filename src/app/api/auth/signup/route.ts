@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { trackEvent } from "@/lib/analytics";
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
   if (!limit.allowed) {
     return NextResponse.json({ error: "Too many signup attempts. Please try again later." }, {
       status: 429,
-      headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      headers: { "Retry-After": String(limit.retryAfterSeconds ?? 60) },
     });
   }
 
@@ -71,6 +72,13 @@ export async function POST(req: Request) {
 
   const user = org.users[0];
   const session = await createSession(user.id);
+
+  await trackEvent({
+    event: "signup_completed",
+    orgId: org.id,
+    userId: user.id,
+    properties: { planTier: "FREE", trialDays: 14 },
+  });
 
   return NextResponse.json({ user: session }, { status: 201 });
 }

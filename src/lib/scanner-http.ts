@@ -11,6 +11,7 @@ import {
 import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
 import type { SecurityFinding } from "@/lib/types";
+import { trackEvent } from "@/lib/analytics";
 
 function calcStatus(findings: SecurityFinding[]) {
   if (findings.some((f) => f.severity === "CRITICAL")) return "CRITICAL" as const;
@@ -51,7 +52,12 @@ function dedup(findings: SecurityFinding[]): SecurityFinding[] {
   });
 }
 
-export async function runHttpScanForApp(appId: string) {
+interface ScanContext {
+  source?: "manual" | "cron" | "api";
+  userId?: string;
+}
+
+export async function runHttpScanForApp(appId: string, context: ScanContext = {}) {
   const app = await db.monitoredApp.findUnique({ where: { id: appId } });
   if (!app) throw new Error("App not found");
 
@@ -143,6 +149,19 @@ export async function runHttpScanForApp(appId: string) {
       },
     });
 
+    await trackEvent({
+      event: "scan_completed",
+      orgId: app.orgId,
+      userId: context.userId,
+      properties: {
+        appId: app.id,
+        source: context.source ?? "cron",
+        status,
+        findingsCount: findings.length,
+        responseTimeMs,
+      },
+    });
+
     return { appId: app.id, status, findingsCount: findings.length, responseTimeMs };
   } catch (error) {
     const elapsed = Date.now() - start;
@@ -163,6 +182,19 @@ export async function runHttpScanForApp(appId: string) {
         status: "CRITICAL",
         lastCheckedAt: new Date(),
         nextCheckAt: addHours(new Date(), 1),
+      },
+    });
+
+    await trackEvent({
+      event: "scan_completed",
+      orgId: app.orgId,
+      userId: context.userId,
+      properties: {
+        appId: app.id,
+        source: context.source ?? "cron",
+        status: "CRITICAL",
+        error: error instanceof Error ? error.message : "unknown",
+        responseTimeMs: elapsed,
       },
     });
 
@@ -195,7 +227,7 @@ export async function runDueHttpScans(limit = 20) {
 
     const batch = dueApps.slice(i, i + CONCURRENCY);
     const batchResults = await Promise.allSettled(
-      batch.map((app) => runHttpScanForApp(app.id)),
+      batch.map((app) => runHttpScanForApp(app.id, { source: "cron" })),
     );
 
     for (let j = 0; j < batch.length; j++) {

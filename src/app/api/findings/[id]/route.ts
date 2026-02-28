@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { trackEvent } from "@/lib/analytics";
 
 const updateFindingSchema = z.object({
   status: z.enum(["OPEN", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED", "IGNORED"]),
@@ -92,6 +93,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         }),
       },
     });
+
+    if (parsed.data.status === "RESOLVED") {
+      await trackEvent({
+        event: "finding_resolved",
+        orgId: session.orgId,
+        userId: session.id,
+        properties: {
+          findingId: id,
+          previousStatus: finding.status,
+          severity: finding.severity,
+        },
+      });
+    }
   }
 
   return NextResponse.json({ finding: updated });
