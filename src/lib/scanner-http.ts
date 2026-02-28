@@ -210,12 +210,36 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     };
     const intervalHours = scanIntervalHours[orgLimits.tier] ?? 24;
 
+    // Calculate rolling uptime % and avg response ms from last 30 runs
+    const recentRuns = await db.monitorRun.findMany({
+      where: { appId: app.id },
+      orderBy: { startedAt: "desc" },
+      take: 30,
+      select: { status: true, responseTimeMs: true },
+    });
+
+    let uptimePercent: number | undefined;
+    let avgResponseMs: number | undefined;
+
+    if (recentRuns.length > 0) {
+      const upRuns = recentRuns.filter((r) => r.status !== "CRITICAL");
+      uptimePercent = (upRuns.length / recentRuns.length) * 100;
+
+      const runsWithResponse = recentRuns.filter((r) => r.responseTimeMs != null);
+      if (runsWithResponse.length > 0) {
+        const totalMs = runsWithResponse.reduce((sum, r) => sum + (r.responseTimeMs ?? 0), 0);
+        avgResponseMs = Math.round(totalMs / runsWithResponse.length);
+      }
+    }
+
     await db.monitoredApp.update({
       where: { id: app.id },
       data: {
         status,
         lastCheckedAt: new Date(),
         nextCheckAt: addHours(new Date(), intervalHours),
+        ...(uptimePercent !== undefined ? { uptimePercent } : {}),
+        ...(avgResponseMs !== undefined ? { avgResponseMs } : {}),
       },
     });
 
@@ -232,7 +256,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       },
     });
 
-    return { appId: app.id, status, findingsCount: findings.length, responseTimeMs };
+    return { runId: run.id, appId: app.id, status, findingsCount: findings.length, responseTimeMs };
   } catch (error) {
     const elapsed = Date.now() - start;
 

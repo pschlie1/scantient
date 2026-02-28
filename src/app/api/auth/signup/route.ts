@@ -1,9 +1,44 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { trackEvent } from "@/lib/analytics";
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET environment variable is required");
+  return secret;
+}
+
+async function sendVerificationEmail(to: string, verifyLink: string) {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
+
+  if (!key) {
+    console.warn("[auth] RESEND_API_KEY not set. Skipping verification email.");
+    return;
+  }
+
+  const html = `
+    <div style="font-family: -apple-system, sans-serif; max-width: 480px;">
+      <h2>Verify your VibeSafe email</h2>
+      <p>Click the link below to verify your email address. This link expires in 24 hours.</p>
+      <p><a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#000;color:#fff;border-radius:6px;text-decoration:none;">Verify Email</a></p>
+      <p style="font-size:12px;color:#666;">If you didn't sign up for VibeSafe, you can ignore this email.</p>
+    </div>
+  `;
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from, to: [to], subject: "Verify your VibeSafe email", html }),
+  });
+}
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -58,7 +93,7 @@ export async function POST(req: Request) {
           name,
           passwordHash,
           role: "OWNER",
-          emailVerified: true,
+          emailVerified: false,
         },
       },
       subscription: {
@@ -76,6 +111,20 @@ export async function POST(req: Request) {
 
   const user = org.users[0];
   const session = await createSession(user.id);
+
+  // Send email verification
+  try {
+    const verifyToken = jwt.sign(
+      { sub: user.id, purpose: "email-verify" },
+      getJwtSecret(),
+      { expiresIn: "24h" },
+    );
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://vibesafe-two.vercel.app";
+    const verifyLink = `${appUrl}/verify-email?token=${verifyToken}`;
+    await sendVerificationEmail(email, verifyLink);
+  } catch (err) {
+    console.warn("[auth] Failed to send verification email:", err);
+  }
 
   await trackEvent({
     event: "signup_completed",

@@ -1,6 +1,30 @@
 import { db } from "@/lib/db";
 import type { SecurityFinding } from "@/lib/types";
 
+/**
+ * Retry a function with exponential backoff.
+ * Throws the last error if all attempts fail.
+ */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts = 3,
+  baseDelayMs = 500,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (attempt < maxAttempts) {
+        const delay = baseDelayMs * Math.pow(2, attempt - 1);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastError;
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.ALERT_FROM_EMAIL ?? "alerts@vibesafe.app";
@@ -96,7 +120,7 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
     const high = findings.filter((f) => ["HIGH", "CRITICAL"].includes(f.severity));
     if (high.length > 0) {
       const html = buildAlertHtml(app.name, app.url, high);
-      await sendEmail(app.ownerEmail, `⚠️ VibeSafe Alert: ${app.name}`, html);
+      await withRetry(() => sendEmail(app.ownerEmail, `⚠️ VibeSafe Alert: ${app.name}`, html));
     }
     return;
   }
@@ -113,30 +137,30 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
       switch (config.channel) {
         case "EMAIL": {
           const html = buildAlertHtml(app.name, app.url, relevant);
-          await sendEmail(config.destination, `⚠️ VibeSafe Alert: ${app.name}`, html);
+          await withRetry(() => sendEmail(config.destination, `⚠️ VibeSafe Alert: ${app.name}`, html));
           break;
         }
         case "SLACK": {
           const text = buildSlackMessage(app.name, app.url, relevant);
-          await sendSlack(config.destination, text);
+          await withRetry(() => sendSlack(config.destination, text));
           break;
         }
         case "WEBHOOK": {
           if (isTeamsWebhookUrl(config.destination)) {
             const facts = relevant.slice(0, 5).map((f) => ({ name: f.severity, value: f.title }));
-            await sendTeams(
+            await withRetry(() => sendTeams(
               config.destination,
               `⚠️ VibeSafe Alert: ${app.name}`,
               `${relevant.length} security issue(s) detected on ${app.url}`,
               facts,
-            );
+            ));
           } else {
-            await sendWebhook(config.destination, {
+            await withRetry(() => sendWebhook(config.destination, {
               event: "findings.detected",
               app: { id: app.id, name: app.name, url: app.url },
               findings: relevant,
               timestamp: new Date().toISOString(),
-            });
+            }));
           }
           break;
         }
@@ -172,25 +196,38 @@ export async function sendTestNotification(configId: string) {
   const subject = "✅ VibeSafe Test Notification";
   const body = "This is a test notification from VibeSafe. Your alert channel is working correctly!";
 
-  switch (config.channel) {
-    case "EMAIL":
-      await sendEmail(config.destination, subject, `<div style="font-family: -apple-system, sans-serif;"><h2>${subject}</h2><p>${body}</p></div>`);
-      break;
-    case "SLACK":
-      await sendSlack(config.destination, `${subject}\n${body}`);
-      break;
-    case "WEBHOOK":
-      if (isTeamsWebhookUrl(config.destination)) {
-        await sendTeams(config.destination, subject, body);
-      } else {
-        await sendWebhook(config.destination, { event: "test", message: body, timestamp: new Date().toISOString() });
-      }
-      break;
-  }
+  try {
+    switch (config.channel) {
+      case "EMAIL":
+        await withRetry(() => sendEmail(config.destination, subject, `<div style="font-family: -apple-system, sans-serif;"><h2>${subject}</h2><p>${body}</p></div>`));
+        break;
+      case "SLACK":
+        await withRetry(() => sendSlack(config.destination, `${subject}\n${body}`));
+        break;
+      case "WEBHOOK":
+        if (isTeamsWebhookUrl(config.destination)) {
+          await withRetry(() => sendTeams(config.destination, subject, body));
+        } else {
+          await withRetry(() => sendWebhook(config.destination, { event: "test", message: body, timestamp: new Date().toISOString() }));
+        }
+        break;
+    }
 
-  await db.notification.create({
-    data: { alertConfigId: config.id, subject, body: "Test notification", delivered: true },
-  });
+    await db.notification.create({
+      data: { alertConfigId: config.id, subject, body: "Test notification", delivered: true },
+    });
+  } catch (error) {
+    await db.notification.create({
+      data: {
+        alertConfigId: config.id,
+        subject,
+        body: "Test notification",
+        delivered: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+    });
+    throw error;
+  }
 }
 
 export async function sendChangeDetectedAlert(appId: string, appName: string, appUrl: string) {

@@ -1,4 +1,8 @@
-export const metadata = { title: "API Documentation — VibeSafe" };
+import type { Metadata } from "next";
+import MarketingNav from "@/components/marketing-nav";
+import Footer from "@/components/footer";
+
+export const metadata: Metadata = { title: "API Documentation — VibeSafe" };
 
 function Code({ children }: { children: string }) {
   return (
@@ -27,6 +31,8 @@ function Endpoint({ method, path, desc, curl, response }: { method: string; path
 
 export default function DocsPage() {
   return (
+    <div className="bg-white">
+      <MarketingNav />
     <main className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
       <h1 className="mb-2 text-3xl font-bold">VibeSafe API Documentation</h1>
       <p className="mb-10 text-gray-600">Integrate VibeSafe into your workflow with our REST API.</p>
@@ -134,5 +140,7 @@ export default function DocsPage() {
         </div>
       </section>
     </main>
+      <Footer />
+    </div>
   );
 }
