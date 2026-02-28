@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
 
 const navItems = [
-  { href: "/dashboard", label: "Portfolio" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/reports", label: "Reports" },
   { href: "/ops", label: "Ops" },
   { href: "/readiness", label: "Readiness" },

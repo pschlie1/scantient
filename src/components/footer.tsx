@@ -23,6 +23,7 @@ const footerColumns = [
     header: "Resources",
     links: [
       { label: "Documentation", href: "/docs" },
+      { label: "Free Security Score", href: "/score" },
       { label: "Security Checklist", href: "/security-checklist" },
       { label: "Vibe Coding Risks", href: "/vibe-coding-risks" },
       { label: "Help Center", href: "/help" },
