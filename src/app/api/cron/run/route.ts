@@ -4,11 +4,15 @@ import { logApiError } from "@/lib/observability";
 import { db } from "@/lib/db";
 
 export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  const cronSecret = process.env.CRON_SECRET;
 
-  if (!process.env.CRON_SECRET || auth !== expected) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!cronSecret) {
+    console.warn("[cron] WARNING: CRON_SECRET is not set. Cron endpoint is unprotected (dev mode).");
+  } else {
+    const auth = req.headers.get("authorization");
+    if (auth !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   try {

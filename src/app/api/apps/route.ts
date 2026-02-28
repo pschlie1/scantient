@@ -6,24 +6,40 @@ import { createAppSchema } from "@/lib/types";
 import { logApiError } from "@/lib/observability";
 import { trackEvent } from "@/lib/analytics";
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const apps = await db.monitoredApp.findMany({
-      where: { orgId: session.orgId },
-      orderBy: { createdAt: "desc" },
-      include: {
-        monitorRuns: {
-          orderBy: { startedAt: "desc" },
-          include: { findings: true },
-          take: 1,
-        },
-      },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10) || 20));
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json({ apps });
+    const [apps, total] = await Promise.all([
+      db.monitoredApp.findMany({
+        where: { orgId: session.orgId },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: {
+          monitorRuns: {
+            orderBy: { startedAt: "desc" },
+            include: { findings: true },
+            take: 1,
+          },
+        },
+      }),
+      db.monitoredApp.count({ where: { orgId: session.orgId } }),
+    ]);
+
+    return NextResponse.json({
+      apps,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     logApiError(error, {
       route: "/api/apps",
