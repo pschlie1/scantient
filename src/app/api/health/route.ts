@@ -4,61 +4,80 @@ import { logApiError } from "@/lib/observability";
 
 const CRON_STALE_MINUTES = Number(process.env.HEALTH_CRON_STALE_MINUTES ?? "360");
 
+type CheckStatus = "pass" | "warn" | "fail";
+
 export async function GET() {
+  const checks: {
+    database: {
+      status: CheckStatus;
+      latencyMs: number | null;
+      error?: string;
+    };
+    cron: {
+      status: CheckStatus;
+      freshnessMinutes: number | null;
+      staleThresholdMinutes: number;
+      error?: string;
+    };
+  } = {
+    database: {
+      status: "pass",
+      latencyMs: null,
+    },
+    cron: {
+      status: "pass",
+      freshnessMinutes: null,
+      staleThresholdMinutes: CRON_STALE_MINUTES,
+    },
+  };
+
+  let appCount = 0;
+  let lastScan: { at: Date; status: string } | null = null;
+
   try {
     const dbStartedAt = Date.now();
     await db.$queryRaw`SELECT 1`;
-    const dbLatencyMs = Date.now() - dbStartedAt;
+    checks.database.latencyMs = Date.now() - dbStartedAt;
 
-    const appCount = await db.monitoredApp.count();
+    appCount = await db.monitoredApp.count();
+
     const lastRun = await db.monitorRun.findFirst({
       orderBy: { startedAt: "desc" },
       select: { startedAt: true, status: true },
     });
 
-    const now = Date.now();
-    const lastScanAt = lastRun?.startedAt ? new Date(lastRun.startedAt).getTime() : null;
-    const cronFreshnessMinutes = lastScanAt ? Math.floor((now - lastScanAt) / 60000) : null;
+    lastScan = lastRun ? { at: lastRun.startedAt, status: lastRun.status } : null;
 
-    const checks = {
-      database: {
-        status: "pass",
-        latencyMs: dbLatencyMs,
-      },
-      cron: {
-        status:
-          cronFreshnessMinutes === null || cronFreshnessMinutes <= CRON_STALE_MINUTES
-            ? "pass"
-            : "warn",
-        freshnessMinutes: cronFreshnessMinutes,
-        staleThresholdMinutes: CRON_STALE_MINUTES,
-      },
-    };
-
-    const overallStatus = checks.cron.status === "warn" ? "degraded" : "healthy";
-
-    return NextResponse.json({
-      status: overallStatus,
-      version: process.env.npm_package_version ?? "0.1.0",
-      monitoredApps: appCount,
-      lastScan: lastRun ? { at: lastRun.startedAt, status: lastRun.status } : null,
-      checks,
-      timestamp: new Date().toISOString(),
-    });
+    if (lastRun?.startedAt) {
+      const freshnessMinutes = Math.floor((Date.now() - new Date(lastRun.startedAt).getTime()) / 60000);
+      checks.cron.freshnessMinutes = freshnessMinutes;
+      if (freshnessMinutes > CRON_STALE_MINUTES) {
+        checks.cron.status = "warn";
+      }
+    }
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown";
+    checks.database.status = "fail";
+    checks.database.error = message;
+    checks.cron.status = "warn";
+    checks.cron.error = "Skipped because database check failed";
+
     logApiError(error, {
       route: "/api/health",
       method: "GET",
-      statusCode: 500,
+      statusCode: 200,
     });
-
-    return NextResponse.json(
-      {
-        status: "unhealthy",
-        error: "Health check failed",
-        timestamp: new Date().toISOString(),
-      },
-      { status: 500 },
-    );
   }
+
+  const overallStatus: "healthy" | "degraded" =
+    checks.database.status === "pass" && checks.cron.status === "pass" ? "healthy" : "degraded";
+
+  return NextResponse.json({
+    status: overallStatus,
+    version: process.env.npm_package_version ?? "0.1.0",
+    monitoredApps: appCount,
+    lastScan,
+    checks,
+    timestamp: new Date().toISOString(),
+  });
 }
