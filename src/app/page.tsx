@@ -8,6 +8,12 @@ const checks = [
   { icon: "📜", title: "Inline Script Risks", desc: "Scans inline scripts for secrets, XSS vectors, and dangerouslySetInnerHTML usage. Common in LLM-generated React code." },
   { icon: "⚙️", title: "Config & Meta Leaks", desc: "Exposed source maps reveal your entire codebase. VibeSafe detects dev-mode indicators and server tech disclosure too." },
   { icon: "📊", title: "Uptime & Performance", desc: "Tracks response time and availability every scan. Know before your users do." },
+  { icon: "🔗", title: "Third-party Script Risk", desc: "Scores every external script tag for supply chain risk. Flags HTTP-loaded scripts, known compromised CDNs, and data: URI scripts before they execute malicious code." },
+  { icon: "📋", title: "Form Security", desc: "Inspects every form for GET-method API submissions, missing CSRF tokens on password fields, and actions that send data to external domains." },
+  { icon: "🔍", title: "Broken Links", desc: "Crawls internal links and checks for 4xx errors and redirect chains longer than 3 hops. Broken links degrade user trust and SEO." },
+  { icon: "⚡", title: "Performance Regression", desc: "Compares response time to your recent scan history. Alerts when response time doubles or climbs 50% above baseline." },
+  { icon: "🚪", title: "Exposed Endpoints", desc: "Probes 15 common dangerous paths: .env files, git HEAD, admin APIs, phpinfo, Spring Boot actuators, and more. Finds what attackers check first." },
+  { icon: "📦", title: "Dependency Version Risk", desc: "Detects outdated jQuery, React, Angular, Lodash, Bootstrap, and Moment.js in loaded JavaScript. Old libraries ship known CVEs." },
 ];
 
 const tiers = [
@@ -213,7 +219,7 @@ export default function LandingPage() {
       <section className="border-b border-alabaster-grey-200 bg-white py-16">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-12 px-6 text-center">
           {[
-            { value: "20+", label: "security checks per scan" },
+            { value: "21+", label: "security checks per scan" },
             { value: "170+", label: "Loveable apps breached in one CVE" },
             { value: "$50K–$500K", label: "cost per undetected breach" },
             { value: "Zero setup", label: "no SDK, no code changes" },
@@ -233,7 +239,7 @@ export default function LandingPage() {
       <section id="features" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">What we catch</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          15 check categories. Every scan. No developer required.
+          21 check categories. Every scan. No developer required.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {checks.map((check) => (
@@ -261,7 +267,7 @@ export default function LandingPage() {
             <div className="space-y-16">
               {[
                 { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-                { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 20+ security and health checks from the outside. No access required." },
+                { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 21+ security and health checks from the outside. No access required." },
                 { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
                 { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
               ].map((item, idx) => {
@@ -306,7 +312,7 @@ export default function LandingPage() {
           <div className="md:hidden space-y-12">
             {[
               { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-              { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 20+ security and health checks from the outside. No access required." },
+              { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 21+ security and health checks from the outside. No access required." },
               { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
               { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
             ].map((item) => (

@@ -3,17 +3,23 @@ import { db } from "@/lib/db";
 import { getOrgLimits } from "@/lib/tenant";
 import {
   checkAPISecurity,
+  checkBrokenLinks,
   checkClientSideAuthBypass,
   checkCookieSecurity,
   checkCORSMisconfiguration,
   checkDependencyExposure,
+  checkDependencyVersions,
+  checkExposedEndpoints,
+  checkFormSecurity,
   checkInformationDisclosure,
   checkInlineScripts,
   checkMetaAndConfig,
   checkOpenRedirects,
+  checkPerformanceRegression,
   checkSecurityHeaders,
   checkSSLCertExpiry,
   checkSSLIssues,
+  checkThirdPartyScripts,
   checkUptimeStatus,
   scanJavaScriptForKeys,
 } from "@/lib/security";
@@ -125,7 +131,14 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       },
     });
 
-    const [sslCertFindings] = await Promise.all([checkSSLCertExpiry(app.url)]);
+    const [sslCertFindings, brokenLinkFindings, exposedEndpointFindings] = await Promise.all([
+      checkSSLCertExpiry(app.url),
+      checkBrokenLinks(html, app.url),
+      checkExposedEndpoints(app.url),
+    ]);
+
+    const responseTimeMsSnapshot = Date.now() - start;
+    const perfRegressionFindings = await checkPerformanceRegression(app.id, responseTimeMsSnapshot);
 
     const rawFindings: SecurityFinding[] = [
       ...checkSecurityHeaders(headers),
@@ -140,8 +153,14 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       ...checkDependencyExposure(html),
       ...checkAPISecurity(html, headers),
       ...checkOpenRedirects(html),
+      ...checkThirdPartyScripts(html, app.url),
+      ...checkFormSecurity(html),
+      ...checkDependencyVersions(jsPayloads),
       ...sslCertFindings,
-      ...checkUptimeStatus(statusCode, Date.now() - start),
+      ...brokenLinkFindings,
+      ...exposedEndpointFindings,
+      ...perfRegressionFindings,
+      ...checkUptimeStatus(statusCode, responseTimeMsSnapshot),
       ...contentHashFindings,
     ];
 
