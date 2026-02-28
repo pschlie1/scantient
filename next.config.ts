@@ -23,10 +23,7 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   outputFileTracingIncludes: {
-    "/api/**/*": ["./src/generated/prisma/**/*"],
-    "/dashboard": ["./src/generated/prisma/**/*"],
-    "/apps/**/*": ["./src/generated/prisma/**/*"],
-    "/reports": ["./src/generated/prisma/**/*"],
+    "/*": ["./src/generated/prisma/**/*", "./node_modules/.prisma/client/**/*"],
   },
 };
 
