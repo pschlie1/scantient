@@ -133,5 +133,74 @@ export async function POST(req: Request) {
     properties: { planTier: "FREE", trialDays: 14 },
   });
 
+  // Fire-and-forget: onboarding welcome email
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_URL ?? "https://vibesafe-two.vercel.app";
+  const resendKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
+  if (resendKey) {
+    const onboardingHtml = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
+        <div style="margin-bottom: 28px;">
+          <div style="width: 40px; height: 40px; background: #000; border-radius: 10px; margin-bottom: 16px; display: inline-flex; align-items: center; justify-content: center;">
+            <span style="color: #fff; font-weight: bold; font-size: 18px; line-height: 1;">V</span>
+          </div>
+          <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">Welcome to VibeSafe 🎉</h1>
+          <p style="color: #555; font-size: 15px; margin: 0; line-height: 1.6;">
+            You're in. Here's how to get the most out of VibeSafe in the next few minutes.
+          </p>
+        </div>
+
+        <ol style="padding-left: 0; list-style: none; margin: 0 0 32px 0;">
+          <li style="display: flex; gap: 16px; margin-bottom: 20px;">
+            <span style="flex-shrink: 0; width: 28px; height: 28px; background: #f3f4f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #111;">1</span>
+            <div>
+              <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 15px;">Verify your email</p>
+              <p style="margin: 0; color: #666; font-size: 14px;">Click the verification link we just sent to activate your account.</p>
+            </div>
+          </li>
+          <li style="display: flex; gap: 16px; margin-bottom: 20px;">
+            <span style="flex-shrink: 0; width: 28px; height: 28px; background: #f3f4f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #111;">2</span>
+            <div>
+              <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 15px;">Add your first app</p>
+              <p style="margin: 0; color: #666; font-size: 14px;">Paste a URL — we'll scan it for security issues in seconds.</p>
+            </div>
+          </li>
+          <li style="display: flex; gap: 16px;">
+            <span style="flex-shrink: 0; width: 28px; height: 28px; background: #f3f4f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #111;">3</span>
+            <div>
+              <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 15px;">Set up alerts</p>
+              <p style="margin: 0; color: #666; font-size: 14px;">Get notified by email, Slack, or webhook when issues are detected.</p>
+            </div>
+          </li>
+        </ol>
+
+        <a
+          href="${appUrl}/dashboard"
+          style="display: inline-block; background: #000; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;"
+        >
+          Go to dashboard →
+        </a>
+
+        <p style="margin-top: 32px; font-size: 12px; color: #aaa;">
+          If you have questions, just reply to this email — we read every one.
+        </p>
+      </div>
+    `;
+
+    fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [email],
+        subject: "Welcome to VibeSafe — here's how to get started",
+        html: onboardingHtml,
+      }),
+    }).catch((err) => console.warn("[auth] Failed to send onboarding email:", err));
+  }
+
   return NextResponse.json({ user: session }, { status: 201 });
 }
