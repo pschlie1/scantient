@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function SSOPage() {
   const [tier, setTier] = useState<string | null>(null);
@@ -11,17 +11,6 @@ export default function SSOPage() {
       .then((data) => setTier(data.tier ?? "FREE"))
       .catch(() => setTier("FREE"));
   }, []);
-
-  const [idpUrl, setIdpUrl] = useState("");
-  const [certificate, setCertificate] = useState("");
-  const [entityId, setEntityId] = useState("");
-  const [saved, setSaved] = useState(false);
-
-  function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  }
 
   if (tier === null) {
     return <div className="p-8 text-center text-gray-500">Loading…</div>;

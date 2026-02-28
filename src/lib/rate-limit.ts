@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { logOperationalWarning } from "@/lib/observability";
 
 interface RateLimitEntry {
   timestamps: number[];
@@ -100,12 +101,20 @@ export async function checkRateLimit(key: string, config: RateLimitConfig): Prom
     return { allowed: true };
   } catch (error) {
     const fallbackMode = resolveFallbackMode(config);
+    const throttleWindowMs = Number(process.env.RATE_LIMIT_DEGRADED_ALERT_WINDOW_SECONDS ?? "300") * 1000;
 
-    console.error("[rate-limit] Distributed backend unavailable", {
-      key,
-      fallbackMode,
-      message: error instanceof Error ? error.message : "unknown",
-    });
+    logOperationalWarning(
+      "rate_limit_backend_degraded",
+      {
+        key,
+        fallbackMode,
+        message: error instanceof Error ? error.message : "unknown",
+      },
+      {
+        throttleKey: `rate-limit:${fallbackMode}`,
+        throttleWindowMs,
+      },
+    );
 
     if (fallbackMode === "fail-closed") {
       return { allowed: false, retryAfterSeconds: 60 };
