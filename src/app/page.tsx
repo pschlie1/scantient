@@ -423,7 +423,7 @@ export default function LandingPage() {
         <p className="mb-16 text-center text-dusty-denim-600">
           One exposed API key costs $50K–$500K to remediate. VibeSafe catches the exposure in your first scan.
         </p>
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {tiers.map((tier) => (
             <div
               key={tier.name}
@@ -446,7 +446,7 @@ export default function LandingPage() {
               </div>
               <p className={`mt-3 text-sm ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>{tier.desc}</p>
               <Link
-                href="/signup"
+                href={tier.ctaHref}
                 className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
                   tier.highlighted
                     ? "bg-prussian-blue-600 text-white hover:bg-prussian-blue-700"

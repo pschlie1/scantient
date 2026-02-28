@@ -12,9 +12,10 @@ type OrgData = {
 };
 
 const plans = [
-  { key: "STARTER", name: "Starter", price: "$199/mo", apps: 5, users: 2 },
-  { key: "PRO", name: "Pro", price: "$399/mo", apps: 15, users: 5 },
-  { key: "ENTERPRISE", name: "Enterprise", price: "$799/mo", apps: 50, users: "Unlimited" },
+  { key: "STARTER", name: "Starter", price: "$199/mo", apps: 5, users: 2, talkToSales: false },
+  { key: "PRO", name: "Pro", price: "$399/mo", apps: 15, users: 10, talkToSales: false },
+  { key: "ENTERPRISE", name: "Enterprise", price: "$1,500/mo", apps: 100, users: 50, talkToSales: false },
+  { key: "ENTERPRISE_PLUS", name: "Enterprise Plus", price: "$2,500/mo", apps: 999, users: 999, talkToSales: true },
 ];
 
 export default function BillingPage() {
@@ -89,16 +90,25 @@ export default function BillingPage() {
       {/* Plans */}
       <div className="rounded-lg border bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold">Upgrade your plan</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
             const isCurrent = plan.key === limits.tier;
             return (
               <div key={plan.key} className={`rounded-lg border p-4 ${isCurrent ? "border-black" : ""}`}>
                 <h3 className="font-semibold">{plan.name}</h3>
                 <p className="text-2xl font-bold">{plan.price}</p>
-                <p className="mt-1 text-xs text-gray-500">{plan.apps} apps · {plan.users} users</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {plan.apps >= 999 ? "Unlimited" : plan.apps} apps · {plan.users >= 999 ? "Unlimited" : plan.users} users
+                </p>
                 {isCurrent ? (
                   <p className="mt-3 text-xs font-medium text-green-600">Current plan</p>
+                ) : plan.talkToSales ? (
+                  <a
+                    href="mailto:sales@vibesafe.app"
+                    className="mt-3 block w-full rounded border border-black py-1.5 text-center text-sm font-medium text-black hover:bg-gray-50"
+                  >
+                    Talk to sales
+                  </a>
                 ) : (
                   <button
                     onClick={() => handleUpgrade(plan.key)}
