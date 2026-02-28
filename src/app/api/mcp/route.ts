@@ -3,7 +3,7 @@ import { authenticateApiKey } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { logApiError } from "@/lib/observability";
-import type { FindingSeverity, FindingStatus } from "@/generated/prisma/client";
+import type { FindingSeverity, FindingStatus } from "@prisma/client";
 
 // MCP JSON-RPC compatible endpoint
 // Spec: https://modelcontextprotocol.io

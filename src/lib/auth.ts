@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import type { UserRole } from "@/generated/prisma/enums";
+import type { UserRole } from "@prisma/client";
 
 const JWT_SECRET: string = (() => {
   const secret = process.env.JWT_SECRET;

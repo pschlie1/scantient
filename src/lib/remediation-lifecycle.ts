@@ -8,7 +8,7 @@
  */
 
 import { db } from "@/lib/db";
-import type { FindingStatus } from "@/generated/prisma/enums";
+import type { FindingStatus } from "@prisma/client";
 
 // ─── Metadata stored in Finding.notes ───────────────
 

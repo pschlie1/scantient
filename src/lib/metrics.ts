@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import type { FindingSeverity } from "@/generated/prisma/client";
+import type { FindingSeverity } from "@prisma/client";
 
 // ─── Types ──────────────────────────────────────────
 
