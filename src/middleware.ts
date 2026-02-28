@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
 const PUBLIC_PATHS = [
   "/login",
@@ -12,7 +13,7 @@ const PUBLIC_PATHS = [
   "/",
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public paths (exact or prefix match)
@@ -34,6 +35,25 @@ export function middleware(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Verify JWT signature + expiry using jose (Edge Runtime compatible)
+  const jwtSecret = process.env.JWT_SECRET;
+  if (jwtSecret) {
+    try {
+      const secret = new TextEncoder().encode(jwtSecret);
+      await jwtVerify(session.value, secret);
+    } catch {
+      // Invalid or expired token — clear cookie and redirect/reject
+      if (pathname.startsWith("/api/")) {
+        const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        res.cookies.delete("vibesafe-session");
+        return res;
+      }
+      const res = NextResponse.redirect(new URL("/login", request.url));
+      res.cookies.delete("vibesafe-session");
+      return res;
+    }
   }
 
   return NextResponse.next();

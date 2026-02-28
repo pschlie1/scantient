@@ -12,8 +12,21 @@ function makeSvg(label: string, value: string, color: string): string {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const url = searchParams.get("url");
-  const key = searchParams.get("key");
   const svgHeaders = { "Content-Type": "image/svg+xml", "Cache-Control": "no-cache, no-store, must-revalidate" };
+
+  // Prefer Authorization: Bearer <key> header; fall back to ?key= query param (deprecated)
+  let key: string | null = null;
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    key = authHeader.slice(7).trim();
+  } else {
+    const keyParam = searchParams.get("key");
+    if (keyParam) {
+      // Deprecated: log a warning and accept for backward compatibility
+      console.warn("[badge] Deprecated: API key passed as ?key= query param. Use Authorization: Bearer <key> header instead.");
+      key = keyParam;
+    }
+  }
 
   if (!url || !key) return new NextResponse(makeSvg("vibesafe", "unknown", "#9f9f9f"), { headers: svgHeaders });
 

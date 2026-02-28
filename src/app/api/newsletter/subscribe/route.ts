@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const subscribeSchema = z.object({
   email: z.string().email(),
 });
 
 export async function POST(req: Request) {
+  // Rate limiting: 3 requests per hour per IP
+  const ip = getClientIp(req);
+  const rateResult = await checkRateLimit(`newsletter-subscribe:${ip}`, {
+    maxAttempts: 3,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  });
+  if (!rateResult.allowed) {
+    return NextResponse.json(
+      { error: "Too many subscription attempts. Please try again later." },
+      {
+        status: 429,
+        headers: rateResult.retryAfterSeconds
+          ? { "Retry-After": String(rateResult.retryAfterSeconds) }
+          : {},
+      },
+    );
+  }
+
   const body = await req.json();
   const parsed = subscribeSchema.safeParse(body);
 
