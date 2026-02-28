@@ -18,8 +18,6 @@ export function OnboardingWizard() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const [appId, setAppId] = useState<string | null>(null);
-  const [scanDone, setScanDone] = useState(false);
   const [findings, setFindings] = useState<FindingSummary>({ total: 0, critical: 0, high: 0, medium: 0, low: 0, info: 0 });
   const [slackUrl, setSlackUrl] = useState("");
   const [alertEmail, setAlertEmail] = useState("");
@@ -55,7 +53,6 @@ export function OnboardingWizard() {
         setError(data.error?.message || data.error || "Failed to add app");
         return;
       }
-      setAppId(data.app.id);
       setStep(2);
       triggerScan(data.app.id);
     } catch {
@@ -71,11 +68,9 @@ export function OnboardingWizard() {
         pollScan(id);
       } else {
         // Even if scan fails, move forward
-        setScanDone(true);
         setStep(3);
       }
     } catch {
-      setScanDone(true);
       setStep(3);
     }
   }
@@ -99,13 +94,11 @@ export function OnboardingWizard() {
             low: f.filter((x: { severity: string }) => x.severity === "LOW").length,
             info: f.filter((x: { severity: string }) => x.severity === "INFO").length,
           });
-          setScanDone(true);
           setStep(3);
           return;
         }
       } catch { /* continue polling */ }
     }
-    setScanDone(true);
     setStep(3);
   }
 

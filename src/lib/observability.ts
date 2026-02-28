@@ -10,6 +10,8 @@ interface ApiLogContext {
   details?: Record<string, unknown>;
 }
 
+const throttledEvents = new Map<string, number>();
+
 function safeError(error: unknown) {
   if (error instanceof Error) {
     return {
@@ -50,6 +52,39 @@ export function logApiError(error: unknown, context: ApiLogContext) {
       if (context.requestId) scope.setTag("requestId", context.requestId);
       if (context.details) scope.setContext("details", context.details);
       Sentry.captureException(error instanceof Error ? error : new Error(serialized.message));
+    });
+  }
+}
+
+export function logOperationalWarning(
+  event: string,
+  details?: Record<string, unknown>,
+  options?: { throttleKey?: string; throttleWindowMs?: number },
+) {
+  const throttleKey = options?.throttleKey ?? event;
+  const throttleWindowMs = options?.throttleWindowMs ?? 300_000;
+
+  const now = Date.now();
+  const previous = throttledEvents.get(throttleKey);
+  if (previous && now - previous < throttleWindowMs) {
+    return;
+  }
+  throttledEvents.set(throttleKey, now);
+
+  console.warn(
+    JSON.stringify({
+      level: "warn",
+      timestamp: new Date().toISOString(),
+      event,
+      details,
+    }),
+  );
+
+  if (process.env.SENTRY_DSN) {
+    Sentry.withScope((scope) => {
+      scope.setLevel("warning");
+      if (details) scope.setContext("details", details);
+      Sentry.captureMessage(event, "warning");
     });
   }
 }
