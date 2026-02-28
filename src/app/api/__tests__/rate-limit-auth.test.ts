@@ -15,7 +15,7 @@ describe("auth rate-limit behavior", () => {
   });
 
   it("login returns 429 with Retry-After header", async () => {
-    checkRateLimit.mockReturnValueOnce({ allowed: false, retryAfterSeconds: 120 });
+    checkRateLimit.mockResolvedValueOnce({ allowed: false, retryAfterSeconds: 120 });
     const { POST } = await import("@/app/api/auth/login/route");
 
     const req = new Request("http://localhost", {
@@ -30,7 +30,7 @@ describe("auth rate-limit behavior", () => {
   });
 
   it("signup returns safe default Retry-After when limiter omits value", async () => {
-    checkRateLimit.mockReturnValueOnce({ allowed: false });
+    checkRateLimit.mockResolvedValueOnce({ allowed: false });
     const { POST } = await import("@/app/api/auth/signup/route");
 
     const req = new Request("http://localhost", {

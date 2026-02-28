@@ -51,6 +51,10 @@ Open http://localhost:3000
 | `ALERT_FROM_EMAIL` | No | From address for alert emails |
 | `SENTRY_DSN` | No | Sentry DSN for API/server error capture |
 | `SENTRY_ENVIRONMENT` | No | Environment tag (e.g. production, staging) |
+| `UPSTASH_REDIS_REST_URL` | Recommended (prod) | Upstash Redis REST URL for distributed rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Recommended (prod) | Upstash Redis REST token for distributed rate limiting |
+| `RATE_LIMIT_PREFIX` | No | Redis key prefix for limiter keys (default `vibesafe:rate-limit`) |
+| `RATE_LIMIT_FALLBACK_MODE` | No | Global fallback policy if Redis fails: `fail-open` or `fail-closed` |
 | `HEALTH_CRON_STALE_MINUTES` | No | Threshold for stale cron freshness in `/api/health` |
 
 ## API Endpoints
@@ -94,6 +98,12 @@ npm run ci
 3. Cron schedules from `vercel.json` auto-register:
    - Scans: every 4 hours
    - Weekly report: Mondays at 12:00 UTC
+4. For production rate limiting across multiple instances, set:
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+   - Optional: `RATE_LIMIT_PREFIX`, `RATE_LIMIT_FALLBACK_MODE`
+
+> Auth rate limits (`/api/auth/login`, `/api/auth/signup`) enforce fail-closed fallback when the distributed backend is unavailable.
 
 ## Tech Stack
 
