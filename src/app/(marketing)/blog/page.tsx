@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
+import NewsletterForm from "@/components/newsletter-form";
 
 export const metadata: Metadata = {
   title: "Blog — VibeSafe",
@@ -137,15 +138,8 @@ export default function BlogPage() {
           <p className="mt-2 text-sm text-gray-500">
             Practical security and compliance insights for IT leaders. No fluff.
           </p>
-          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <input
-              type="email"
-              placeholder="you@company.com"
-              className="w-full max-w-xs rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-black focus:outline-none sm:w-auto"
-            />
-            <button className="rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
-              Subscribe
-            </button>
+          <div className="mt-6">
+            <NewsletterForm />
           </div>
         </div>
       </div>

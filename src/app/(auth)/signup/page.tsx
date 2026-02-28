@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "", orgName: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +22,7 @@ export default function SignupPage() {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        setSuccess(true);
       } else {
         const data = await res.json();
         setError(typeof data.error === "string" ? data.error : "Signup failed");
@@ -33,6 +32,30 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-4xl">
+            ✉️
+          </div>
+          <h1 className="text-2xl font-bold">Check your email</h1>
+          <p className="mt-3 text-sm text-gray-500 leading-relaxed">
+            We sent a verification link to{" "}
+            <span className="font-medium text-gray-700">{form.email}</span>.
+            Click it to activate your account.
+          </p>
+          <p className="mt-6 text-xs text-gray-400">
+            Already verified?{" "}
+            <Link href="/dashboard" className="font-medium text-black hover:underline">
+              Go to dashboard →
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
