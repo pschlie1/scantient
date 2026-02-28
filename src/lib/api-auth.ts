@@ -27,5 +27,15 @@ export async function authenticateApiKey(req: Request): Promise<string | null> {
     data: { lastUsedAt: new Date() },
   });
 
+  // Log API key usage for agent activity tracking (DAA/WAA/MAA)
+  await db.auditLog.create({
+    data: {
+      orgId: key.orgId,
+      action: "API_KEY_USED",
+      resource: `apikey:${key.id}`,
+      details: JSON.stringify({ keyPrefix: key.keyPrefix }),
+    },
+  }).catch(() => {}); // Non-blocking — don't fail auth if logging fails
+
   return key.orgId;
 }
