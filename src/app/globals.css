@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
+@theme {
+  /* Ink Black */
+  --color-ink-black-50: #ebf2f9;
+  --color-ink-black-100: #d8e5f3;
+  --color-ink-black-200: #b1cbe7;
+  --color-ink-black-300: #8ab1db;
+  --color-ink-black-400: #6397cf;
+  --color-ink-black-500: #3c7dc3;
+  --color-ink-black-600: #30649c;
+  --color-ink-black-700: #244b75;
+  --color-ink-black-800: #18324e;
+  --color-ink-black-900: #0c1927;
+  --color-ink-black-950: #08121b;
+
+  /* Prussian Blue */
+  --color-prussian-blue-50: #eef1f7;
+  --color-prussian-blue-100: #dce3ef;
+  --color-prussian-blue-200: #b9c6df;
+  --color-prussian-blue-300: #96aacf;
+  --color-prussian-blue-400: #738ebf;
+  --color-prussian-blue-500: #5071af;
+  --color-prussian-blue-600: #405b8c;
+  --color-prussian-blue-700: #304469;
+  --color-prussian-blue-800: #202d46;
+  --color-prussian-blue-900: #101723;
+
+  /* Dusk Blue */
+  --color-dusk-blue-200: #bdcbdb;
+  --color-dusk-blue-500: #5b7da4;
+
+  /* Dusty Denim */
+  --color-dusty-denim-100: #e0e5eb;
+  --color-dusty-denim-500: #627c9d;
+  --color-dusty-denim-600: #4f637d;
+  --color-dusty-denim-700: #3b4a5e;
+  --color-dusty-denim-900: #14191f;
+
+  /* Alabaster Grey */
+  --color-alabaster-grey-50: #f3f3f1;
+  --color-alabaster-grey-100: #e6e7e4;
+  --color-alabaster-grey-200: #cecfc9;
+  --color-alabaster-grey-900: #1a1b18;
+}
+
+/* Semantic CSS variables */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --bg-page: var(--color-alabaster-grey-50);
+  --bg-surface: #ffffff;
+  --bg-dark: var(--color-ink-black-950);
+  --text-heading: var(--color-ink-black-950);
+  --text-body: var(--color-dusty-denim-700);
+  --text-muted: var(--color-dusty-denim-600);
+  --text-on-dark: var(--color-alabaster-grey-50);
+  --primary: var(--color-prussian-blue-600);
+  --primary-hover: var(--color-prussian-blue-700);
+  --accent: var(--color-ink-black-600);
+  --border-light: var(--color-alabaster-grey-200);
+  --border-focus: var(--color-prussian-blue-300);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-body);
 }

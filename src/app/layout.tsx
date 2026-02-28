@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "VibeSafe — AI App Security Monitor",
+  title: "VibeSafe – Security Monitoring for AI-Generated Apps",
   description:
-    "Continuous production health and security monitoring for AI-generated apps. No SDK required.",
+    "Continuous security monitoring for AI-built applications. No SDK required. Protect your vibe-coded apps from exposed API keys, missing headers, and auth bypasses.",
 };
 
 export default function RootLayout({
@@ -25,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>
