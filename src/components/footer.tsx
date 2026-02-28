@@ -6,34 +6,35 @@ const footerColumns = [
     links: [
       { label: "Overview", href: "/#features" },
       { label: "Pricing", href: "/#pricing" },
-      { label: "Security", href: "/security-checklist" },
-      { label: "API Docs", href: "#" },
+      { label: "Compliance", href: "/compliance" },
+      { label: "API Docs", href: "/docs" },
     ],
   },
   {
     header: "Company",
     links: [
-      { label: "About", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Press", href: "#" },
+      { label: "About", href: "/about" },
+      { label: "Careers", href: "/careers" },
+      { label: "Blog", href: "/blog" },
+      { label: "Press", href: "/press" },
     ],
   },
   {
     header: "Resources",
     links: [
-      { label: "Documentation", href: "#" },
-      { label: "Help Center", href: "#" },
+      { label: "Documentation", href: "/docs" },
       { label: "Security Checklist", href: "/security-checklist" },
-      { label: "Contact", href: "#" },
+      { label: "Vibe Coding Risks", href: "/vibe-coding-risks" },
+      { label: "Help Center", href: "/help" },
     ],
   },
   {
     header: "Legal",
     links: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
+      { label: "Cookie Policy", href: "/cookie-policy" },
+      { label: "Contact", href: "/contact" },
     ],
   },
 ];
@@ -88,7 +89,7 @@ export default function Footer() {
               © 2026 VibeSafe Inc. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link href="#" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">
+              <Link href="/status" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">
                 Status
               </Link>
               <Link href="/security-checklist" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">
