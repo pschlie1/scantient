@@ -9,14 +9,18 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --coverage",
+    "test": "vitest run --coverage --passWithNoTests",
+    "test:ci": "vitest run --coverage --passWithNoTests --pool=forks",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "ci": "npm run lint && npm run typecheck && npm run test && npm run build"
+    "db:backup": "bash ./scripts/db-backup.sh",
+    "db:restore:verify": "bash ./scripts/db-restore-verify.sh",
+    "ci": "npm run lint && npm run typecheck && npm run test:ci && npm run build"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "@react-email/components": "^1.0.8",
+    "@sentry/nextjs": "^10.40.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

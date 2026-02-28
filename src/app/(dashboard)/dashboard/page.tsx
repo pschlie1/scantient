@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { SummaryCards } from "@/components/summary-cards";
 import { getOrgLimits } from "@/lib/tenant";
 import { OnboardingWrapper } from "@/components/onboarding-wrapper";
+import { MetricsDashboard } from "@/components/metrics-dashboard";
 
 export default async function DashboardPage() {
   const session = await getSession();
@@ -50,6 +51,8 @@ export default async function DashboardPage() {
           </p>
         </div>
       </div>
+
+      <MetricsDashboard />
 
       <SummaryCards
         total={apps.length}

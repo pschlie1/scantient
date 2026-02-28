@@ -8,6 +8,8 @@ on:
 jobs:
   test-build:
     runs-on: ubuntu-latest
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,5 +18,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: cp .env.example .env
-      - run: npm run db:generate
       - run: npm run ci

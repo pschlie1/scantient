@@ -8,6 +8,31 @@ const updateFindingSchema = z.object({
   notes: z.string().optional(),
 });
 
+interface StatusChangeEntry {
+  previousStatus: string;
+  newStatus: string;
+  changedAt: string;
+  changedBy: string | null;
+}
+
+function parseStatusHistory(notes: string | null): { userNotes: string; history: StatusChangeEntry[] } {
+  if (!notes) return { userNotes: "", history: [] };
+  const marker = "\n---STATUS_HISTORY---\n";
+  const idx = notes.indexOf(marker);
+  if (idx === -1) return { userNotes: notes, history: [] };
+  try {
+    const history = JSON.parse(notes.slice(idx + marker.length)) as StatusChangeEntry[];
+    return { userNotes: notes.slice(0, idx), history };
+  } catch {
+    return { userNotes: notes, history: [] };
+  }
+}
+
+function serializeNotes(userNotes: string, history: StatusChangeEntry[]): string {
+  if (history.length === 0) return userNotes;
+  return `${userNotes}\n---STATUS_HISTORY---\n${JSON.stringify(history)}`;
+}
+
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,15 +55,44 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   if (!finding) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // Track status change history in notes field
+  const { userNotes, history } = parseStatusHistory(finding.notes);
+  if (finding.status !== parsed.data.status) {
+    history.push({
+      previousStatus: finding.status,
+      newStatus: parsed.data.status,
+      changedAt: new Date().toISOString(),
+      changedBy: session.id ?? null,
+    });
+  }
+
+  const newUserNotes = parsed.data.notes ?? userNotes;
+
   const updated = await db.finding.update({
     where: { id },
     data: {
       status: parsed.data.status,
-      notes: parsed.data.notes ?? finding.notes,
+      notes: serializeNotes(newUserNotes, history),
       ...(parsed.data.status === "RESOLVED" ? { resolvedAt: new Date() } : {}),
       ...(parsed.data.status === "ACKNOWLEDGED" ? { acknowledgedAt: new Date() } : {}),
     },
   });
+
+  // Audit log the status change
+  if (finding.status !== parsed.data.status) {
+    await db.auditLog.create({
+      data: {
+        orgId: session.orgId,
+        userId: session.id ?? undefined,
+        action: "FINDING_STATUS_CHANGE",
+        resource: `finding:${id}`,
+        details: JSON.stringify({
+          previousStatus: finding.status,
+          newStatus: parsed.data.status,
+        }),
+      },
+    });
+  }
 
   return NextResponse.json({ finding: updated });
 }

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { StatusBadge, SeverityBadge } from "@/components/status-badge";
+import { EvidencePackSection } from "./evidence-pack";
 
 export default async function ReportsPage() {
   const session = await getSession();
@@ -90,6 +91,9 @@ export default async function ReportsPage() {
           );
         })}
       </div>
+
+      {/* Evidence Pack */}
+      <EvidencePackSection />
     </main>
   );
 }
