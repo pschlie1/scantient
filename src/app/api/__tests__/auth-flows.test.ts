@@ -50,10 +50,15 @@ vi.mock("@/lib/rate-limit", () => ({ checkRateLimit, getClientIp }));
 // --- Analytics mock ---
 vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
 
+// --- Tenant mock (canAddUser used in invite acceptance) ---
+const canAddUser = vi.fn();
+vi.mock("@/lib/tenant", () => ({ canAddUser }));
+
 beforeEach(() => {
   vi.clearAllMocks();
   checkRateLimit.mockResolvedValue({ allowed: true });
   getClientIp.mockReturnValue("1.2.3.4");
+  canAddUser.mockResolvedValue({ allowed: true });
 });
 
 // Helper to build a Request

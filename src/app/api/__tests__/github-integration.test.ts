@@ -195,6 +195,11 @@ describe("POST /api/findings/[id]/github-issue", () => {
     return { params: Promise.resolve({ id }) };
   }
 
+  // Override global FREE default — github-issue requires PRO+
+  beforeEach(() => {
+    getOrgLimits.mockResolvedValue(makeLimits("PRO"));
+  });
+
   it("returns 404 if finding not in org", async () => {
     requireRole.mockResolvedValue(makeSession("OWNER"));
     findingFindFirst.mockResolvedValue(null);

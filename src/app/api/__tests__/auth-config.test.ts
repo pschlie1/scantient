@@ -39,7 +39,8 @@ vi.mock("@/lib/crypto-util", () => ({
 }));
 
 // ─── Tenant / analytics mocks ─────────────────────────────────────────────────
-vi.mock("@/lib/tenant", () => ({ getOrgLimits: vi.fn(), logAudit: vi.fn() }));
+const getOrgLimits = vi.fn();
+vi.mock("@/lib/tenant", () => ({ getOrgLimits, logAudit: vi.fn() }));
 vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
 
 // ─── Scanner mock (used for "scanner applies auth headers" test) ───────────────
@@ -63,6 +64,8 @@ function makeRequest(method: string, body?: unknown) {
 describe("GET /api/apps/[id]/auth-config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default to PRO so tier gate passes; individual tests override if needed
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
   });
 
   it("returns 401 without session", async () => {
@@ -125,6 +128,8 @@ describe("GET /api/apps/[id]/auth-config", () => {
 describe("PUT /api/apps/[id]/auth-config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default to PRO so tier gate passes; individual tests override if needed
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
   });
 
   it("stores encrypted headers (ADMIN)", async () => {
