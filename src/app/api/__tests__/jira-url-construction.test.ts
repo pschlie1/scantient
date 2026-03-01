@@ -13,6 +13,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const requireRole = vi.fn();
 vi.mock("@/lib/auth", () => ({ requireRole, getSession: vi.fn() }));
 
+// Tenant mock — jira/test requires PRO+
+const getOrgLimits = vi.fn();
+vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
+
 const integrationConfigFindUnique = vi.fn();
 vi.mock("@/lib/db", () => ({
   db: {
@@ -70,6 +74,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.resetModules();
   requireRole.mockResolvedValue(makeSession());
+  getOrgLimits.mockResolvedValue({ tier: "PRO" });
   integrationConfigFindUnique.mockResolvedValue(makeJiraConfig());
   mockFetch.mockResolvedValue({
     ok: true,

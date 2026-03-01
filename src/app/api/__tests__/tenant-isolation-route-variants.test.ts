@@ -10,6 +10,7 @@ describe("tenant isolation - remaining route variants", () => {
     const findingFindFirst = vi.fn().mockResolvedValue(null);
 
     vi.doMock("@/lib/auth", () => ({ getSession: vi.fn().mockResolvedValue({ id: "u_1", orgId: "org_a", role: "ADMIN" }) }));
+    vi.doMock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
     vi.doMock("@/lib/db", () => ({
       db: {
         finding: { findFirst: findingFindFirst },
@@ -36,6 +37,7 @@ describe("tenant isolation - remaining route variants", () => {
     const findingFindFirst = vi.fn().mockResolvedValue(null);
 
     vi.doMock("@/lib/auth", () => ({ getSession: vi.fn().mockResolvedValue({ id: "u_1", orgId: "org_a", role: "ADMIN" }) }));
+    vi.doMock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
     vi.doMock("@/lib/db", () => ({ db: { finding: { findFirst: findingFindFirst } } }));
     vi.doMock("@/lib/remediation-lifecycle", () => ({ parseRemediationMeta: vi.fn(), linkPRToFinding: vi.fn() }));
 
@@ -52,6 +54,7 @@ describe("tenant isolation - remaining route variants", () => {
     const findingFindFirst = vi.fn().mockResolvedValue(null);
 
     vi.doMock("@/lib/auth", () => ({ getSession: vi.fn().mockResolvedValue({ id: "u_1", orgId: "org_a", role: "ADMIN" }) }));
+    vi.doMock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
     vi.doMock("@/lib/db", () => ({ db: { finding: { findFirst: findingFindFirst } } }));
     vi.doMock("@/lib/remediation-lifecycle", () => ({ parseRemediationMeta: vi.fn() }));
 
@@ -76,6 +79,7 @@ describe("tenant isolation - remaining route variants", () => {
     ]);
 
     vi.doMock("@/lib/auth", () => ({ getSession: vi.fn().mockResolvedValue({ id: "u_1", orgId: "org_a", role: "ADMIN" }) }));
+    vi.doMock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
     vi.doMock("@/lib/db", () => ({
       db: {
         monitoredApp: { findFirst: monitoredAppFindFirst },

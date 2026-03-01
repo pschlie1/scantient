@@ -241,6 +241,8 @@ describe("POST /api/agent/scan", () => {
 describe("POST /api/apps/[id]/agent-key", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default to PRO so tier gate passes; individual tests override if needed
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
   });
 
   it("generates a key for ADMIN role", async () => {

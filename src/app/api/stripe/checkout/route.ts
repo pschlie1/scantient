@@ -6,7 +6,7 @@ import { getStripe, PLANS } from "@/lib/stripe";
 import type { PlanKey } from "@/lib/stripe";
 
 const checkoutSchema = z.object({
-  plan: z.enum(["STARTER", "PRO", "ENTERPRISE"]),
+  plan: z.enum(["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"]),
 });
 
 export async function POST(req: Request) {

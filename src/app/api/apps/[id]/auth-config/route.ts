@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { encryptAuthHeaders, decryptAuthHeaders, maskAuthHeaders } from "@/lib/auth-headers";
+import { getOrgLimits } from "@/lib/tenant";
 
 const authHeaderSchema = z.object({
   name: z.string().min(1),
@@ -13,13 +14,18 @@ const putBodySchema = z
   .array(authHeaderSchema)
   .max(10, "Maximum 10 auth headers allowed");
 
-/** GET — return masked auth headers for the app (OWNER/ADMIN only) */
+/** GET — return masked auth headers for the app (OWNER/ADMIN only, PRO+ tier) */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!["OWNER", "ADMIN"].includes(session.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "Authenticated scanning requires a Pro plan or higher." }, { status: 403 });
   }
 
   const { id } = await params;
@@ -34,13 +40,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   return NextResponse.json({ headers: maskAuthHeaders(headers) });
 }
 
-/** PUT — save/replace auth headers (OWNER/ADMIN only) */
+/** PUT — save/replace auth headers (OWNER/ADMIN only, PRO+ tier) */
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!["OWNER", "ADMIN"].includes(session.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "Authenticated scanning requires a Pro plan or higher." }, { status: 403 });
   }
 
   const { id } = await params;

@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { deobfuscate } from "@/lib/crypto-util";
+import { getOrgLimits } from "@/lib/tenant";
 
 export async function POST() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
+    const limits = await getOrgLimits(session.orgId);
+    if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+      return NextResponse.json({ error: "Jira integration requires a Pro plan or higher." }, { status: 403 });
+    }
     const integration = await db.integrationConfig.findUnique({
       where: { orgId_type: { orgId: session.orgId, type: "jira" } },
     });

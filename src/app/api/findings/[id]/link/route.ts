@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { parseRemediationMeta, linkPRToFinding } from "@/lib/remediation-lifecycle";
+import { getOrgLimits } from "@/lib/tenant";
 
 const linkSchema = z.object({
   url: z.string().url().refine(
@@ -15,6 +16,11 @@ const linkSchema = z.object({
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "PR linking requires a Pro plan or higher." }, { status: 403 });
+  }
 
   const { id } = await params;
 
@@ -51,6 +57,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "PR linking requires a Pro plan or higher." }, { status: 403 });
+  }
 
   const { id } = await params;
   const finding = await db.finding.findFirst({
