@@ -3,12 +3,17 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { deobfuscate } from "@/lib/crypto-util";
+import { getOrgLimits } from "@/lib/tenant";
 
 const bodySchema = z.object({ findingId: z.string().min(1) });
 
 export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER", "MEMBER"]);
+    const limits = await getOrgLimits(session.orgId);
+    if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+      return NextResponse.json({ error: "Jira integration requires a Pro plan or higher." }, { status: 403 });
+    }
     const body = await req.json();
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "findingId is required" }, { status: 400 });
