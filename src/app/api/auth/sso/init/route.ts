@@ -10,6 +10,7 @@ const JWT_SECRET = (() => {
   return s;
 })();
 const CALLBACK_URL = "https://scantient.com/api/auth/sso/callback";
+
 const STATE_COOKIE = "vs_sso_state";
 
 export async function GET(req: Request) {

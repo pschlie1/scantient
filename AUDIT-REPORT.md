@@ -4,6 +4,7 @@
 **Auditor:** Automated Deep Audit (OpenClaw)  
 **Scope:** Full codebase at `/home/clawuser/.openclaw/workspace/scantient`  
 **Live Site:** https://scantient.com  
+
 **Commit:** `8de2ab2` (main branch, clean working tree)
 
 ---
@@ -38,6 +39,7 @@ The `.env` file is tracked in git and contains **live production credentials**:
 DATABASE_URL="postgresql://neondb_owner:npg_FkXQ3IaBweC0@ep-silent-shadow-ai6w5p60-pooler.c-4.us-east-1.aws.neon.tech/neondb..."
 DIRECT_URL="postgresql://neondb_owner:npg_FkXQ3IaBweC0@..."
 JWT_SECRET="scantient-dev-secret-change-in-production"
+
 CRON_SECRET="dev-secret-replace-in-production"
 ```
 
@@ -144,6 +146,7 @@ The middleware only checks for cookie *presence*, not validity:
 
 ```typescript
 const session = request.cookies.get("scantient-session");
+
 if (!session?.value) {
   // Only empty cookie triggers rejection
 }
@@ -313,6 +316,7 @@ Or at minimum remove `unsafe-eval` — Next.js 13+ App Router doesn't require it
 **Location:** Live site headers (likely Vercel default)  
 **Risk:** Any website can make cross-origin requests to the Scantient API using credentials stored in browser
 
+
 The live site returns `access-control-allow-origin: *` for all responses. For a SaaS product with session-cookie auth, this should be restricted to the application's own origin.
 
 **Recommended Fix:**
@@ -320,6 +324,7 @@ Add CORS configuration in `next.config.ts` or middleware:
 ```typescript
 // Only allow your own origin for credentialed requests
 const allowedOrigins = ["https://scantient.com"];
+
 headers: { "Access-Control-Allow-Origin": allowedOrigins.includes(origin) ? origin : "" }
 ```
 
@@ -372,6 +377,7 @@ jwt.sign(payload, JWT_SECRET, {
 });
 // Verify with:
 jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"], issuer: "scantient", audience: "scantient-app" });
+
 ```
 
 ---
@@ -552,6 +558,7 @@ const [apps, criticalFindings, recentRuns, healthyApps] = await Promise.all([
 ## HTTP Security Headers Assessment
 
 Fetched from: `https://scantient.com`
+
 
 | Header | Status | Value |
 |---|---|---|

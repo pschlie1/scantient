@@ -30,6 +30,7 @@ export async function GET(req: Request) {
 
   if (!url || !key) return new NextResponse(makeSvg("scantient", "unknown", "#9f9f9f"), { headers: svgHeaders });
 
+
   const hash = crypto.createHash("sha256").update(key).digest("hex");
   const apiKey = await db.apiKey.findFirst({ where: { keyHash: hash } });
   if (!apiKey || (apiKey.expiresAt && apiKey.expiresAt < new Date())) {

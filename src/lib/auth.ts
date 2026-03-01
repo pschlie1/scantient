@@ -37,6 +37,7 @@ function signToken(payload: SessionUser): string {
     expiresIn: SESSION_DURATION,
     issuer: "scantient",
     audience: "scantient-app",
+
   });
 }
 
@@ -46,6 +47,7 @@ function verifyToken(token: string): SessionUser | null {
       algorithms: ["HS256"],
       issuer: "scantient",
       audience: "scantient-app",
+
     }) as unknown as SessionUser;
   } catch {
     return null;

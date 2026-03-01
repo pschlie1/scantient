@@ -77,6 +77,7 @@ export async function middleware(request: NextRequest) {
       }
       const res = NextResponse.redirect(new URL("/login", request.url));
       res.cookies.delete("scantient-session");
+
       return res;
     }
   }
