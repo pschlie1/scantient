@@ -7,12 +7,12 @@ export async function GET(req: Request) {
   const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret) {
-    console.warn("[cron] WARNING: CRON_SECRET is not set. Cron endpoint is unprotected (dev mode).");
-  } else {
-    const auth = req.headers.get("authorization");
-    if (auth !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 503 });
+  }
+
+  const auth = req.headers.get("authorization");
+  if (auth !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {

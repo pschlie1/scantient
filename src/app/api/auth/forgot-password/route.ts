@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const limit = await checkRateLimit(`forgot-password:${ip}`, {
     maxAttempts: 5,
     windowMs: 60 * 60 * 1000,
-    fallbackMode: "fail-open",
+    fallbackMode: "fail-closed",
   });
   if (!limit.allowed) {
     // Still return 200 to avoid leaking info, but don't process

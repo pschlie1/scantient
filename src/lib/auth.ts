@@ -32,12 +32,21 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 function signToken(payload: SessionUser): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: SESSION_DURATION });
+  return jwt.sign(payload, JWT_SECRET, {
+    algorithm: "HS256",
+    expiresIn: SESSION_DURATION,
+    issuer: "vibesafe",
+    audience: "vibesafe-app",
+  });
 }
 
 function verifyToken(token: string): SessionUser | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as unknown as SessionUser;
+    return jwt.verify(token, JWT_SECRET, {
+      algorithms: ["HS256"],
+      issuer: "vibesafe",
+      audience: "vibesafe-app",
+    }) as unknown as SessionUser;
   } catch {
     return null;
   }
@@ -63,9 +72,10 @@ export async function createSession(userId: string): Promise<SessionUser> {
 
   const token = signToken(session);
   const cookieStore = await cookies();
+  const isSecure = process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecure,
     sameSite: "strict",
     maxAge: SESSION_DURATION,
     path: "/",

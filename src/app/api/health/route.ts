@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 import { logApiError } from "@/lib/observability";
 
 const CRON_STALE_MINUTES = Number(process.env.HEALTH_CRON_STALE_MINUTES ?? "360");
@@ -7,6 +8,15 @@ const CRON_STALE_MINUTES = Number(process.env.HEALTH_CRON_STALE_MINUTES ?? "360"
 type CheckStatus = "pass" | "warn" | "fail";
 
 export async function GET() {
+  // Unauthenticated callers get only a basic liveness response
+  const session = await getSession().catch(() => null);
+  if (!session) {
+    return NextResponse.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
   const checks: {
     database: {
       status: CheckStatus;

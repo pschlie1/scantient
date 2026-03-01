@@ -7,7 +7,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(12, "Password must be at least 12 characters"),
 });
 
 function getJwtSecret(): string {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const limit = await checkRateLimit(`reset-password:${ip}`, {
     maxAttempts: 10,
     windowMs: 60 * 60 * 1000,
-    fallbackMode: "fail-open",
+    fallbackMode: "fail-closed",
   });
   if (!limit.allowed) {
     return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });

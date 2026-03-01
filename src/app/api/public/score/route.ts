@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { lookup } from "dns/promises";
+import { isIP } from "net";
 import {
   checkSecurityHeaders,
   checkMetaAndConfig,
@@ -9,6 +11,43 @@ import {
 } from "@/lib/security";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { SecurityFinding } from "@/lib/types";
+
+/**
+ * SSRF guard — returns true if the URL resolves to a private/internal IP.
+ */
+async function isPrivateUrl(url: string): Promise<boolean> {
+  let hostname: string;
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    return true;
+  }
+  if (hostname === "localhost" || hostname.endsWith(".local")) return true;
+  const ipVersion = isIP(hostname);
+  if (ipVersion !== 0) return isPrivateIp(hostname);
+  try {
+    const addresses = await lookup(hostname, { all: true });
+    return addresses.some((a) => isPrivateIp(a.address));
+  } catch {
+    return true;
+  }
+}
+
+function isPrivateIp(ip: string): boolean {
+  if (ip === "::1" || ip === "0:0:0:0:0:0:0:1") return true;
+  const v4mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+  const v4 = v4mapped ? v4mapped[1] : ip;
+  const parts = v4.split(".").map(Number);
+  if (parts.length !== 4) return false;
+  const [a, b] = parts;
+  return (
+    a === 127 ||
+    a === 10 ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 169 && b === 254)
+  );
+}
 
 const requestSchema = z.object({
   url: z.string().url("Must be a valid URL"),
@@ -68,6 +107,14 @@ export async function POST(req: Request) {
   }
 
   const { url } = parsed.data;
+
+  // SSRF guard: block private/internal URLs before fetching
+  if (await isPrivateUrl(url)) {
+    return NextResponse.json(
+      { error: "SSRF: private/internal URLs are not allowed" },
+      { status: 400 },
+    );
+  }
 
   // Fetch the URL with 30s timeout
   let html = "";

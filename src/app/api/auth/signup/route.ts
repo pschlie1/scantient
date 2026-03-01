@@ -42,7 +42,7 @@ async function sendVerificationEmail(to: string, verifyLink: string) {
 
 const signupSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(12, "Password must be at least 12 characters"),
   name: z.string().min(2),
   orgName: z.string().min(2),
 });
