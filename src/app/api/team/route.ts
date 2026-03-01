@@ -31,8 +31,8 @@ async function sendInviteEmail(
   inviteToken: string,
 ) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_URL ?? "https://vibesafe-two.vercel.app";
+  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@scantient.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_URL ?? "https://scantient.com";
 
   if (!key) {
     console.warn("[team] RESEND_API_KEY not set. Skipping invite email.");
@@ -49,7 +49,7 @@ async function sendInviteEmail(
           <span style="color: #fff; font-weight: bold; font-size: 18px;">V</span>
         </div>
         <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0; color: #111;">
-          You've been invited to join ${orgName} on VibeSafe
+          You've been invited to join ${orgName} on Scantient
         </h1>
         <p style="color: #555; font-size: 14px; margin: 0;">
           ${inviterDisplay} has invited you to join <strong>${orgName}</strong> as a <strong>${role}</strong>.
@@ -81,7 +81,7 @@ async function sendInviteEmail(
     body: JSON.stringify({
       from,
       to: [to],
-      subject: `You've been invited to join ${orgName} on VibeSafe`,
+      subject: `You've been invited to join ${orgName} on Scantient`,
       html,
     }),
   });

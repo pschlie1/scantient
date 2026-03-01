@@ -1,4 +1,4 @@
-# VibeSafe Content Guidelines
+# Scantient Content Guidelines
 
 ## Writing Style
 

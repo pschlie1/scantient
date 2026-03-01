@@ -7,7 +7,7 @@ export default function MarketingNav() {
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
           <span className="text-sm font-bold text-white">V</span>
         </div>
-        <span className="font-bold">VibeSafe</span>
+        <span className="font-bold">Scantient</span>
       </Link>
       <div className="flex items-center gap-6">
         <Link href="/blog" className="hidden text-sm text-gray-500 hover:text-black transition-colors sm:block">Blog</Link>

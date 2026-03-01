@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const issueBody = {
       fields: {
         project: { key: cfg.projectKey },
-        summary: `[VibeSafe] ${severity}: ${finding.title} on ${app.name}`,
+        summary: `[Scantient] ${severity}: ${finding.title} on ${app.name}`,
         description: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: `${finding.description}\n\nFix: ${finding.fixPrompt}\n\nApp URL: ${app.url}` }] }] },
         issuetype: { name: cfg.issueType },
         priority: { name: priority },

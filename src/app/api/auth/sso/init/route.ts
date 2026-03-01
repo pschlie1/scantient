@@ -4,8 +4,13 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import * as client from "openid-client";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "fallback-secret";
-const CALLBACK_URL = "https://vibesafe-two.vercel.app/api/auth/sso/callback";
+const JWT_SECRET = (() => {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("JWT_SECRET environment variable is required");
+  return s;
+})();
+const CALLBACK_URL = "https://scantient.com/api/auth/sso/callback";
+
 const STATE_COOKIE = "vs_sso_state";
 
 export async function GET(req: Request) {
@@ -36,7 +41,8 @@ export async function GET(req: Request) {
     });
     const stateToken = jwt.sign({ codeVerifier, state, orgId: ssoConfig.orgId, domain }, JWT_SECRET, { expiresIn: 600 });
     const cookieStore = await cookies();
-    cookieStore.set(STATE_COOKIE, stateToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 600, path: "/" });
+    const isSecure = process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
+    cookieStore.set(STATE_COOKIE, stateToken, { httpOnly: true, secure: isSecure, sameSite: "lax", maxAge: 600, path: "/" });
     return NextResponse.redirect(authUrl.href);
   } catch (err) {
     console.error("SSO init error:", err);

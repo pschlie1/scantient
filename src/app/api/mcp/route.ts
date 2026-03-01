@@ -326,7 +326,7 @@ export async function POST(req: Request) {
   if (method === "initialize") {
     return ok(id, {
       protocolVersion: "2024-11-05",
-      serverInfo: { name: "vibesafe-mcp", version: "2.0.0" },
+      serverInfo: { name: "scantient-mcp", version: "2.0.0" },
       capabilities: { tools: {} },
     });
   }

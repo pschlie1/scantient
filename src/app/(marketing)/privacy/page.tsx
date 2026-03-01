@@ -3,8 +3,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — VibeSafe",
-  description: "How VibeSafe collects, uses, and protects your data.",
+  title: "Privacy Policy — Scantient",
+  description: "How Scantient collects, uses, and protects your data.",
 };
 
 export default function PrivacyPage() {
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">1. Who we are</h2>
           <p className="mt-3 text-gray-600">
-            VibeSafe Inc. (&ldquo;VibeSafe&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the VibeSafe security monitoring platform, accessible at vibesafe.app. This policy explains how we collect, use, and share information when you use our service.
+            Scantient Inc. (&ldquo;Scantient&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates the Scantient security monitoring platform, accessible at scantient.com. This policy explains how we collect, use, and share information when you use our service.
           </p>
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">2. Information we collect</h2>
@@ -35,14 +35,14 @@ export default function PrivacyPage() {
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">3. How we use your information</h2>
           <div className="mt-3 space-y-2 text-gray-600">
-            <p>We use collected information to: provide and improve the VibeSafe service; send security alerts and notifications you have configured; respond to support requests; send product updates and account communications; fulfill legal obligations.</p>
+            <p>We use collected information to: provide and improve the Scantient service; send security alerts and notifications you have configured; respond to support requests; send product updates and account communications; fulfill legal obligations.</p>
             <p>We do not use your data to train AI models. We do not sell your data to third parties.</p>
           </div>
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">4. Data sharing</h2>
           <div className="mt-3 space-y-2 text-gray-600">
-            <p>We share data only with service providers necessary to operate VibeSafe: Neon (database hosting), Vercel (application hosting), Stripe (billing), Sentry (error monitoring), and Upstash (rate limiting). Each is bound by a data processing agreement.</p>
-            <p>We may disclose information if required by law, court order, or to protect the rights and safety of VibeSafe, our customers, or the public.</p>
+            <p>We share data only with service providers necessary to operate Scantient: Neon (database hosting), Vercel (application hosting), Stripe (billing), Sentry (error monitoring), and Upstash (rate limiting). Each is bound by a data processing agreement.</p>
+            <p>We may disclose information if required by law, court order, or to protect the rights and safety of Scantient, our customers, or the public.</p>
           </div>
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">5. Data retention</h2>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">7. Your rights</h2>
           <p className="mt-3 text-gray-600">
-            You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@vibesafe.app. If you are in the European Economic Area, you have additional rights under GDPR including the right to data portability and to lodge a complaint with a supervisory authority.
+            You may request access to, correction of, or deletion of your personal data at any time by emailing privacy@scantient.com. If you are in the European Economic Area, you have additional rights under GDPR including the right to data portability and to lodge a complaint with a supervisory authority.
           </p>
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">8. Cookies</h2>
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
 
           <h2 className="mt-8 text-lg font-semibold text-gray-900">10. Contact</h2>
           <p className="mt-3 text-gray-600">
-            Questions about this policy: <a href="mailto:privacy@vibesafe.app" className="text-black underline hover:no-underline">privacy@vibesafe.app</a>. VibeSafe Inc., Chicago, Illinois.
+            Questions about this policy: <a href="mailto:privacy@scantient.com" className="text-black underline hover:no-underline">privacy@scantient.com</a>. Scantient Inc., Chicago, Illinois.
           </p>
         </div>
       </article>

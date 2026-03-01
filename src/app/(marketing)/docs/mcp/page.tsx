@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "MCP API Documentation — VibeSafe",
-  description: "Connect AI agents to VibeSafe via the Model Context Protocol (MCP) endpoint.",
+  title: "MCP API Documentation — Scantient",
+  description: "Connect AI agents to Scantient via the Model Context Protocol (MCP) endpoint.",
 };
 
 function CodeBlock({ children }: { children: string }) {
@@ -168,7 +168,7 @@ export default function McpDocsPage() {
     <div className="mx-auto max-w-4xl px-6 py-16">
       <h1 className="mb-4 text-4xl font-bold">MCP API Reference</h1>
       <p className="mb-8 text-lg text-gray-600 dark:text-gray-300">
-        Connect AI agents to VibeSafe using the{" "}
+        Connect AI agents to Scantient using the{" "}
         <a href="https://modelcontextprotocol.io" className="text-blue-600 underline" target="_blank" rel="noopener">
           Model Context Protocol
         </a>
@@ -181,7 +181,7 @@ export default function McpDocsPage() {
         <p className="mb-4 text-gray-600 dark:text-gray-300">
           All requests require an API key sent via the <code className="rounded bg-gray-100 px-1 dark:bg-gray-700">Authorization</code> header:
         </p>
-        <CodeBlock>{`curl -X POST https://vibesafe.dev/api/mcp \\
+        <CodeBlock>{`curl -X POST https://scantient.com/api/mcp \\
   -H "Authorization: Bearer vs_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</CodeBlock>

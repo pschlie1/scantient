@@ -4,28 +4,28 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "About VibeSafe — Security Monitoring for AI-Built Apps",
+  title: "About Scantient — Security Monitoring for AI-Built Apps",
   description:
-    "VibeSafe helps IT Directors and CISOs maintain visibility and control over AI-generated applications deployed across their organizations.",
+    "Scantient helps IT Directors and CISOs maintain visibility and control over AI-generated applications deployed across their organizations.",
 };
 
 const values = [
   {
     title: "Security shouldn't require a security team",
-    body: "Most mid-market companies don't have a dedicated AppSec engineer. We built VibeSafe so IT Directors can enforce security standards across their entire app portfolio without specialized headcount.",
+    body: "Most mid-market companies don't have a dedicated AppSec engineer. We built Scantient so IT Directors can enforce security standards across their entire app portfolio without specialized headcount.",
   },
   {
     title: "Visibility before control",
-    body: "You can't secure what you can't see. VibeSafe starts by giving you a complete map of every AI-built app in your organization, then layers in continuous monitoring and automated remediation guidance.",
+    body: "You can't secure what you can't see. Scantient starts by giving you a complete map of every AI-built app in your organization, then layers in continuous monitoring and automated remediation guidance.",
   },
   {
     title: "Built for buyers, not builders",
-    body: "The people responsible for security outcomes are rarely the people who built the apps. VibeSafe is designed for the CIO, the CISO, and the IT Director — not the developer who shipped the code.",
+    body: "The people responsible for security outcomes are rarely the people who built the apps. Scantient is designed for the CIO, the CISO, and the IT Director — not the developer who shipped the code.",
   },
 ];
 
 const team = [
-  { initials: "PS", name: "Peter Schliesmann", title: "CEO & Co-founder", bio: "Former CIO at multiple PE-backed companies. Built VibeSafe after watching dozens of AI-generated apps land in production without any security review." },
+  { initials: "PS", name: "Peter Schliesmann", title: "CEO & Co-founder", bio: "Former CIO at multiple PE-backed companies. Built Scantient after watching dozens of AI-generated apps land in production without any security review." },
   { initials: "AM", name: "Alex Morgan", title: "CTO & Co-founder", bio: "Previously led security engineering at a Series B fintech. Architected the scanning engine and continuous monitoring infrastructure." },
   { initials: "JL", name: "Jamie Lin", title: "Head of Product", bio: "Former product lead at a compliance SaaS. Obsessed with making enterprise security tools that non-technical buyers actually want to use." },
 ];
@@ -41,7 +41,7 @@ export default function AboutPage() {
           Built by IT leaders,<br />for IT leaders
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-gray-500">
-          VibeSafe was founded in 2025 by a team of enterprise IT and security veterans who kept running into the same problem: employees were deploying AI-generated applications faster than IT could track them. By the time security found out, the apps were already processing customer data.
+          Scantient was founded in 2025 by a team of enterprise IT and security veterans who kept running into the same problem: employees were deploying AI-generated applications faster than IT could track them. By the time security found out, the apps were already processing customer data.
         </p>
 
         <div className="mt-16">
@@ -54,7 +54,7 @@ export default function AboutPage() {
               This is genuinely good for productivity. It&apos;s a serious problem for security. These applications process real data, serve real users, and create real compliance obligations — but they&apos;re built without security review, code standards, or IT oversight.
             </p>
             <p>
-              IT Directors call it &ldquo;shadow IT on steroids.&rdquo; We built VibeSafe to give them back control.
+              IT Directors call it &ldquo;shadow IT on steroids.&rdquo; We built Scantient to give them back control.
             </p>
           </div>
         </div>

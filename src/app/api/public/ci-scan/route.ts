@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   const { url, failOn } = parsed.data;
   let app = await db.monitoredApp.findFirst({ where: { url, orgId } });
   if (!app) {
-    app = await db.monitoredApp.create({ data: { orgId, name: new URL(url).hostname, url, ownerEmail: "ci@vibesafe", criticality: "medium" } });
+    app = await db.monitoredApp.create({ data: { orgId, name: new URL(url).hostname, url, ownerEmail: "ci@scantient", criticality: "medium" } });
   }
 
   let runResult: { runId: string; appId: string; status: string; findingsCount: number; responseTimeMs?: number };
@@ -75,5 +75,5 @@ export async function POST(req: Request) {
   if (mediumCount > 0) parts.push(`${mediumCount} MEDIUM`);
   const summary = parts.length > 0 ? `${parts.join(", ")} finding${findings.length !== 1 ? "s" : ""} detected` : "No significant findings";
 
-  return NextResponse.json({ passed, score, grade, findingsCount: findings.length, criticalCount, highCount, mediumCount, summary, findings, dashboardUrl: `https://vibesafe-two.vercel.app/apps/${app.id}` }, { status: passed ? 200 : 422 });
+  return NextResponse.json({ passed, score, grade, findingsCount: findings.length, criticalCount, highCount, mediumCount, summary, findings, dashboardUrl: `https://scantient.com/apps/${app.id}` }, { status: passed ? 200 : 422 });
 }

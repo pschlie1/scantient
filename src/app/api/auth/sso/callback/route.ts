@@ -5,7 +5,11 @@ import jwt from "jsonwebtoken";
 import { createSession } from "@/lib/auth";
 import * as client from "openid-client";
 
-const JWT_SECRET = process.env.JWT_SECRET ?? "fallback-secret";
+const JWT_SECRET = (() => {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("JWT_SECRET environment variable is required");
+  return s;
+})();
 const STATE_COOKIE = "vs_sso_state";
 
 interface StatePayload { codeVerifier: string; state: string; orgId: string; domain: string; }

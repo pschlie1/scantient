@@ -4,8 +4,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Help Center — VibeSafe",
-  description: "Answers to common questions about VibeSafe, security scanning, and account management.",
+  title: "Help Center — Scantient",
+  description: "Answers to common questions about Scantient, security scanning, and account management.",
 };
 
 const faqs = [
@@ -14,15 +14,15 @@ const faqs = [
     items: [
       {
         q: "How do I add an application to monitor?",
-        a: "After signing in, go to your Dashboard and click 'Add App'. Enter the public URL of the application you want to monitor. VibeSafe will immediately run an initial security scan and begin continuous monitoring.",
+        a: "After signing in, go to your Dashboard and click 'Add App'. Enter the public URL of the application you want to monitor. Scantient will immediately run an initial security scan and begin continuous monitoring.",
       },
       {
-        q: "What does VibeSafe actually scan?",
-        a: "VibeSafe performs HTTP-based security checks including: security headers (CSP, HSTS, X-Frame-Options), exposed API keys or credentials in JavaScript, client-side authentication bypass patterns, CORS misconfiguration, cookie security settings, SSL certificate validity and expiry, open redirects, information disclosure, and dependency exposure signals.",
+        q: "What does Scantient actually scan?",
+        a: "Scantient performs HTTP-based security checks including: security headers (CSP, HSTS, X-Frame-Options), exposed API keys or credentials in JavaScript, client-side authentication bypass patterns, CORS misconfiguration, cookie security settings, SSL certificate validity and expiry, open redirects, information disclosure, and dependency exposure signals.",
       },
       {
-        q: "Does VibeSafe need access to my source code?",
-        a: "No. VibeSafe operates entirely from the outside — the same way an attacker would. We scan your app's public endpoints without requiring a code integration, repository access, or deployment pipeline changes.",
+        q: "Does Scantient need access to my source code?",
+        a: "No. Scantient operates entirely from the outside — the same way an attacker would. We scan your app's public endpoints without requiring a code integration, repository access, or deployment pipeline changes.",
       },
       {
         q: "How long does a scan take?",
@@ -60,7 +60,7 @@ const faqs = [
       },
       {
         q: "Do you offer discounts for nonprofits or educational institutions?",
-        a: "Yes — contact us at support@vibesafe.app with verification and we'll apply a discount to your account.",
+        a: "Yes — contact us at support@scantient.com with verification and we'll apply a discount to your account.",
       },
     ],
   },
@@ -75,7 +75,7 @@ export default function HelpPage() {
         <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Help Center</p>
         <h1 className="text-4xl font-bold tracking-tight">How can we help?</h1>
         <p className="mt-4 text-lg text-gray-500">
-          Common questions about VibeSafe. Can&apos;t find what you&apos;re looking for?{" "}
+          Common questions about Scantient. Can&apos;t find what you&apos;re looking for?{" "}
           <Link href="/contact" className="text-black underline hover:no-underline">
             Contact us
           </Link>.

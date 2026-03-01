@@ -52,7 +52,7 @@ export default function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
                 <span className="text-sm font-bold text-ink-black-950">V</span>
               </div>
-              <span className="text-xl font-bold text-white">VibeSafe</span>
+              <span className="text-xl font-bold text-white">Scantient</span>
             </div>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-alabaster-grey-400">
               Complete visibility into your AI-built app portfolio.
@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
             <p className="text-sm text-alabaster-grey-600">
-              © 2026 VibeSafe Inc. All rights reserved.
+              © 2026 Scantient Inc. All rights reserved.
             </p>
             <div className="flex gap-6">
               <Link href="/status" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">

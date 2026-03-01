@@ -27,7 +27,7 @@ export async function authenticateApiKeyHeader(req: Request): Promise<string | n
 }
 
 /**
- * Authenticate a request using a VibeSafe API key (Bearer token).
+ * Authenticate a request using a Scantient API key (Bearer token).
  * Returns the orgId if valid, null otherwise.
  */
 export async function authenticateApiKey(req: Request): Promise<string | null> {

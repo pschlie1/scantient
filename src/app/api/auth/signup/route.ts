@@ -14,7 +14,7 @@ function getJwtSecret(): string {
 
 async function sendVerificationEmail(to: string, verifyLink: string) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
+  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@scantient.com";
 
   if (!key) {
     console.warn("[auth] RESEND_API_KEY not set. Skipping verification email.");
@@ -23,10 +23,10 @@ async function sendVerificationEmail(to: string, verifyLink: string) {
 
   const html = `
     <div style="font-family: -apple-system, sans-serif; max-width: 480px;">
-      <h2>Verify your VibeSafe email</h2>
+      <h2>Verify your Scantient email</h2>
       <p>Click the link below to verify your email address. This link expires in 24 hours.</p>
       <p><a href="${verifyLink}" style="display:inline-block;padding:10px 20px;background:#000;color:#fff;border-radius:6px;text-decoration:none;">Verify Email</a></p>
-      <p style="font-size:12px;color:#666;">If you didn't sign up for VibeSafe, you can ignore this email.</p>
+      <p style="font-size:12px;color:#666;">If you didn't sign up for Scantient, you can ignore this email.</p>
     </div>
   `;
 
@@ -36,13 +36,13 @@ async function sendVerificationEmail(to: string, verifyLink: string) {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to: [to], subject: "Verify your VibeSafe email", html }),
+    body: JSON.stringify({ from, to: [to], subject: "Verify your Scantient email", html }),
   });
 }
 
 const signupSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(12, "Password must be at least 12 characters"),
   name: z.string().min(2),
   orgName: z.string().min(2),
 });
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
       getJwtSecret(),
       { expiresIn: "24h" },
     );
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://vibesafe-two.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://scantient.com";
     const verifyLink = `${appUrl}/verify-email?token=${verifyToken}`;
     await sendVerificationEmail(email, verifyLink);
   } catch (err) {
@@ -134,9 +134,9 @@ export async function POST(req: Request) {
   });
 
   // Fire-and-forget: onboarding welcome email
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_URL ?? "https://vibesafe-two.vercel.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_URL ?? "https://scantient.com";
   const resendKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
+  const fromEmail = process.env.ALERT_FROM_EMAIL ?? "noreply@scantient.com";
   if (resendKey) {
     const onboardingHtml = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
@@ -144,9 +144,9 @@ export async function POST(req: Request) {
           <div style="width: 40px; height: 40px; background: #000; border-radius: 10px; margin-bottom: 16px; display: inline-flex; align-items: center; justify-content: center;">
             <span style="color: #fff; font-weight: bold; font-size: 18px; line-height: 1;">V</span>
           </div>
-          <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">Welcome to VibeSafe 🎉</h1>
+          <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">Welcome to Scantient 🎉</h1>
           <p style="color: #555; font-size: 15px; margin: 0; line-height: 1.6;">
-            You're in. Here's how to get the most out of VibeSafe in the next few minutes.
+            You're in. Here's how to get the most out of Scantient in the next few minutes.
           </p>
         </div>
 
@@ -196,7 +196,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from: fromEmail,
         to: [email],
-        subject: "Welcome to VibeSafe — here's how to get started",
+        subject: "Welcome to Scantient — here's how to get started",
         html: onboardingHtml,
       }),
     }).catch((err) => console.warn("[auth] Failed to send onboarding email:", err));

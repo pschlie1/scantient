@@ -17,7 +17,7 @@ const steps = [
   {
     key: "accountCreated" as keyof ChecklistState,
     title: "Create your account",
-    desc: "Welcome to VibeSafe! Your account is ready.",
+    desc: "Welcome to Scantient! Your account is ready.",
     ctaLabel: null,
     ctaHref: null,
   },
@@ -177,7 +177,7 @@ export function OnboardingChecklist() {
           {allComplete ? (
             <div className="px-5 pb-5 text-center">
               <p className="text-sm text-gray-600">
-                You&apos;ve completed the setup! VibeSafe is monitoring your apps. 🚀
+                You&apos;ve completed the setup! Scantient is monitoring your apps. 🚀
               </p>
               <button
                 onClick={dismiss}

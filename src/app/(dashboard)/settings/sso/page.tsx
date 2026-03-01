@@ -103,7 +103,7 @@ export default function SSOPage() {
 
       <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm">
         <strong className="text-blue-800">Callback URL to register with your IdP:</strong>
-        <code className="ml-2 rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-900">https://vibesafe-two.vercel.app/api/auth/sso/callback</code>
+        <code className="ml-2 rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-900">https://scantient.com/api/auth/sso/callback</code>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4 rounded-lg border bg-white p-6">

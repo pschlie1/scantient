@@ -3,8 +3,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Careers — VibeSafe",
-  description: "Join VibeSafe and help build security infrastructure for the AI era.",
+  title: "Careers — Scantient",
+  description: "Join Scantient and help build security infrastructure for the AI era.",
 };
 
 const openRoles = [
@@ -48,11 +48,11 @@ export default function CareersPage() {
           Build security for<br />the AI era
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-gray-500">
-          VibeSafe is a small, focused team solving a real problem: organizations are deploying AI-generated applications faster than IT can track or secure them. We&apos;re building the infrastructure to fix that.
+          Scantient is a small, focused team solving a real problem: organizations are deploying AI-generated applications faster than IT can track or secure them. We&apos;re building the infrastructure to fix that.
         </p>
 
         <div className="mt-16">
-          <h2 className="text-2xl font-semibold">Why VibeSafe</h2>
+          <h2 className="text-2xl font-semibold">Why Scantient</h2>
           <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
             <p>
               We&apos;re at an inflection point in how software gets built. AI coding tools have put production deployments in the hands of every employee — and IT teams are scrambling to maintain visibility and control. We&apos;re building the platform that solves this.
@@ -90,7 +90,7 @@ export default function CareersPage() {
                     </div>
                   </div>
                   <a
-                    href={`mailto:careers@vibesafe.app?subject=Application: ${role.title}`}
+                    href={`mailto:careers@scantient.com?subject=Application: ${role.title}`}
                     className="mt-3 inline-block shrink-0 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors sm:mt-0"
                   >
                     Apply
@@ -105,7 +105,7 @@ export default function CareersPage() {
         <div className="mt-12 rounded-2xl bg-gray-50 p-6">
           <p className="text-sm text-gray-600">
             Don&apos;t see the right role?{" "}
-            <a href="mailto:careers@vibesafe.app" className="font-medium text-black underline hover:no-underline">
+            <a href="mailto:careers@scantient.com" className="font-medium text-black underline hover:no-underline">
               Send us a note anyway.
             </a>{" "}
             We&apos;re always interested in strong engineers and security researchers.

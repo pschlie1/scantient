@@ -1,12 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/footer";
 
 const checks = [
-  { icon: "🔑", title: "Exposed API Keys", desc: "Detects OpenAI, Stripe, Supabase, and 8 other secret patterns leaked in client-side JavaScript. VibeSafe finds them before an attacker does." },
+  { icon: "🔑", title: "Exposed API Keys", desc: "Detects OpenAI, Stripe, Supabase, and 8 other secret patterns leaked in client-side JavaScript. Scantient finds them before an attacker does." },
   { icon: "🛡️", title: "Missing Security Headers", desc: "Checks 6 required headers: CSP, HSTS, X-Frame-Options, and more. Missing headers are the leading cause of preventable breaches in AI-built apps." },
   { icon: "🔓", title: "Auth Bypass Patterns", desc: "Catches client-side auth gates, localStorage role checks, and cookie-based access control. The shortcuts LLMs take put your data at risk." },
   { icon: "📜", title: "Inline Script Risks", desc: "Scans inline scripts for secrets, XSS vectors, and dangerouslySetInnerHTML usage. Common in LLM-generated React code." },
-  { icon: "⚙️", title: "Config & Meta Leaks", desc: "Exposed source maps reveal your entire codebase. VibeSafe detects dev-mode indicators and server tech disclosure too." },
+  { icon: "⚙️", title: "Config & Meta Leaks", desc: "Exposed source maps reveal your entire codebase. Scantient detects dev-mode indicators and server tech disclosure too." },
   { icon: "📊", title: "Uptime & Performance", desc: "Tracks response time and availability every scan. Know before your users do." },
   { icon: "🔗", title: "Third-party Script Risk", desc: "Scores every external script tag for supply chain risk. Flags HTTP-loaded scripts, known compromised CDNs, and data: URI scripts before they execute malicious code." },
   { icon: "📋", title: "Form Security", desc: "Inspects every form for GET-method API submissions, missing CSRF tokens on password fields, and actions that send data to external domains." },
@@ -100,14 +101,14 @@ const tiers = [
       "Custom SLAs",
     ],
     cta: "Talk to sales",
-    ctaHref: "mailto:sales@vibesafe.app",
+    ctaHref: "mailto:sales@scantient.com",
     highlighted: false,
   },
 ];
 
 const testimonials = [
   {
-    quote: "We had 23 AI-built internal tools with zero security oversight. VibeSafe found exposed API keys in three of them within the first scan. That alone justified the entire annual cost.",
+    quote: "We had 23 AI-built internal tools with zero security oversight. Scantient found exposed API keys in three of them within the first scan. That alone justified the entire annual cost.",
     name: "Sarah Chen",
     initials: "SC",
     avatarBg: "bg-prussian-blue-600",
@@ -115,7 +116,7 @@ const testimonials = [
     company: "Meridian Financial Group",
   },
   {
-    quote: "My team was spending 20 hours a week manually auditing vibe-coded apps. VibeSafe automated 90% of that work. Now we actually have time for strategic security initiatives.",
+    quote: "My team was spending 20 hours a week manually auditing vibe-coded apps. Scantient automated 90% of that work. Now we actually have time for strategic security initiatives.",
     name: "Marcus Rivera",
     initials: "MR",
     avatarBg: "bg-ink-black-700",
@@ -123,7 +124,7 @@ const testimonials = [
     company: "Caliber Health Systems",
   },
   {
-    quote: "The board asked me how we govern AI-generated applications. Before VibeSafe, I didn't have an answer. Now I send them a weekly compliance report automatically.",
+    quote: "The board asked me how we govern AI-generated applications. Before Scantient, I didn't have an answer. Now I send them a weekly compliance report automatically.",
     name: "Jennifer Okafor",
     initials: "JO",
     avatarBg: "bg-dusty-denim-600",
@@ -132,46 +133,56 @@ const testimonials = [
   },
 ];
 
-const integrations = [
-  { name: "GitHub", icon: "⬡" },
-  { name: "Vercel", icon: "▲" },
-  { name: "Slack", icon: "◈" },
-  { name: "Netlify", icon: "◆" },
-  { name: "Jira", icon: "◉" },
-  { name: "PagerDuty", icon: "◎" },
-];
+const integrations = {
+  live: [
+    { name: "Jira", logo: "/logos/jira.svg" },
+    { name: "GitHub Actions", logo: "/logos/github.svg" },
+    { name: "Okta", logo: "/logos/okta.svg" },
+    { name: "Azure AD", logo: "/logos/azure.svg" },
+    { name: "Google Workspace", logo: "/logos/google.svg" },
+    { name: "MCP", logo: "/logos/mcp.svg" },
+  ],
+  soon: [
+    { name: "Slack", logo: "/logos/slack.svg" },
+    { name: "PagerDuty", logo: "/logos/pagerduty.svg" },
+    { name: "Vercel", logo: "/logos/vercel.svg" },
+    { name: "Netlify", logo: "/logos/netlify.svg" },
+    { name: "Datadog", logo: "/logos/datadog.svg" },
+    { name: "Linear", logo: "/logos/linear.svg" },
+  ],
+};
 
 const faqs = [
   {
-    q: "How does VibeSafe scan without an SDK?",
-    a: "VibeSafe performs external scans the same way an attacker would probe your applications. We analyze HTTP responses, JavaScript bundles, security headers, and public-facing configurations. No code changes or developer involvement required.",
+    q: "How does Scantient scan without an SDK?",
+    a: "Scantient performs external scans the same way an attacker would probe your applications. We analyze HTTP responses, JavaScript bundles, security headers, and public-facing configurations. No code changes or developer involvement required.",
   },
   {
-    q: "What types of AI-generated apps can VibeSafe monitor?",
-    a: "Any web application accessible via URL: built with Cursor, Lovable, Bolt, Replit, or any other AI coding tool. If the app has a URL, VibeSafe scans the app.",
+    q: "What types of AI-generated apps can Scantient monitor?",
+    a: "Any web application accessible via URL: built with Cursor, Lovable, Bolt, Replit, or any other AI coding tool. If the app has a URL, Scantient scans the app.",
   },
   {
     q: "How long does setup take?",
-    a: "Under 2 minutes. Enter your app URLs, and VibeSafe starts scanning immediately. No SDK integration, no configuration files, no developer tickets.",
+    a: "Under 2 minutes. Enter your app URLs, and Scantient starts scanning immediately. No SDK integration, no configuration files, no developer tickets.",
   },
   {
-    q: "Is VibeSafe a replacement for penetration testing?",
-    a: "No. VibeSafe provides continuous, automated external security monitoring: your always-on first line of defense. We recommend annual penetration testing alongside continuous monitoring.",
+    q: "Is Scantient a replacement for penetration testing?",
+    a: "No. Scantient provides continuous, automated external security monitoring: your always-on first line of defense. We recommend annual penetration testing alongside continuous monitoring.",
   },
   {
-    q: "What compliance frameworks does VibeSafe support?",
+    q: "What compliance frameworks does Scantient support?",
     a: "Our reports map to SOC 2, ISO 27001, and NIST CSF controls. Enterprise plans include customizable compliance report templates for auditor-ready documentation.",
   },
   {
-    q: "Does VibeSafe test for exposed admin and debug endpoints?",
-    a: "Yes. Every scan probes 15 common dangerous paths: .env files, .git/HEAD, /api/admin, /api/debug, phpinfo.php, Spring Boot actuators, and more. These are the first paths attackers check. VibeSafe checks them first.",
+    q: "Does Scantient test for exposed admin and debug endpoints?",
+    a: "Yes. Every scan probes 15 common dangerous paths: .env files, .git/HEAD, /api/admin, /api/debug, phpinfo.php, Spring Boot actuators, and more. These are the first paths attackers check. Scantient checks them first.",
   },
   {
-    q: "Does VibeSafe monitor SSL certificate expiry?",
-    a: "Yes. VibeSafe checks your SSL certificate on every scan and alerts you at 30, 14, and 7 days before expiry. A lapsed certificate takes your site offline for every user.",
+    q: "Does Scantient monitor SSL certificate expiry?",
+    a: "Yes. Scantient checks your SSL certificate on every scan and alerts you at 30, 14, and 7 days before expiry. A lapsed certificate takes your site offline for every user.",
   },
   {
-    q: "Can I try VibeSafe before committing?",
+    q: "Can I try Scantient before committing?",
     a: "Yes. Every plan starts with a 14-day free trial. No credit card required. Scan your first app in under 2 minutes.",
   },
 ];
@@ -186,7 +197,7 @@ export default function LandingPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900">
               <span className="text-sm font-bold text-white">V</span>
             </div>
-            <span className="font-bold tracking-tight text-ink-black-900">VibeSafe</span>
+            <span className="font-bold tracking-tight text-ink-black-900">Scantient</span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Resources</Link>
@@ -211,7 +222,7 @@ export default function LandingPage() {
             <span className="text-prussian-blue-600">You see nothing.</span>
           </h1>
           <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700">
-            Legal built a client portal. Sales built a data tool. Ops built an onboarding app. None of them asked IT. VibeSafe scans every AI-built app in your portfolio. No code changes. No SDK. No developer involvement required.
+            Legal built a client portal. Sales built a data tool. Ops built an onboarding app. None of them asked IT. Scantient scans every AI-built app in your portfolio. No code changes. No SDK. No developer involvement required.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
             <Link
@@ -241,7 +252,7 @@ export default function LandingPage() {
                   <div className="h-2 w-2 rounded-full bg-ink-black-200" />
                   <div className="h-2 w-2 rounded-full bg-ink-black-200" />
                 </div>
-                <span className="text-xs font-semibold text-ink-black-400">VibeSafe Dashboard</span>
+                <span className="text-xs font-semibold text-ink-black-400">Scantient Dashboard</span>
                 <div className="h-4 w-16 rounded bg-ink-black-100" />
               </div>
               {/* Stat cards row */}
@@ -288,7 +299,7 @@ export default function LandingPage() {
           {[
             { value: "27+", label: "security checks per scan" },
             { value: "15", label: "attack paths probed per app" },
-            { value: "$50K–$500K", label: "average cost of one undetected breach" },
+            { value: "$4.88M", label: "avg. cost of one data breach (IBM 2024)" },
             { value: "2 min", label: "from signup to first scan" },
           ].map((stat, i) => (
             <div key={stat.value} className="flex items-center gap-12">
@@ -306,7 +317,7 @@ export default function LandingPage() {
       <section id="features" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">What we catch</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          27 check categories. Every scan. No developer required.
+          20 check categories. Every scan. No developer required.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {checks.map((check) => (
@@ -324,7 +335,7 @@ export default function LandingPage() {
       {/* How it works */}
       <section className="border-y border-alabaster-grey-200 bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-[1000px]">
-          <h2 className="mb-16 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">How VibeSafe works</h2>
+          <h2 className="mb-16 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">How Scantient works</h2>
 
           {/* Zigzag timeline — desktop */}
           <div className="hidden md:block relative">
@@ -334,7 +345,7 @@ export default function LandingPage() {
             <div className="space-y-16">
               {[
                 { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-                { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 27+ security and health checks from the outside. No access required." },
+                { step: "2", title: "We scan continuously", desc: "Every 4 hours, Scantient runs 27+ security and health checks from the outside. No access required." },
                 { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
                 { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
               ].map((item, idx) => {
@@ -379,7 +390,7 @@ export default function LandingPage() {
           <div className="md:hidden space-y-12">
             {[
               { step: "1", title: "Register your apps", desc: "Enter the URL of any AI-built app. No code changes, no SDK, no developer involvement required." },
-              { step: "2", title: "We scan continuously", desc: "Every 4 hours, VibeSafe runs 27+ security and health checks from the outside. No access required." },
+              { step: "2", title: "We scan continuously", desc: "Every 4 hours, Scantient runs 27+ security and health checks from the outside. No access required." },
               { step: "3", title: "Get plain-language alerts", desc: "When something breaks or a vulnerability appears, you get an alert with a ready-to-paste AI fix prompt." },
               { step: "4", title: "Review your governance dashboard", desc: "Weekly compliance reports show every app's status, open findings, and remediation progress." },
             ].map((item) => (
@@ -400,14 +411,39 @@ export default function LandingPage() {
       {/* Integrations */}
       <section className="mx-auto max-w-[1200px] px-6 py-24 text-center sm:py-32">
         <h2 className="mb-3 text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Works with your stack</h2>
-        <p className="mb-16 text-dusty-denim-600">Integrates with the tools your team already uses</p>
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          {integrations.map((i) => (
-            <div key={i.name} className="flex flex-col items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-alabaster-grey-200 bg-white text-2xl shadow-sm">
-                {i.icon}
+        <p className="mb-12 text-dusty-denim-600">Integrates with the tools your team already uses</p>
+
+        {/* Live integrations */}
+        <div className="mb-4 flex items-center justify-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            Live
+          </span>
+        </div>
+        <div className="mb-14 flex flex-wrap items-center justify-center gap-6">
+          {integrations.live.map((i) => (
+            <div key={i.name} className="flex flex-col items-center gap-2.5">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-alabaster-grey-200 bg-white p-3 shadow-sm">
+                <Image src={i.logo} alt={i.name} width={40} height={40} unoptimized className="h-full w-full object-contain" />
               </div>
               <span className="text-xs font-medium text-dusty-denim-600">{i.name}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Coming soon */}
+        <div className="mb-4 flex items-center justify-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-alabaster-grey-100 px-3 py-1 text-xs font-semibold text-dusty-denim-500">
+            Coming soon
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-6">
+          {integrations.soon.map((i) => (
+            <div key={i.name} className="flex flex-col items-center gap-2.5 opacity-40">
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-alabaster-grey-200 bg-white p-3 shadow-sm grayscale">
+                <Image src={i.logo} alt={i.name} width={40} height={40} unoptimized className="h-full w-full object-contain" />
+              </div>
+              <span className="text-xs font-medium text-dusty-denim-400">{i.name}</span>
             </div>
           ))}
         </div>
@@ -444,7 +480,7 @@ export default function LandingPage() {
       <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Simple, transparent pricing</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          One exposed API key costs $50K–$500K to remediate. VibeSafe catches the exposure in your first scan.
+          One exposed API key can cost up to $4.88M to remediate (IBM Cost of a Data Breach 2024). Scantient catches the exposure in your first scan.
         </p>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {tiers.map((tier) => (

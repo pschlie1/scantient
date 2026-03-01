@@ -5,7 +5,7 @@ import Footer from "@/components/footer";
 import NewsletterForm from "@/components/newsletter-form";
 
 export const metadata: Metadata = {
-  title: "Blog — VibeSafe",
+  title: "Blog — Scantient",
   description:
     "Security insights, compliance guides, and practical advice for IT leaders managing AI-generated applications.",
 };

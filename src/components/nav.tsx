@@ -38,7 +38,7 @@ export function Nav() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
               <span className="text-sm font-bold text-white">V</span>
             </div>
-            <span className="text-sm font-bold">VibeSafe</span>
+            <span className="text-sm font-bold">Scantient</span>
           </Link>
 
           <div className="hidden items-center gap-1 sm:flex">

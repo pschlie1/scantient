@@ -9,7 +9,7 @@ export async function GET() {
 
   const sevenDaysAgo = subDays(new Date(), 7);
 
-  const [apps, criticalFindings, recentRuns] = await Promise.all([
+  const [apps, criticalFindings, recentRuns, healthyApps] = await Promise.all([
     db.monitoredApp.count({ where: { orgId: session.orgId } }),
     db.finding.count({
       where: {
@@ -28,11 +28,10 @@ export async function GET() {
       orderBy: { startedAt: "desc" },
       take: 30,
     }),
+    db.monitoredApp.count({
+      where: { orgId: session.orgId, status: "HEALTHY" },
+    }),
   ]);
-
-  const healthyApps = await db.monitoredApp.count({
-    where: { orgId: session.orgId, status: "HEALTHY" },
-  });
 
   return NextResponse.json({
     summary: {

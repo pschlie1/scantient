@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
-export const metadata: Metadata = { title: "GitHub Actions CI Integration — VibeSafe" };
+export const metadata: Metadata = { title: "GitHub Actions CI Integration — Scantient" };
 
 function Code({ children }: { children: string }) {
   return (
@@ -12,27 +12,27 @@ function Code({ children }: { children: string }) {
   );
 }
 
-const workflowYaml = `name: VibeSafe Security Scan
+const workflowYaml = `name: Scantient Security Scan
 on: [push, pull_request]
 
 jobs:
-  vibesafe:
+  scantient:
     runs-on: ubuntu-latest
     steps:
-      - name: Run VibeSafe Security Scan
+      - name: Run Scantient Security Scan
         run: |
-          RESULT=$(curl -s -X POST https://vibesafe-two.vercel.app/api/public/ci-scan \\
-            -H "X-API-Key: \${{ secrets.VIBESAFE_API_KEY }}" \\
+          RESULT=$(curl -s -X POST https://scantient.com/api/public/ci-scan \\
+            -H "X-API-Key: \${{ secrets.SCANTIENT_API_KEY }}" \\
             -H "Content-Type: application/json" \\
             -d '{"url": "\${{ env.APP_URL }}", "failOn": "critical"}')
           echo "$RESULT" | jq .
           PASSED=$(echo "$RESULT" | jq -r '.passed')
           if [ "$PASSED" != "true" ]; then
-            echo "VibeSafe scan failed — security issues detected"
+            echo "Scantient scan failed — security issues detected"
             exit 1
           fi`;
 
-const curlExample = `curl -s -X POST https://vibesafe-two.vercel.app/api/public/ci-scan \\
+const curlExample = `curl -s -X POST https://scantient.com/api/public/ci-scan \\
   -H "X-API-Key: vs_your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{"url": "https://your-app.com", "failOn": "critical"}'`;
@@ -47,10 +47,10 @@ const responseExample = `{
   "mediumCount": 2,
   "summary": "1 HIGH, 2 MEDIUM findings detected",
   "findings": [...],
-  "dashboardUrl": "https://vibesafe-two.vercel.app/apps/clx123..."
+  "dashboardUrl": "https://scantient.com/apps/clx123..."
 }`;
 
-const badgeMarkdown = `[![VibeSafe Security](https://vibesafe-two.vercel.app/api/public/badge?url=https://your-app.com&key=vs_your_key)](https://vibesafe-two.vercel.app)`;
+const badgeMarkdown = `[![Scantient Security](https://scantient.com/api/public/badge?url=https://your-app.com&key=vs_your_key)](https://scantient.com)`;
 
 export default function GitHubActionsPage() {
   return (
@@ -63,7 +63,7 @@ export default function GitHubActionsPage() {
 
         <h1 className="mb-2 text-3xl font-bold">GitHub Actions CI Integration</h1>
         <p className="mb-10 text-gray-600">
-          Run automated security scans on every push or pull request with VibeSafe&apos;s CI endpoint.
+          Run automated security scans on every push or pull request with Scantient&apos;s CI endpoint.
           Fail your pipeline automatically if critical vulnerabilities are detected.
         </p>
 
@@ -71,9 +71,9 @@ export default function GitHubActionsPage() {
           <h2 className="mb-4 text-xl font-semibold">Quick Start</h2>
           <ol className="mb-6 list-decimal space-y-2 pl-5 text-sm text-gray-700">
             <li>Generate an API key in <a href="/settings/api-keys" className="text-blue-600 underline">Settings → API Keys</a>.</li>
-            <li>Add it as a GitHub secret named <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">VIBESAFE_API_KEY</code>.</li>
+            <li>Add it as a GitHub secret named <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">SCANTIENT_API_KEY</code>.</li>
             <li>Set your app URL as an environment variable or inline in the workflow.</li>
-            <li>Add the workflow below to <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">.github/workflows/vibesafe.yml</code>.</li>
+            <li>Add the workflow below to <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">.github/workflows/scantient.yml</code>.</li>
           </ol>
           <Code>{workflowYaml}</Code>
         </section>
@@ -86,7 +86,7 @@ export default function GitHubActionsPage() {
               <code className="text-sm font-semibold">/api/public/ci-scan</code>
             </div>
             <p className="mb-4 text-sm text-gray-600">
-              Runs a full VibeSafe security scan. Returns HTTP 200 if passed, 422 if failed.
+              Runs a full Scantient security scan. Returns HTTP 200 if passed, 422 if failed.
             </p>
             <h4 className="mb-2 text-xs font-semibold uppercase text-gray-400">Request</h4>
             <Code>{curlExample}</Code>
@@ -97,7 +97,7 @@ export default function GitHubActionsPage() {
 
         <section className="mb-12">
           <h2 className="mb-4 text-xl font-semibold">Security Badge</h2>
-          <p className="mb-4 text-sm text-gray-600">Add a VibeSafe security badge to your README to show your security score at a glance.</p>
+          <p className="mb-4 text-sm text-gray-600">Add a Scantient security badge to your README to show your security score at a glance.</p>
           <Code>{badgeMarkdown}</Code>
           <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
             <strong>Badge colors:</strong>

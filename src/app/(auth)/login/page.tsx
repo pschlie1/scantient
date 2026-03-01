@@ -64,7 +64,7 @@ export default function LoginPage() {
             <span className="text-xl font-bold text-white">V</span>
           </div>
           <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="mt-1 text-sm text-gray-500">Sign in to your VibeSafe account</p>
+          <p className="mt-1 text-sm text-gray-500">Sign in to your Scantient account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">

@@ -68,7 +68,7 @@ function memoryRateLimit(key: string, config: RateLimitConfig): RateLimitResult 
 }
 
 function backendKey(key: string) {
-  const prefix = process.env.RATE_LIMIT_PREFIX ?? "vibesafe:rate-limit";
+  const prefix = process.env.RATE_LIMIT_PREFIX ?? "scantient:rate-limit";
   return `${prefix}:${key}`;
 }
 

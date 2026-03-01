@@ -1,4 +1,4 @@
-# VibeSafe SLOs and Alert Thresholds (Wave 1)
+# Scantient SLOs and Alert Thresholds (Wave 1)
 
 ## Scope
 Initial production SLOs for API availability, scan freshness, and notification reliability.

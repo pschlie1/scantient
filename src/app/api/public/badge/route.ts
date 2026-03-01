@@ -12,22 +12,36 @@ function makeSvg(label: string, value: string, color: string): string {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const url = searchParams.get("url");
-  const key = searchParams.get("key");
   const svgHeaders = { "Content-Type": "image/svg+xml", "Cache-Control": "no-cache, no-store, must-revalidate" };
 
-  if (!url || !key) return new NextResponse(makeSvg("vibesafe", "unknown", "#9f9f9f"), { headers: svgHeaders });
+  // Prefer Authorization: Bearer <key> header; fall back to ?key= query param (deprecated)
+  let key: string | null = null;
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    key = authHeader.slice(7).trim();
+  } else {
+    const keyParam = searchParams.get("key");
+    if (keyParam) {
+      // Deprecated: log a warning and accept for backward compatibility
+      console.warn("[badge] Deprecated: API key passed as ?key= query param. Use Authorization: Bearer <key> header instead.");
+      key = keyParam;
+    }
+  }
+
+  if (!url || !key) return new NextResponse(makeSvg("scantient", "unknown", "#9f9f9f"), { headers: svgHeaders });
+
 
   const hash = crypto.createHash("sha256").update(key).digest("hex");
   const apiKey = await db.apiKey.findFirst({ where: { keyHash: hash } });
   if (!apiKey || (apiKey.expiresAt && apiKey.expiresAt < new Date())) {
-    return new NextResponse(makeSvg("vibesafe", "invalid key", "#e05d44"), { headers: svgHeaders });
+    return new NextResponse(makeSvg("scantient", "invalid key", "#e05d44"), { headers: svgHeaders });
   }
 
   const app = await db.monitoredApp.findFirst({
     where: { url, orgId: apiKey.orgId },
     include: { monitorRuns: { orderBy: { startedAt: "desc" }, take: 1, include: { findings: { select: { severity: true } } } } },
   });
-  if (!app || app.monitorRuns.length === 0) return new NextResponse(makeSvg("vibesafe", "no data", "#9f9f9f"), { headers: svgHeaders });
+  if (!app || app.monitorRuns.length === 0) return new NextResponse(makeSvg("scantient", "no data", "#9f9f9f"), { headers: svgHeaders });
 
   const findings = app.monitorRuns[0].findings;
   let score = 100;
@@ -40,5 +54,5 @@ export async function GET(req: Request) {
   score = Math.max(0, score);
   const color = score >= 80 ? "#4c1" : score >= 50 ? "#dfb317" : "#e05d44";
   const grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 70 ? "C" : score >= 60 ? "D" : "F";
-  return new NextResponse(makeSvg("vibesafe", `${score} ${grade}`, color), { headers: svgHeaders });
+  return new NextResponse(makeSvg("scantient", `${score} ${grade}`, color), { headers: svgHeaders });
 }

@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
       to,
     );
 
-    const filename = `vibesafe-evidence-${frameworkStr}-${fromStr}-to-${toStr}.pdf`;
+    const filename = `scantient-evidence-${frameworkStr}-${fromStr}-to-${toStr}.pdf`;
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",

@@ -1,4 +1,6 @@
 import { addHours } from "date-fns";
+import { lookup } from "dns/promises";
+import { isIP } from "net";
 import { db } from "@/lib/db";
 import { getOrgLimits } from "@/lib/tenant";
 import {
@@ -28,6 +30,54 @@ import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
 import type { SecurityFinding } from "@/lib/types";
 import { trackEvent } from "@/lib/analytics";
+
+/**
+ * SSRF guard — returns true if the URL resolves to a private/internal IP.
+ * Blocks: 10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x, ::1, localhost
+ */
+async function isPrivateUrl(url: string): Promise<boolean> {
+  let hostname: string;
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    return true; // invalid URL → treat as private
+  }
+
+  // Block localhost by name
+  if (hostname === "localhost" || hostname.endsWith(".local")) return true;
+
+  // If it's already an IP literal, check directly
+  const ipVersion = isIP(hostname);
+  if (ipVersion !== 0) {
+    return isPrivateIp(hostname);
+  }
+
+  // Resolve hostname and check all addresses
+  try {
+    const addresses = await lookup(hostname, { all: true });
+    return addresses.some((a) => isPrivateIp(a.address));
+  } catch {
+    return true; // DNS failure → treat as private for safety
+  }
+}
+
+function isPrivateIp(ip: string): boolean {
+  // IPv6 loopback
+  if (ip === "::1" || ip === "0:0:0:0:0:0:0:1") return true;
+  // IPv4-mapped IPv6
+  const v4mapped = ip.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+  const v4 = v4mapped ? v4mapped[1] : ip;
+  const parts = v4.split(".").map(Number);
+  if (parts.length !== 4) return false;
+  const [a, b] = parts;
+  return (
+    a === 127 || // 127.0.0.0/8
+    a === 10 || // 10.0.0.0/8
+    (a === 172 && b >= 16 && b <= 31) || // 172.16.0.0/12
+    (a === 192 && b === 168) || // 192.168.0.0/16
+    (a === 169 && b === 254) // 169.254.0.0/16 (link-local)
+  );
+}
 
 function calcStatus(findings: SecurityFinding[]) {
   if (findings.some((f) => f.severity === "CRITICAL")) return "CRITICAL" as const;
@@ -88,10 +138,15 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
   const start = Date.now();
 
   try {
+    // SSRF guard: block private/internal URLs before fetching
+    if (await isPrivateUrl(app.url)) {
+      throw new Error("SSRF: private/internal URLs are not allowed");
+    }
+
     const response = await fetch(app.url, {
       method: "GET",
       headers: {
-        "User-Agent": "VibeSafe/1.0 (Security Monitor)",
+        "User-Agent": "Scantient/1.0 (Security Monitor)",
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",

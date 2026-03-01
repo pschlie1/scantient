@@ -104,7 +104,7 @@ export default function BillingPage() {
                   <p className="mt-3 text-xs font-medium text-green-600">Current plan</p>
                 ) : plan.talkToSales ? (
                   <a
-                    href="mailto:sales@vibesafe.app"
+                    href="mailto:sales@scantient.com"
                     className="mt-3 block w-full rounded border border-black py-1.5 text-center text-sm font-medium text-black hover:bg-gray-50"
                   >
                     Talk to sales
