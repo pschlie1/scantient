@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate } from "@/lib/crypto-util";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 
 const TEAMS_TIERS = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
 
@@ -69,6 +70,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
     const { webhookUrl } = parsed.data;
+    if (await isPrivateUrl(webhookUrl)) {
+      return NextResponse.json(
+        { error: "Webhook URL must point to a public address" },
+        { status: 400 },
+      );
+    }
     const config = { webhookUrl: obfuscate(webhookUrl) };
     const integration = await db.integrationConfig.upsert({
       where: { orgId_type: { orgId: session.orgId, type: "teams" } },

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { logAudit } from "@/lib/tenant";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 
 const updateAppSchema = z.object({
   name: z.string().min(1).optional(),
@@ -44,6 +45,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const parsed = updateAppSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  // SSRF guard: reject private/internal URLs at save time
+  if (parsed.data.url && await isPrivateUrl(parsed.data.url)) {
+    return NextResponse.json(
+      { error: "App URL must be a public address. Private and internal URLs are not allowed." },
+      { status: 400 },
+    );
   }
 
   const app = await db.monitoredApp.findFirst({

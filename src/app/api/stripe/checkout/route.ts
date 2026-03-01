@@ -35,11 +35,25 @@ export async function POST(req: Request) {
       name: org.name,
       metadata: { orgId: org.id },
     });
-    customerId = customer.id;
-    await db.organization.update({
-      where: { id: org.id },
-      data: { stripeCustomerId: customerId },
+
+    // Atomic claim: only write if stripeCustomerId is still null
+    const result = await db.organization.updateMany({
+      where: { id: session.orgId, stripeCustomerId: null },
+      data: { stripeCustomerId: customer.id },
     });
+
+    if (result.count === 0) {
+      // Another request won the race -- clean up orphaned Stripe customer
+      await getStripe().customers.del(customer.id).catch(() => {});
+      // Re-fetch to get the real customerId
+      const fresh = await db.organization.findUnique({
+        where: { id: session.orgId },
+        select: { stripeCustomerId: true },
+      });
+      customerId = fresh?.stripeCustomerId ?? customer.id;
+    } else {
+      customerId = customer.id;
+    }
   }
 
   const checkoutSession = await getStripe().checkout.sessions.create({

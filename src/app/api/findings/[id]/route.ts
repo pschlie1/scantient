@@ -6,7 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 
 const updateFindingSchema = z.object({
   status: z.enum(["OPEN", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED", "IGNORED"]),
-  notes: z.string().optional(),
+  notes: z.string().max(10000, "Notes cannot exceed 10,000 characters").optional(),
 });
 
 interface StatusChangeEntry {

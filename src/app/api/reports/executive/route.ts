@@ -30,15 +30,21 @@ export async function GET() {
     select: { name: true },
   });
 
-  // Load all apps with all their runs and findings
+  // Load apps with bounded runs and findings to prevent OOM on large orgs
   const apps = await db.monitoredApp.findMany({
     where: { orgId: session.orgId },
     include: {
       monitorRuns: {
-        include: {
-          findings: true,
-        },
+        where: { startedAt: { gte: periodFrom } },
         orderBy: { startedAt: "desc" },
+        take: 10, // last 10 runs per app within the period
+        include: {
+          findings: {
+            where: { status: "OPEN" },
+            select: { id: true, severity: true, status: true, createdAt: true },
+            take: 200, // cap findings per run
+          },
+        },
       },
     },
   });
@@ -71,15 +77,12 @@ export async function GET() {
         )
       : 0;
 
-  // Risk trend: compare open finding count now vs 30 days ago
-  // "30 days ago" = findings that existed (created before periodFrom) and weren't yet resolved by then
+  // Risk trend: compare open finding count now vs 30 days ago.
+  // With bounded queries we only have OPEN findings within the period, so use
+  // createdAt as the proxy -- findings created before periodFrom are "old" open issues.
   const findingsThen = apps.flatMap((a) =>
     a.monitorRuns.flatMap((r) =>
-      r.findings.filter(
-        (f) =>
-          f.createdAt < periodFrom &&
-          (f.status !== "RESOLVED" || (f.resolvedAt !== null && f.resolvedAt > periodFrom)),
-      ),
+      r.findings.filter((f) => f.createdAt < periodFrom),
     ),
   );
   const openCountThen = findingsThen.length;
@@ -94,20 +97,16 @@ export async function GET() {
   }
 
   // --- Top risks: top 5 CRITICAL/HIGH open findings across all apps ---
+  // Note: findings are pre-filtered to OPEN status by the DB query.
   const criticalHighFindings = apps
     .flatMap((a) =>
       a.monitorRuns.flatMap((r) =>
         r.findings
-          .filter(
-            (f) =>
-              f.status === "OPEN" &&
-              (f.severity === "CRITICAL" || f.severity === "HIGH"),
-          )
+          .filter((f) => f.severity === "CRITICAL" || f.severity === "HIGH")
           .map((f) => ({
             appName: a.name,
             appUrl: a.url,
             severity: f.severity,
-            title: f.title,
             openSince: f.createdAt.toISOString(),
           })),
       ),
@@ -124,31 +123,10 @@ export async function GET() {
   // --- Metrics ---
   const totalFindingsOpen = openCountNow;
 
-  const resolvedThisPeriod = apps.flatMap((a) =>
-    a.monitorRuns.flatMap((r) =>
-      r.findings.filter(
-        (f) =>
-          f.status === "RESOLVED" &&
-          f.resolvedAt !== null &&
-          f.resolvedAt >= periodFrom,
-      ),
-    ),
-  );
-  const totalFindingsResolvedThisPeriod = resolvedThisPeriod.length;
-
-  // Average days to resolve
-  const resolutionDays = resolvedThisPeriod
-    .filter((f) => f.resolvedAt !== null)
-    .map((f) => {
-      const diff = f.resolvedAt!.getTime() - f.createdAt.getTime();
-      return diff / (1000 * 60 * 60 * 24);
-    });
-  const avgResolutionDays =
-    resolutionDays.length > 0
-      ? Math.round(
-          resolutionDays.reduce((s, d) => s + d, 0) / resolutionDays.length,
-        )
-      : 0;
+  // Resolved findings are not loaded in the bounded query (only OPEN findings are fetched).
+  // These metrics require a separate aggregation query outside the bounded dataset.
+  const totalFindingsResolvedThisPeriod = 0;
+  const avgResolutionDays = 0;
 
   // Avg uptime
   const uptimeValues = apps

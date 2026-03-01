@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { canAddApp, logAudit } from "@/lib/tenant";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { createAppSchema } from "@/lib/types";
 import { logApiError } from "@/lib/observability";
 import { trackEvent } from "@/lib/analytics";
@@ -73,6 +74,14 @@ export async function POST(req: Request) {
     const { allowed, reason } = await canAddApp(session.orgId);
     if (!allowed) {
       return NextResponse.json({ error: { message: reason } }, { status: 403 });
+    }
+
+    // SSRF guard: reject private/internal URLs
+    if (await isPrivateUrl(parsed.data.url)) {
+      return NextResponse.json(
+        { error: "App URL must be a public address. Private and internal URLs are not allowed." },
+        { status: 400 },
+      );
     }
 
     // Check for duplicate URL within org
