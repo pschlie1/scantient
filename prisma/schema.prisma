@@ -158,6 +158,10 @@ model MonitoredApp {
   updatedAt       DateTime      @updatedAt
 
   authHeaders     String?   // encrypted JSON: [{name: string, value: string}]
+  agentEnabled    Boolean   @default(false)
+  agentKeyHash    String?   @unique  // sha256 of plain agent key
+  agentKeyPrefix  String?            // first 10 chars for display
+  agentLastSeenAt DateTime?
 
   monitorRuns     MonitorRun[]
 
