@@ -85,6 +85,7 @@ export async function POST(req: Request) {
   const orgLimits = await getOrgLimits(app.orgId);
   const scanIntervalHours: Record<string, number> = {
     ENTERPRISE: 1,
+    ENTERPRISE_PLUS: 1,
     PRO: 4,
     STARTER: 8,
     FREE: 24,
