@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { getOrgLimits } from "@/lib/tenant";
 
 const assignSchema = z.object({
   userId: z.string().nullable(),
@@ -10,6 +11,11 @@ const assignSchema = z.object({
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "Finding assignment requires a Starter plan or higher." }, { status: 403 });
+  }
 
   const { id } = await params;
   const body = await req.json();

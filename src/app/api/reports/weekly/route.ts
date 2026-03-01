@@ -2,6 +2,7 @@ import { subDays } from "date-fns";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { getOrgLimits } from "@/lib/tenant";
 
 function buildReport(apps: Array<{ name: string; ownerEmail: string | null; status: string; lastCheckedAt: Date | null; monitorRuns: Array<{ findings: Array<{ severity: string }> }> }>) {
   return apps.map((app) => {
@@ -49,6 +50,11 @@ export async function GET(req: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "Weekly reports require a Starter plan or higher." }, { status: 403 });
   }
 
   const apps = await db.monitoredApp.findMany({
