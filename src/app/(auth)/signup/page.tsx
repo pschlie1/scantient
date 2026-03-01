@@ -105,9 +105,9 @@ export default function SignupPage() {
             <input
               type="password"
               required
-              minLength={8}
+              minLength={12}
               className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-              placeholder="Min 8 characters"
+              placeholder="Min 12 characters"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
