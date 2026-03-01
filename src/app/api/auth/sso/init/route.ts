@@ -45,7 +45,12 @@ export async function GET(req: Request) {
     cookieStore.set(STATE_COOKIE, stateToken, { httpOnly: true, secure: isSecure, sameSite: "lax", maxAge: 600, path: "/" });
     return NextResponse.redirect(authUrl.href);
   } catch (err) {
+    // Log internally but never echo the raw library error to the client —
+    // OIDC errors can expose internal config details (discovery URL, client ID, etc.)
     console.error("SSO init error:", err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : "SSO init failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "SSO configuration error. Please contact your administrator." },
+      { status: 500 },
+    );
   }
 }

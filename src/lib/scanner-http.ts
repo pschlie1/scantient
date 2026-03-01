@@ -1,6 +1,6 @@
 import { addHours } from "date-fns";
 import { db } from "@/lib/db";
-import { isPrivateUrl } from "@/lib/ssrf-guard";
+import { isPrivateUrl, ssrfSafeFetch } from "@/lib/ssrf-guard";
 import { getOrgLimits } from "@/lib/tenant";
 import { decryptAuthHeaders } from "@/lib/auth-headers";
 import {
@@ -100,7 +100,9 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
   const start = Date.now();
 
   try {
-    // SSRF guard: block private/internal URLs before fetching
+    // SSRF guard: block private/internal URLs before fetching.
+    // ssrfSafeFetch re-runs this check at every redirect hop to prevent
+    // open-redirect chains that bypass a one-time pre-fetch guard.
     if (await isPrivateUrl(app.url)) {
       throw new Error("SSRF: private/internal URLs are not allowed");
     }
@@ -113,16 +115,21 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       }
     }
 
-    const response = await fetch(app.url, {
-      method: "GET",
-      headers: {
-        "User-Agent": "Scantient/1.0 (Security Monitor)",
-        Accept: "text/html,application/xhtml+xml",
-        ...extraHeaders,
+    // Use ssrfSafeFetch (not plain fetch with redirect:"follow") so every
+    // redirect hop is checked against the SSRF guard before following.
+    const response = await ssrfSafeFetch(
+      app.url,
+      {
+        method: "GET",
+        headers: {
+          "User-Agent": "Scantient/1.0 (Security Monitor)",
+          Accept: "text/html,application/xhtml+xml",
+          ...extraHeaders,
+        },
+        signal: AbortSignal.timeout(30000),
       },
-      redirect: "follow",
-      signal: AbortSignal.timeout(30000),
-    });
+      5, // maxRedirects
+    );
 
     const statusCode = response.status;
     const html = await response.text();
@@ -199,6 +206,8 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       data: {
         status,
         responseTimeMs,
+        // checksRun: record the actual number of findings evaluated
+        checksRun: findings.length,
         summary: findings.length
           ? `${findings.length} issue(s) detected`
           : "All checks passed — no issues detected",
@@ -209,15 +218,13 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       },
     });
 
-    // Auto-triage new findings & verify resolved ones
+    // Auto-triage new findings in parallel (was sequential N+1 loop)
     const updatedRun = await db.monitorRun.findUnique({
       where: { id: run.id },
       include: { findings: { select: { id: true } } },
     });
-    if (updatedRun) {
-      for (const f of updatedRun.findings) {
-        await autoTriageFinding(f.id);
-      }
+    if (updatedRun && updatedRun.findings.length > 0) {
+      await Promise.all(updatedRun.findings.map((f) => autoTriageFinding(f.id)));
     }
 
     const newFindingCodes = new Set(findings.map((f) => f.code));
@@ -332,6 +339,16 @@ export async function runDueHttpScans(limit = 20) {
     },
     take: limit,
     orderBy: [{ nextCheckAt: "asc" }],
+  });
+
+  if (dueApps.length === 0) return [];
+
+  // Claim the selected apps immediately by bumping nextCheckAt 1 hour into the
+  // future.  This prevents a concurrent cron invocation from picking up the
+  // same apps and running duplicate scans before the real results write back.
+  await db.monitoredApp.updateMany({
+    where: { id: { in: dueApps.map((a) => a.id) } },
+    data: { nextCheckAt: addHours(new Date(), 1) },
   });
 
   const results: Array<{ orgId: string; appId: string; status: string; findingsCount?: number; error?: string }> =

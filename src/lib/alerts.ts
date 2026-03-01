@@ -1,3 +1,4 @@
+import { createHmac } from "crypto";
 import { db } from "@/lib/db";
 import { getOrgLimits } from "@/lib/tenant";
 import type { SecurityFinding } from "@/lib/types";
@@ -104,9 +105,35 @@ function isTeamsWebhookUrl(url: string): boolean {
   return url.includes(".webhook.office.com/") || url.includes(".logic.azure.com/");
 }
 
+/**
+ * Derive a per-endpoint HMAC signing key.
+ *
+ * Previously the webhook URL itself was used as the raw HMAC key.  This meant
+ * anyone who knew the URL (e.g., from server logs or interception) could forge
+ * a valid signature.  The fix derives the signing key with
+ * HMAC-SHA256(url, WEBHOOK_SIGNING_SECRET) so the signature is bound to a
+ * server-side secret that the webhook destination cannot independently produce.
+ *
+ * Backwards-compat: if WEBHOOK_SIGNING_SECRET is not configured the function
+ * falls back to the old URL-only key and emits a warning.  Set
+ * WEBHOOK_SIGNING_SECRET to a long random string in production.
+ */
+function deriveWebhookSigningKey(url: string): string {
+  const masterSecret = process.env.WEBHOOK_SIGNING_SECRET;
+  if (!masterSecret) {
+    console.warn(
+      "[alerts] WEBHOOK_SIGNING_SECRET not set — webhook signatures use URL as key (insecure). " +
+        "Set WEBHOOK_SIGNING_SECRET to a long random secret in your environment.",
+    );
+    return url; // legacy fallback
+  }
+  return createHmac("sha256", masterSecret).update(url, "utf8").digest("hex");
+}
+
 async function sendWebhook(url: string, payload: Record<string, unknown>) {
   const body = JSON.stringify(payload);
-  const signature = signWebhookPayload(body, url);
+  const signingKey = deriveWebhookSigningKey(url);
+  const signature = signWebhookPayload(body, signingKey);
   await fetch(url, {
     method: "POST",
     headers: {
