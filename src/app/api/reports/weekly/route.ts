@@ -27,6 +27,8 @@ export async function GET(req: Request) {
   const isCron = process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
 
   if (isCron) {
+    // Intentionally unbounded: this is a cron batch job that must process all orgs.
+    // Per-org queries below are capped with take: 100 to prevent per-org OOM.
     const orgs = await db.organization.findMany({ select: { id: true, name: true } });
     const reports = [];
 

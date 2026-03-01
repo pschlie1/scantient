@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { canAddApp, logAudit } from "@/lib/tenant";
@@ -7,14 +8,25 @@ import { createAppSchema } from "@/lib/types";
 import { logApiError } from "@/lib/observability";
 import { trackEvent } from "@/lib/analytics";
 
+const appsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
 export async function GET(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const { searchParams } = new URL(req.url);
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "20", 10) || 20));
+    const queryParsed = appsQuerySchema.safeParse({
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+    });
+    if (!queryParsed.success) {
+      return NextResponse.json({ error: queryParsed.error.flatten() }, { status: 400 });
+    }
+    const { page, limit } = queryParsed.data;
     const skip = (page - 1) * limit;
 
     const [apps, total] = await Promise.all([

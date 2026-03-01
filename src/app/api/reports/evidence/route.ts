@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { generateEvidencePack } from "@/lib/pdf-report";
 import { getOrgLimits } from "@/lib/tenant";
+import { logApiError } from "@/lib/observability";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +74,13 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("Evidence pack generation error:", err);
+    logApiError(err, {
+      route: "/api/reports/evidence",
+      method: "GET",
+      orgId: session.orgId,
+      userId: session.id,
+      statusCode: 500,
+    });
     return NextResponse.json({ error: "Failed to generate evidence pack" }, { status: 500 });
   }
 }
