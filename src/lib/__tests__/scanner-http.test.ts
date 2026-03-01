@@ -11,10 +11,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const monitoredAppFindMany = vi.fn();
 const monitoredAppFindUnique = vi.fn();
 const monitoredAppUpdate = vi.fn();
+const monitoredAppUpdateMany = vi.fn();
 const monitorRunCreate = vi.fn();
 const monitorRunUpdate = vi.fn();
 const auditLogFindFirst = vi.fn();
 const auditLogCreate = vi.fn();
+const auditLogCreateMany = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -22,6 +24,7 @@ vi.mock("@/lib/db", () => ({
       findMany: monitoredAppFindMany,
       findUnique: monitoredAppFindUnique,
       update: monitoredAppUpdate,
+      updateMany: monitoredAppUpdateMany,
     },
     monitorRun: {
       create: monitorRunCreate,
@@ -30,6 +33,7 @@ vi.mock("@/lib/db", () => ({
     auditLog: {
       findFirst: auditLogFindFirst,
       create: auditLogCreate,
+      createMany: auditLogCreateMany,
     },
   },
 }));
@@ -74,8 +78,10 @@ beforeEach(() => {
   monitorRunCreate.mockResolvedValue({ id: "run_1" });
   monitorRunUpdate.mockResolvedValue({});
   monitoredAppUpdate.mockResolvedValue({});
+  monitoredAppUpdateMany.mockResolvedValue({ count: 0 });
   auditLogFindFirst.mockResolvedValue(null);
   auditLogCreate.mockResolvedValue({});
+  auditLogCreateMany.mockResolvedValue({ count: 0 });
 });
 
 describe("runDueHttpScans", () => {

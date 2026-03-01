@@ -28,8 +28,9 @@ vi.mock("@/lib/auth", () => ({ getSession, requireRole, hashPassword, createSess
 // ─── Tenant mocks ─────────────────────────────────────────────────────────────
 const getOrgLimits = vi.fn();
 const canAddUser = vi.fn();
+const logAudit = vi.fn();
 
-vi.mock("@/lib/tenant", () => ({ getOrgLimits, canAddUser }));
+vi.mock("@/lib/tenant", () => ({ getOrgLimits, canAddUser, logAudit }));
 
 // ─── DB mocks ─────────────────────────────────────────────────────────────────
 const monitoredAppFindFirst = vi.fn();

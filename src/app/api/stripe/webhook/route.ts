@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { getStripe, PLANS } from "@/lib/stripe";
 import type { PlanKey } from "@/lib/stripe";
@@ -28,17 +29,22 @@ export async function POST(req: Request) {
 
   let event;
   try {
+    // constructEvent verifies the Stripe-Signature header — events not originating
+    // from Stripe will throw and return 400 before any DB writes occur.
     event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const obj = (event.data as any).object;
+  // Idempotency: all DB writes below use `upsert` keyed on orgId/stripeSubscriptionId,
+  // so replayed events (Stripe guarantees at-least-once delivery) are safe no-ops.
+  // If stricter deduplication is ever required, store event.id in a processed_events
+  // table and skip if already seen.
 
   switch (event.type) {
     case "checkout.session.completed": {
-      const orgId = obj.metadata?.orgId as string | undefined;
+      const obj = event.data.object as Stripe.Checkout.Session;
+      const orgId = obj.metadata?.orgId;
       const planKey = obj.metadata?.plan as PlanKey | undefined;
       const subscriptionId = obj.subscription as string;
 
@@ -71,6 +77,7 @@ export async function POST(req: Request) {
     }
 
     case "customer.subscription.updated": {
+      const obj = event.data.object as Stripe.Subscription;
       const existing = await db.subscription.findFirst({
         where: { stripeSubscriptionId: obj.id },
       });
@@ -104,6 +111,7 @@ export async function POST(req: Request) {
     }
 
     case "customer.subscription.deleted": {
+      const obj = event.data.object as Stripe.Subscription;
       const existing = await db.subscription.findFirst({
         where: { stripeSubscriptionId: obj.id },
       });

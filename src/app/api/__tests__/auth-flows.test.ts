@@ -52,7 +52,8 @@ vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
 
 // --- Tenant mock (canAddUser used in invite acceptance) ---
 const canAddUser = vi.fn();
-vi.mock("@/lib/tenant", () => ({ canAddUser }));
+const logAudit = vi.fn();
+vi.mock("@/lib/tenant", () => ({ canAddUser, logAudit }));
 
 beforeEach(() => {
   vi.clearAllMocks();

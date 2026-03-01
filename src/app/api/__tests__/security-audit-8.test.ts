@@ -16,33 +16,150 @@
  * A8-12: MCP get_remediation_metrics caps findings at 5000
  * A8-13: reports/weekly caps apps+runs+findings
  * A8-14: reports/evidence validates date range (max 1 year, to > from)
+ *
+ * NOTE (audit-10 fix): All vi.mock calls must be at module level to work with
+ * Vitest's hoisting. The previous version used vi.mock inside beforeAll() which
+ * broke when Vitest hoisted calls before the closure variables were defined.
  */
 
-import { beforeEach, describe, expect, it, vi, beforeAll } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// ─── @/lib/db — comprehensive mock covering all describe blocks ───────────────
+const inviteFindUnique = vi.fn();
+const inviteDelete = vi.fn();
+const userFindFirst = vi.fn();
+const userCreate = vi.fn();
+const monitoredAppFindFirst = vi.fn();
+const monitoredAppFindMany = vi.fn();
+const monitoredAppCount = vi.fn();
+const monitoredAppUpdate = vi.fn();
+const monitoredAppCreate = vi.fn();
+const monitorRunFindFirst = vi.fn();
+const monitorRunFindMany = vi.fn();
+const findingFindMany = vi.fn();
+const findingCount = vi.fn();
+const findingUpdate = vi.fn();
+const subscriptionFindUnique = vi.fn();
+
+vi.mock("@/lib/db", () => ({
+  db: {
+    invite: { findUnique: inviteFindUnique, delete: inviteDelete },
+    user: { findFirst: userFindFirst, create: userCreate },
+    monitoredApp: {
+      findFirst: monitoredAppFindFirst,
+      findMany: monitoredAppFindMany,
+      count: monitoredAppCount,
+      update: monitoredAppUpdate,
+      create: monitoredAppCreate,
+    },
+    monitorRun: { findFirst: monitorRunFindFirst, findMany: monitorRunFindMany },
+    finding: { findMany: findingFindMany, count: findingCount, update: findingUpdate },
+    subscription: { findUnique: subscriptionFindUnique },
+  },
+}));
+
+// ─── @/lib/auth ───────────────────────────────────────────────────────────────
+const hashPassword = vi.fn();
+const verifyPassword = vi.fn();
+const createSession = vi.fn();
+const getSession = vi.fn();
+
+vi.mock("@/lib/auth", () => ({ hashPassword, verifyPassword, createSession, getSession }));
+
+// ─── @/lib/tenant ─────────────────────────────────────────────────────────────
+const canAddUser = vi.fn();
+const canAddApp = vi.fn();
+const getOrgLimits = vi.fn();
+const logAudit = vi.fn();
+
+vi.mock("@/lib/tenant", () => ({ canAddUser, canAddApp, getOrgLimits, logAudit }));
+
+// ─── @/lib/rate-limit ─────────────────────────────────────────────────────────
+const checkRateLimit = vi.fn();
+const getClientIp = vi.fn();
+
+vi.mock("@/lib/rate-limit", () => ({ checkRateLimit, getClientIp }));
+
+// ─── @/lib/api-auth ───────────────────────────────────────────────────────────
+const authenticateApiKey = vi.fn();
+const authenticateApiKeyHeader = vi.fn();
+
+vi.mock("@/lib/api-auth", () => ({ authenticateApiKey, authenticateApiKeyHeader }));
+
+// ─── @/lib/scanner-http ───────────────────────────────────────────────────────
+const runHttpScanForApp = vi.fn();
+vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp }));
+
+// ─── @/lib/observability ─────────────────────────────────────────────────────
+const logApiError = vi.fn();
+vi.mock("@/lib/observability", () => ({ logApiError }));
+
+// ─── @/lib/compliance-score ──────────────────────────────────────────────────
+const calculateComplianceScore = vi.fn();
+vi.mock("@/lib/compliance-score", () => ({ calculateComplianceScore }));
+
+// ─── @/lib/pdf-report ────────────────────────────────────────────────────────
+const generateEvidencePack = vi.fn();
+const generateComplianceReport = vi.fn();
+vi.mock("@/lib/pdf-report", () => ({ generateEvidencePack, generateComplianceReport }));
+
+// ─── next/headers (cookies) ───────────────────────────────────────────────────
+const cookiesSet = vi.fn();
+const cookiesGet = vi.fn();
+const cookiesDelete = vi.fn();
+vi.mock("next/headers", () => ({
+  cookies: vi.fn().mockResolvedValue({ set: cookiesSet, get: cookiesGet, delete: cookiesDelete }),
+}));
+
+// ─── ssrf-guard ───────────────────────────────────────────────────────────────
+vi.mock("@/lib/ssrf-guard", () => ({
+  isPrivateUrl: vi.fn().mockResolvedValue(false),
+  isPrivateIp: vi.fn().mockReturnValue(false),
+  ssrfSafeFetch: vi.fn(),
+}));
+
+// ─── Global beforeEach: reset all mocks ──────────────────────────────────────
+beforeEach(() => {
+  vi.clearAllMocks();
+  // Safe defaults
+  hashPassword.mockResolvedValue("hashed");
+  createSession.mockResolvedValue({ id: "u1", email: "user@example.com", orgId: "org1", role: "MEMBER", orgName: "Test", orgSlug: "test" });
+  verifyPassword.mockResolvedValue(false);
+  getSession.mockResolvedValue({ id: "u1", email: "user@example.com", orgId: "org1", role: "OWNER", orgName: "Test", orgSlug: "test" });
+  checkRateLimit.mockResolvedValue({ allowed: true });
+  getClientIp.mockReturnValue("1.2.3.4");
+  authenticateApiKey.mockResolvedValue("org1");
+  authenticateApiKeyHeader.mockResolvedValue("org1");
+  getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
+  canAddUser.mockResolvedValue({ allowed: true });
+  canAddApp.mockResolvedValue({ allowed: true });
+  logAudit.mockResolvedValue(undefined);
+  logApiError.mockResolvedValue(undefined);
+  calculateComplianceScore.mockReturnValue({ soc2: 80 });
+  generateEvidencePack.mockResolvedValue(Buffer.from("pdf"));
+  generateComplianceReport.mockResolvedValue(Buffer.from("pdf"));
+  userFindFirst.mockResolvedValue(null);
+  userCreate.mockResolvedValue({ id: "u1" });
+  monitoredAppFindFirst.mockResolvedValue(null);
+  monitoredAppFindMany.mockResolvedValue([]);
+  monitoredAppCount.mockResolvedValue(0);
+  monitoredAppUpdate.mockResolvedValue({});
+  monitoredAppCreate.mockResolvedValue({ id: "app1" });
+  monitorRunFindFirst.mockResolvedValue(null);
+  monitorRunFindMany.mockResolvedValue([]);
+  findingFindMany.mockResolvedValue([]);
+  findingCount.mockResolvedValue(0);
+  findingUpdate.mockResolvedValue({});
+  subscriptionFindUnique.mockResolvedValue({ tier: "PRO" });
+  runHttpScanForApp.mockResolvedValue({ runId: "r1", appId: "app1", status: "HEALTHY", findingsCount: 0, responseTimeMs: 100 });
+  inviteFindUnique.mockResolvedValue(null);
+  inviteDelete.mockResolvedValue({});
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // A8-1: Invite password min 8 → 12
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-1: Invite /api/auth/invite/[token] — password min 12", () => {
-  const hashPassword = vi.fn().mockResolvedValue("hashed");
-  const createSession = vi.fn().mockResolvedValue({ id: "u1" });
-  const inviteFindUnique = vi.fn();
-  const inviteDelete = vi.fn();
-  const userFindFirst = vi.fn().mockResolvedValue(null);
-  const userCreate = vi.fn().mockResolvedValue({ id: "u1" });
-  const canAddUser = vi.fn().mockResolvedValue({ allowed: true });
-
-  beforeAll(() => {
-    vi.mock("@/lib/auth", () => ({ hashPassword, createSession }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        invite: { findUnique: inviteFindUnique, delete: inviteDelete },
-        user: { findFirst: userFindFirst, create: userCreate },
-      },
-    }));
-    vi.mock("@/lib/tenant", () => ({ canAddUser, getOrgLimits: vi.fn() }));
-  });
-
   const FUTURE = new Date(Date.now() + 86_400_000);
 
   function makeReq(body: unknown) {
@@ -102,26 +219,6 @@ describe("A8-1: Invite /api/auth/invite/[token] — password min 12", () => {
 // A8-2: Login per-email rate limit
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-2: POST /api/auth/login — per-email rate limit", () => {
-  const checkRateLimit = vi.fn();
-  const getClientIp = vi.fn().mockReturnValue("1.2.3.4");
-  const userFindFirst = vi.fn();
-  const verifyPassword = vi.fn();
-  const createSession = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit, getClientIp }));
-    vi.mock("@/lib/auth", () => ({ verifyPassword, createSession }));
-    vi.mock("@/lib/db", () => ({
-      db: { user: { findFirst: userFindFirst } },
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    checkRateLimit.mockResolvedValue({ allowed: true });
-    getClientIp.mockReturnValue("1.2.3.4");
-  });
-
   function makeReq(body: unknown) {
     return new Request("http://localhost", {
       method: "POST",
@@ -138,7 +235,6 @@ describe("A8-2: POST /api/auth/login — per-email rate limit", () => {
   });
 
   it("blocks login when per-email rate limit exceeded (second call blocked)", async () => {
-    // First call (IP check) passes, second call (email check) blocked
     checkRateLimit
       .mockResolvedValueOnce({ allowed: true })
       .mockResolvedValueOnce({ allowed: false, retryAfterSeconds: 3600 });
@@ -154,13 +250,11 @@ describe("A8-2: POST /api/auth/login — per-email rate limit", () => {
   });
 
   it("checks per-email with lowercase email key", async () => {
-    checkRateLimit.mockResolvedValue({ allowed: true });
     userFindFirst.mockResolvedValueOnce(null);
 
     const { POST } = await import("@/app/api/auth/login/route");
     await POST(makeReq({ email: "User@Corp.COM", password: "wrongpass" }));
 
-    // Second call should be for email rate limit using lowercase
     const secondCall = checkRateLimit.mock.calls[1];
     if (secondCall) {
       expect(secondCall[0]).toBe("login-email:user@corp.com");
@@ -168,7 +262,6 @@ describe("A8-2: POST /api/auth/login — per-email rate limit", () => {
   });
 
   it("allows login when both rate limits pass and credentials valid", async () => {
-    checkRateLimit.mockResolvedValue({ allowed: true });
     userFindFirst.mockResolvedValueOnce({
       id: "u1", email: "ok@corp.com", passwordHash: "hash",
       emailVerified: true, org: { id: "org1" },
@@ -186,29 +279,6 @@ describe("A8-2: POST /api/auth/login — per-email rate limit", () => {
 // A8-3: v1/scan/[id] — tier-based rate limit added
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-3: POST /api/v1/scan/[id] — tier-based rate limit", () => {
-  const authenticateApiKey = vi.fn();
-  const checkRateLimit = vi.fn();
-  const getOrgLimits = vi.fn();
-  const monitoredAppFindFirst = vi.fn();
-  const runHttpScanForApp = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits, canAddUser: vi.fn() }));
-    vi.mock("@/lib/db", () => ({
-      db: { monitoredApp: { findFirst: monitoredAppFindFirst } },
-    }));
-    vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org1");
-    getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
-    checkRateLimit.mockResolvedValue({ allowed: true });
-  });
-
   function postReq() {
     return new Request("http://localhost", {
       method: "POST",
@@ -271,29 +341,6 @@ describe("A8-3: POST /api/v1/scan/[id] — tier-based rate limit", () => {
 // A8-4: v1/scan — replaced flat 10/hr with tier-based 24h bucket
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-4: POST /api/v1/scan — tier-based 24h rate limit", () => {
-  const authenticateApiKey = vi.fn();
-  const checkRateLimit = vi.fn();
-  const getOrgLimits = vi.fn();
-  const monitoredAppFindFirst = vi.fn();
-  const runHttpScanForApp = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits, canAddUser: vi.fn() }));
-    vi.mock("@/lib/db", () => ({
-      db: { monitoredApp: { findFirst: monitoredAppFindFirst } },
-    }));
-    vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org_v1");
-    getOrgLimits.mockResolvedValue({ tier: "STARTER", maxApps: 5, maxUsers: 2 });
-    checkRateLimit.mockResolvedValue({ allowed: true });
-  });
-
   function postReq(body: unknown) {
     return new Request("http://localhost", {
       method: "POST",
@@ -301,6 +348,11 @@ describe("A8-4: POST /api/v1/scan — tier-based 24h rate limit", () => {
       headers: { "content-type": "application/json", Authorization: "Bearer vs_key" },
     });
   }
+
+  beforeEach(() => {
+    authenticateApiKey.mockResolvedValue("org_v1");
+    getOrgLimits.mockResolvedValue({ tier: "STARTER", maxApps: 5, maxUsers: 2 });
+  });
 
   it("uses manual-scan bucket (not old api-scan bucket)", async () => {
     monitoredAppFindFirst.mockResolvedValueOnce({ id: "a1", orgId: "org_v1" });
@@ -313,7 +365,6 @@ describe("A8-4: POST /api/v1/scan — tier-based 24h rate limit", () => {
       "manual-scan:org_v1",
       expect.objectContaining({ windowMs: 86400000 }),
     );
-    // Must NOT use old bucket
     const bucketNames = checkRateLimit.mock.calls.map((c) => c[0]);
     expect(bucketNames).not.toContain("api-scan:org_v1");
   });
@@ -347,34 +398,6 @@ describe("A8-4: POST /api/v1/scan — tier-based 24h rate limit", () => {
 // A8-5: CI scan rate limit
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-5: POST /api/public/ci-scan — rate limit enforced", () => {
-  const authenticateApiKeyHeader = vi.fn();
-  const checkRateLimit = vi.fn();
-  const getOrgLimits = vi.fn();
-  const monitoredAppFindFirst = vi.fn();
-  const monitoredAppCount = vi.fn();
-  const runHttpScanForApp = vi.fn();
-  const findingFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKeyHeader }));
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits, canAddUser: vi.fn() }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { findFirst: monitoredAppFindFirst, count: monitoredAppCount, create: vi.fn() },
-        finding: { findMany: findingFindMany },
-      },
-    }));
-    vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKeyHeader.mockResolvedValue("org_ci");
-    getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
-    checkRateLimit.mockResolvedValue({ allowed: true });
-  });
-
   function postReq(body: unknown) {
     return new Request("http://localhost", {
       method: "POST",
@@ -382,6 +405,11 @@ describe("A8-5: POST /api/public/ci-scan — rate limit enforced", () => {
       headers: { "content-type": "application/json", "x-api-key": "vs_key" },
     });
   }
+
+  beforeEach(() => {
+    authenticateApiKeyHeader.mockResolvedValue("org_ci");
+    getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
+  });
 
   it("returns 401 without valid API key", async () => {
     authenticateApiKeyHeader.mockResolvedValueOnce(null);
@@ -418,38 +446,18 @@ describe("A8-5: POST /api/public/ci-scan — rate limit enforced", () => {
 // A8-6: agent/pending — polling rate limit
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-6: GET /api/agent/pending — polling rate limit", () => {
-  const checkRateLimit = vi.fn();
-  const monitoredAppFindFirst = vi.fn();
-  const monitoredAppUpdate = vi.fn();
-  const subscriptionFindUnique = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { findFirst: monitoredAppFindFirst, update: monitoredAppUpdate },
-        subscription: { findUnique: subscriptionFindUnique },
-      },
-    }));
-    vi.mock("@/lib/tenant", () => ({
-      getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }),
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    checkRateLimit.mockResolvedValue({ allowed: true });
-    subscriptionFindUnique.mockResolvedValue({ tier: "PRO" });
-  });
-
   function makeReq() {
     return new Request("http://localhost", {
       headers: { Authorization: "Bearer sa_valid_key" },
     });
   }
 
+  beforeEach(() => {
+    subscriptionFindUnique.mockResolvedValue({ tier: "PRO" });
+    getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
+  });
+
   it("returns 429 when polling rate limit exceeded", async () => {
-    // First mock: resolveAppFromBearer calls monitoredApp.findFirst which calls getOrgLimits
     monitoredAppFindFirst.mockResolvedValueOnce({ id: "app1", orgId: "org1", agentEnabled: true });
     checkRateLimit.mockResolvedValueOnce({ allowed: false, retryAfterSeconds: 60 });
 
@@ -475,7 +483,6 @@ describe("A8-6: GET /api/agent/pending — polling rate limit", () => {
 
   it("allows polling when within rate limit", async () => {
     monitoredAppFindFirst.mockResolvedValueOnce({ id: "app1", orgId: "org1", agentEnabled: true });
-    checkRateLimit.mockResolvedValueOnce({ allowed: true });
     monitoredAppUpdate.mockResolvedValueOnce({});
 
     const { GET } = await import("@/app/api/agent/pending/route");
@@ -490,28 +497,6 @@ describe("A8-6: GET /api/agent/pending — polling rate limit", () => {
 // A8-7: compliance/score — take:2000 cap
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-7: GET /api/compliance/score — findings capped at 2000", () => {
-  const getSession = vi.fn();
-  const getOrgLimits = vi.fn();
-  const findingFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/auth", () => ({ getSession }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
-    vi.mock("@/lib/db", () => ({
-      db: { finding: { findMany: findingFindMany } },
-    }));
-    vi.mock("@/lib/compliance-score", () => ({
-      calculateComplianceScore: vi.fn().mockReturnValue({ soc2: 80 }),
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSession.mockResolvedValue({ orgId: "org1", id: "u1", role: "OWNER" });
-    getOrgLimits.mockResolvedValue({ tier: "PRO" });
-    findingFindMany.mockResolvedValue([]);
-  });
-
   it("calls findMany with take:2000", async () => {
     const { GET } = await import("@/app/api/compliance/score/route");
     await GET();
@@ -533,31 +518,11 @@ describe("A8-7: GET /api/compliance/score — findings capped at 2000", () => {
 // A8-8: dashboard — findings per run capped with take + select
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-8: GET /api/dashboard — findings per run bounded", () => {
-  const getSession = vi.fn();
-  const monitoredAppCount = vi.fn();
-  const findingCount = vi.fn();
-  const monitorRunFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/auth", () => ({ getSession }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { count: monitoredAppCount },
-        finding: { count: findingCount },
-        monitorRun: { findMany: monitorRunFindMany },
-      },
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSession.mockResolvedValue({ orgId: "org1", id: "u1", role: "OWNER" });
+  it("includes take:50 on nested findings", async () => {
     monitoredAppCount.mockResolvedValue(3);
     findingCount.mockResolvedValue(2);
     monitorRunFindMany.mockResolvedValue([]);
-  });
 
-  it("includes take:50 on nested findings", async () => {
     const { GET } = await import("@/app/api/dashboard/route");
     await GET();
 
@@ -566,12 +531,15 @@ describe("A8-8: GET /api/dashboard — findings per run bounded", () => {
   });
 
   it("includes select on nested findings (not full include: true)", async () => {
+    monitoredAppCount.mockResolvedValue(3);
+    findingCount.mockResolvedValue(2);
+    monitorRunFindMany.mockResolvedValue([]);
+
     const { GET } = await import("@/app/api/dashboard/route");
     await GET();
 
     const call = monitorRunFindMany.mock.calls[0]?.[0];
     expect(call?.include?.findings?.select).toBeDefined();
-    // Should NOT be a boolean true
     expect(typeof call?.include?.findings).not.toBe("boolean");
   });
 });
@@ -580,22 +548,6 @@ describe("A8-8: GET /api/dashboard — findings per run bounded", () => {
 // A8-9: v1/apps — take:200 cap
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-9: GET /api/v1/apps — capped at 200", () => {
-  const authenticateApiKey = vi.fn();
-  const monitoredAppFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/db", () => ({
-      db: { monitoredApp: { findMany: monitoredAppFindMany } },
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org1");
-    monitoredAppFindMany.mockResolvedValue([]);
-  });
-
   it("calls findMany with take:200", async () => {
     const { GET } = await import("@/app/api/v1/apps/route");
     await GET(new Request("http://localhost", { headers: { Authorization: "Bearer vs_key" } }));
@@ -610,27 +562,6 @@ describe("A8-9: GET /api/v1/apps — capped at 200", () => {
 // A8-10: v1/dashboard — take:200 cap
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-10: GET /api/v1/dashboard — capped at 200", () => {
-  const authenticateApiKey = vi.fn();
-  const monitoredAppFindMany = vi.fn();
-  const findingCount = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { findMany: monitoredAppFindMany },
-        finding: { count: findingCount },
-      },
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org1");
-    monitoredAppFindMany.mockResolvedValue([]);
-    findingCount.mockResolvedValue(0);
-  });
-
   it("calls findMany with take:200", async () => {
     const { GET } = await import("@/app/api/v1/dashboard/route");
     await GET(new Request("http://localhost", { headers: { Authorization: "Bearer vs_key" } }));
@@ -645,35 +576,6 @@ describe("A8-10: GET /api/v1/dashboard — capped at 200", () => {
 // A8-11: MCP list_apps — take:200 cap
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-11: POST /api/mcp — list_apps capped at 200", () => {
-  const authenticateApiKey = vi.fn();
-  const monitoredAppFindMany = vi.fn();
-  const monitoredAppFindFirst = vi.fn();
-  const monitorRunFindFirst = vi.fn();
-  const findingFindMany = vi.fn();
-  const findingUpdate = vi.fn();
-  const logApiError = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { findMany: monitoredAppFindMany, findFirst: monitoredAppFindFirst },
-        monitorRun: { findFirst: monitorRunFindFirst },
-        finding: { findMany: findingFindMany, update: findingUpdate },
-      },
-    }));
-    vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp: vi.fn() }));
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }) }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
-    vi.mock("@/lib/observability", () => ({ logApiError }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org_mcp");
-    monitoredAppFindMany.mockResolvedValue([]);
-  });
-
   function mcpReq(method: string, params?: Record<string, unknown>) {
     return new Request("http://localhost", {
       method: "POST",
@@ -696,32 +598,6 @@ describe("A8-11: POST /api/mcp — list_apps capped at 200", () => {
 // A8-12: MCP get_remediation_metrics — take:5000 cap
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-12: POST /api/mcp — get_remediation_metrics capped at 5000", () => {
-  const authenticateApiKey = vi.fn();
-  const monitoredAppFindMany = vi.fn();
-  const findingFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/api-auth", () => ({ authenticateApiKey }));
-    vi.mock("@/lib/db", () => ({
-      db: {
-        monitoredApp: { findMany: monitoredAppFindMany, findFirst: vi.fn() },
-        monitorRun: { findFirst: vi.fn() },
-        finding: { findMany: findingFindMany, update: vi.fn() },
-      },
-    }));
-    vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp: vi.fn() }));
-    vi.mock("@/lib/rate-limit", () => ({ checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }) }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits: vi.fn().mockResolvedValue({ tier: "PRO" }) }));
-    vi.mock("@/lib/observability", () => ({ logApiError: vi.fn() }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    authenticateApiKey.mockResolvedValue("org_mcp2");
-    monitoredAppFindMany.mockResolvedValue([{ id: "a1" }, { id: "a2" }]);
-    findingFindMany.mockResolvedValue([]);
-  });
-
   function mcpReq(method: string, params?: Record<string, unknown>) {
     return new Request("http://localhost", {
       method: "POST",
@@ -730,13 +606,15 @@ describe("A8-12: POST /api/mcp — get_remediation_metrics capped at 5000", () =
     });
   }
 
+  beforeEach(() => {
+    monitoredAppFindMany.mockResolvedValue([{ id: "a1" }, { id: "a2" }]);
+  });
+
   it("get_remediation_metrics caps findings at 5000", async () => {
     const { POST } = await import("@/app/api/mcp/route");
     await POST(mcpReq("tools/call", { name: "get_remediation_metrics", arguments: {} }));
 
-    const findingCall = findingFindMany.mock.calls.find((c) =>
-      c[0]?.take === 5000,
-    );
+    const findingCall = findingFindMany.mock.calls.find((c) => c[0]?.take === 5000);
     expect(findingCall).toBeDefined();
   });
 
@@ -744,9 +622,7 @@ describe("A8-12: POST /api/mcp — get_remediation_metrics capped at 5000", () =
     const { POST } = await import("@/app/api/mcp/route");
     await POST(mcpReq("tools/call", { name: "get_remediation_metrics", arguments: {} }));
 
-    const appsCall = monitoredAppFindMany.mock.calls.find((c) =>
-      c[0]?.take === 200,
-    );
+    const appsCall = monitoredAppFindMany.mock.calls.find((c) => c[0]?.take === 200);
     expect(appsCall).toBeDefined();
   });
 });
@@ -755,29 +631,8 @@ describe("A8-12: POST /api/mcp — get_remediation_metrics capped at 5000", () =
 // A8-13: reports/weekly — bounded apps+runs+findings
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-13: GET /api/reports/weekly — bounded queries", () => {
-  const getSession = vi.fn();
-  const getOrgLimits = vi.fn();
-  const monitoredAppFindMany = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/auth", () => ({ getSession }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
-    vi.mock("@/lib/db", () => ({
-      db: { monitoredApp: { findMany: monitoredAppFindMany } },
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSession.mockResolvedValue({ orgId: "org1", id: "u1", role: "OWNER" });
-    getOrgLimits.mockResolvedValue({ tier: "STARTER" });
-    monitoredAppFindMany.mockResolvedValue([]);
-  });
-
-  function makeReq(auth?: string) {
-    const headers: Record<string, string> = {};
-    if (auth) headers.authorization = auth;
-    return new Request("http://localhost", { headers });
+  function makeReq() {
+    return new Request("http://localhost");
   }
 
   it("caps apps at 100 in user path", async () => {
@@ -812,30 +667,9 @@ describe("A8-13: GET /api/reports/weekly — bounded queries", () => {
 // A8-14: reports/evidence — date range validation
 // ─────────────────────────────────────────────────────────────────────────────
 describe("A8-14: GET /api/reports/evidence — date range validation", () => {
-  const getSession = vi.fn();
-  const getOrgLimits = vi.fn();
-  const generateEvidencePack = vi.fn();
-
-  beforeAll(() => {
-    vi.mock("@/lib/auth", () => ({ getSession }));
-    vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
-    vi.mock("@/lib/pdf-report", () => ({
-      generateEvidencePack,
-      generateComplianceReport: vi.fn(),
-    }));
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    getSession.mockResolvedValue({ orgId: "org1", id: "u1", role: "OWNER" });
-    getOrgLimits.mockResolvedValue({ tier: "PRO" });
-    generateEvidencePack.mockResolvedValue(Buffer.from("pdf"));
-  });
-
   function makeNextReq(params: Record<string, string>) {
     const url = new URL("http://localhost/api/reports/evidence");
     for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-    // Cast to NextRequest-compatible type — route uses req.nextUrl.searchParams
     return Object.assign(new Request(url.toString()), { nextUrl: url });
   }
 
