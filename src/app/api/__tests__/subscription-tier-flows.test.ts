@@ -484,7 +484,7 @@ describe("POST /api/keys — API key access per tier", () => {
     const res = await POST(postReq({ name: "My Key" }));
     expect(res.status).toBe(403);
     const json = await res.json();
-    expect(json.error).toContain("Only admins");
+    expect(json.error).toContain("Admin access required");
   });
 
   it("PRO: VIEWER role is blocked from creating API keys", async () => {

@@ -78,9 +78,9 @@ function ScorePage() {
       });
       const data = await res.json();
       if (res.status === 429) {
-        setError("Rate limit reached — you can scan 10 URLs per hour. Try again later.");
+        setError("Rate limit reached — 10 URL scans per hour. Try again later.");
       } else if (!res.ok) {
-        setError(data.error?.message ?? "Scan failed. Please try again.");
+        setError(data.error?.message ?? "Scan failed. Try again.");
       } else {
         setResult(data as ScoreResult);
       }

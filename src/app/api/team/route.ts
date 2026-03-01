@@ -93,7 +93,7 @@ export async function POST(req: Request) {
 
   // Only OWNER and ADMIN can invite
   if (!["OWNER", "ADMIN"].includes(session.role)) {
-    return NextResponse.json({ error: "Only admins can invite team members" }, { status: 403 });
+    return NextResponse.json({ error: "Admin access required to invite team members" }, { status: 403 });
   }
 
   const body = await req.json();

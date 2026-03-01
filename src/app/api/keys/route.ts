@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!["OWNER", "ADMIN"].includes(session.role)) {
-    return NextResponse.json({ error: "Only admins can create API keys" }, { status: 403 });
+    return NextResponse.json({ error: "Admin access required to create API keys" }, { status: 403 });
   }
 
   const limits = await getOrgLimits(session.orgId);

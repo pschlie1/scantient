@@ -20,7 +20,7 @@ const risks = [
   },
   {
     title: "Velocity Without Oversight",
-    body: "Traditional development has natural checkpoints: code review, QA, staging environments, security scans in CI/CD. Vibe coding bypasses all of them. An employee can go from idea to production deployment in an afternoon — without IT ever knowing the app exists. By the time you discover it, it's processing customer data.",
+    body: "Traditional development has natural checkpoints: code review, QA, staging environments, security scans in CI/CD. Vibe coding bypasses all of them. An employee goes from idea to production deployment in an afternoon — without IT ever knowing the app exists. By the time you discover it, it's processing customer data.",
   },
   {
     title: "Dependency Sprawl",
@@ -36,7 +36,7 @@ const risks = [
   },
   {
     title: "Shadow IT at Scale",
-    body: "Before AI coding tools, shadow IT was limited by technical skill. Now anyone with a browser can deploy a production web application. The scale of ungoverned applications in organizations is growing exponentially. A 500-person company might have 20-50 AI-built apps running in production without IT's knowledge.",
+    body: "Before AI coding tools, shadow IT was limited by technical skill. Now anyone with a browser deploys a production web application. The scale of ungoverned applications in organizations is growing exponentially. A 500-person company might have 20-50 AI-built apps running in production without IT's knowledge.",
   },
 ];
 

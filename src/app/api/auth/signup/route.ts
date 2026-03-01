@@ -156,7 +156,7 @@ export async function POST(req: Request) {
             <span style="flex-shrink: 0; width: 28px; height: 28px; background: #f3f4f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #111;">1</span>
             <div>
               <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 15px;">Verify your email</p>
-              <p style="margin: 0; color: #666; font-size: 14px;">Click the verification link we just sent to activate your account.</p>
+              <p style="margin: 0; color: #666; font-size: 14px;">Click the verification link sent to your email to activate your account.</p>
             </div>
           </li>
           <li style="display: flex; gap: 16px; margin-bottom: 20px;">
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
         </a>
 
         <p style="margin-top: 32px; font-size: 12px; color: #aaa;">
-          If you have questions, just reply to this email — we read every one.
+          If you have questions, reply to this email — we read every one.
         </p>
       </div>
     `;
