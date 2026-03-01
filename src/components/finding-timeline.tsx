@@ -152,7 +152,7 @@ export function FindingTimeline({ findingId }: { findingId: string }) {
                     <div className="flex-1">
                       <p className="text-xs text-gray-900">
                         <span className="font-medium">{event.action.replace(/_/g, " ")}</span>
-                        {event.details && <span className="text-gray-600"> — {event.details}</span>}
+                        {event.details && <span className="text-gray-600"> - {event.details}</span>}
                       </p>
                       <p className="text-[10px] text-gray-400">
                         {formatTime(event.timestamp)} · {event.actor === "system" ? "System" : event.actor}

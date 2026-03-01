@@ -64,22 +64,26 @@ export async function middleware(request: NextRequest) {
 
   // Verify JWT signature + expiry using jose (Edge Runtime compatible)
   const jwtSecret = process.env.JWT_SECRET;
-  if (jwtSecret) {
-    try {
-      const secret = new TextEncoder().encode(jwtSecret);
-      await jwtVerify(session.value, secret);
-    } catch {
-      // Invalid or expired token — clear cookie and redirect/reject
-      if (pathname.startsWith("/api/")) {
-        const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        res.cookies.delete("scantient-session");
-        return res;
-      }
-      const res = NextResponse.redirect(new URL("/login", request.url));
+  if (!jwtSecret) {
+    // Config error — fail closed. Never allow unverified access.
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  try {
+    const secret = new TextEncoder().encode(jwtSecret);
+    await jwtVerify(session.value, secret);
+  } catch {
+    // Invalid or expired token — clear cookie and redirect/reject
+    if (pathname.startsWith("/api/")) {
+      const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       res.cookies.delete("scantient-session");
-
       return res;
     }
+    const res = NextResponse.redirect(new URL("/login", request.url));
+    res.cookies.delete("scantient-session");
+    return res;
   }
 
   return NextResponse.next();

@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from: fromEmail,
         to: [email],
-        subject: "Thanks for subscribing to Scantient — we'll keep you posted on security insights",
+        subject: "Thanks for subscribing to Scantient. We'll keep you posted on security insights",
         html: welcomeHtml,
       }),
     }).catch((err) => console.warn("[newsletter] Failed to send welcome email:", err));

@@ -26,7 +26,7 @@ const posts = [
     category: "Compliance",
     title: "Continuous Compliance Monitoring for AI-Generated Applications",
     excerpt:
-      "SOC 2, ISO 27001, NIST CSF — your compliance obligations don't have a carve-out for AI-generated code. Here's how to maintain coverage.",
+      "SOC 2, ISO 27001, NIST CSF: your compliance obligations don't have a carve-out for AI-generated code. Here's how to maintain coverage.",
     date: "February 14, 2026",
     readTime: "6 min read",
     featured: false,

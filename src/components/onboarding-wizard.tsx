@@ -192,7 +192,7 @@ export function OnboardingWizard() {
             <h2 className="text-xl font-semibold tracking-tight">Here&apos;s what we found</h2>
             <p className="mt-1 text-sm text-gray-500">
               {findings.total === 0
-                ? "No issues detected — your app looks great!"
+                ? "No issues detected. Your app looks great!"
                 : `${findings.total} finding${findings.total === 1 ? "" : "s"} across your app.`}
             </p>
             {findings.total > 0 && (
@@ -225,7 +225,7 @@ export function OnboardingWizard() {
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Set up alerts</h2>
             <p className="mt-1 text-sm text-gray-500">
-              Get notified when new issues are found. Optional — you can do this later.
+              Get notified when new issues are found. Optional; you can do this later.
             </p>
             <div className="mt-6 space-y-4">
               <div>

@@ -41,7 +41,8 @@ export async function POST(req: Request) {
         priority: { name: priority },
       },
     };
-    const jiraRes = await fetch(`https://${cfg.url}/rest/api/3/issue`, {
+    const baseUrl = cfg.url.replace(/\/$/, "");
+    const jiraRes = await fetch(`${baseUrl}/rest/api/3/issue`, {
       method: "POST",
       headers: { Authorization: `Basic ${credentials}`, "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(issueBody),
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
     }
     const jiraData = await jiraRes.json() as { key?: string };
     const ticketKey = jiraData.key ?? "";
-    const ticketUrl = `https://${cfg.url}/browse/${ticketKey}`;
+    const ticketUrl = `${baseUrl}/browse/${ticketKey}`;
     const existingNotes = finding.notes ?? "";
     const newNotes = existingNotes ? `${existingNotes}\nJira: ${ticketUrl}` : `Jira: ${ticketUrl}`;
     await db.finding.update({ where: { id: findingId }, data: { notes: newNotes } });

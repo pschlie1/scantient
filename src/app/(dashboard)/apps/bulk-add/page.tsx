@@ -305,7 +305,7 @@ export default function BulkAddPage() {
             </p>
             <a
               href={SAMPLE_CSV}
-              download="vibesafe-bulk-import-template.csv"
+              download="scantient-bulk-import-template.csv"
               className="mt-1 inline-block text-xs text-blue-600 hover:underline"
             >
               ↓ Download sample CSV template

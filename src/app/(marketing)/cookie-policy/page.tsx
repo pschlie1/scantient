@@ -29,7 +29,7 @@ const cookies = [
   {
     name: "_ga, _ga_*",
     type: "Analytics",
-    purpose: "Google Analytics — tracks aggregate usage patterns to help us improve the product. Does not collect personal data.",
+    purpose: "Google Analytics: tracks aggregate usage patterns to help us improve the product. Does not collect personal data.",
     duration: "2 years",
   },
 ];
@@ -78,7 +78,7 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900">Essential vs. analytics cookies</h2>
             <p className="mt-3">
-              Essential cookies are required for Scantient to function and cannot be disabled. Analytics cookies help us understand how the product is used so we can improve it. You can disable analytics cookies by using browser settings or a privacy tool like uBlock Origin — the Service will continue to work normally.
+              Essential cookies are required for Scantient to function and cannot be disabled. Analytics cookies help us understand how the product is used so we can improve it. You can disable analytics cookies by using browser settings or a privacy tool like uBlock Origin; the Service will continue to work normally.
             </p>
           </section>
 

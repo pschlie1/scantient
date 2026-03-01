@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getOrgLimits } from "@/lib/tenant";
 import { subDays, startOfDay, format } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,15 @@ export async function GET() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  const allowedTiers = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
+  if (!allowedTiers.includes(limits.tier)) {
+    return NextResponse.json(
+      { error: "Trend analytics require a Pro plan or higher." },
+      { status: 403 }
+    );
   }
 
   const thirtyDaysAgo = subDays(new Date(), 30);

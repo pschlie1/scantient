@@ -6,11 +6,16 @@ import type { SubscriptionTier } from "@prisma/client";
 
 /**
  * Map a Stripe PlanKey to a DB SubscriptionTier.
- * ENTERPRISE_PLUS maps to ENTERPRISE because the DB enum does not include it.
+ * Direct 1:1 mapping now that ENTERPRISE_PLUS is a first-class enum value.
  */
 function toDbTier(planKey: PlanKey): SubscriptionTier {
-  if (planKey === "ENTERPRISE_PLUS") return "ENTERPRISE";
-  return planKey as SubscriptionTier;
+  const map: Record<PlanKey, SubscriptionTier> = {
+    STARTER: "STARTER",
+    PRO: "PRO",
+    ENTERPRISE: "ENTERPRISE",
+    ENTERPRISE_PLUS: "ENTERPRISE_PLUS",
+  };
+  return map[planKey] ?? "FREE";
 }
 
 export async function POST(req: Request) {

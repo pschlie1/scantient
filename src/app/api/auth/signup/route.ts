@@ -163,7 +163,7 @@ export async function POST(req: Request) {
             <span style="flex-shrink: 0; width: 28px; height: 28px; background: #f3f4f6; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #111;">2</span>
             <div>
               <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 15px;">Add your first app</p>
-              <p style="margin: 0; color: #666; font-size: 14px;">Paste a URL — we'll scan it for security issues in seconds.</p>
+              <p style="margin: 0; color: #666; font-size: 14px;">Paste a URL and we'll scan it for security issues in seconds.</p>
             </div>
           </li>
           <li style="display: flex; gap: 16px;">
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
         </a>
 
         <p style="margin-top: 32px; font-size: 12px; color: #aaa;">
-          If you have questions, reply to this email — we read every one.
+          If you have questions, reply to this email. We read every one.
         </p>
       </div>
     `;
@@ -197,7 +197,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from: fromEmail,
         to: [email],
-        subject: "Welcome to Scantient — here's how to get started",
+        subject: "Welcome to Scantient: here's how to get started",
         html: onboardingHtml,
       }),
     }).catch((err) => console.warn("[auth] Failed to send onboarding email:", err));

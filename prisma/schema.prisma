@@ -37,6 +37,8 @@ enum SubscriptionTier {
   STARTER
   PRO
   ENTERPRISE
+  ENTERPRISE_PLUS
+  EXPIRED
 }
 
 enum SubscriptionStatus {

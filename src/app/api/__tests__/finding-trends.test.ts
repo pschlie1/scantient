@@ -13,11 +13,13 @@ vi.mock("@/lib/auth", () => ({ getSession }));
 // ─── DB mocks ─────────────────────────────────────────────────────────────────
 const findingFindMany = vi.fn();
 const monitorRunFindMany = vi.fn();
+const subscriptionFindUnique = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
     finding: { findMany: findingFindMany },
     monitorRun: { findMany: monitorRunFindMany },
+    subscription: { findUnique: subscriptionFindUnique },
   },
 }));
 
@@ -55,6 +57,8 @@ beforeEach(() => {
   getSession.mockResolvedValue(null);
   findingFindMany.mockResolvedValue([]);
   monitorRunFindMany.mockResolvedValue([]);
+  // Default: PRO tier — passes the trends tier gate
+  subscriptionFindUnique.mockResolvedValue({ tier: "PRO" });
 });
 
 describe("GET /api/metrics/trends", () => {
@@ -169,5 +173,31 @@ describe("GET /api/metrics/trends", () => {
         }),
       }),
     );
+  });
+
+  it("returns 403 for FREE tier users", async () => {
+    getSession.mockResolvedValue(makeSession());
+    subscriptionFindUnique.mockResolvedValue({ tier: "FREE" });
+    const { GET } = await import("@/app/api/metrics/trends/route");
+    const res = await GET();
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 403 for STARTER tier users", async () => {
+    getSession.mockResolvedValue(makeSession());
+    subscriptionFindUnique.mockResolvedValue({ tier: "STARTER" });
+    const { GET } = await import("@/app/api/metrics/trends/route");
+    const res = await GET();
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 200 for ENTERPRISE_PLUS tier", async () => {
+    getSession.mockResolvedValue(makeSession());
+    subscriptionFindUnique.mockResolvedValue({ tier: "ENTERPRISE_PLUS" });
+    findingFindMany.mockResolvedValue([]);
+    monitorRunFindMany.mockResolvedValue([]);
+    const { GET } = await import("@/app/api/metrics/trends/route");
+    const res = await GET();
+    expect(res.status).toBe(200);
   });
 });

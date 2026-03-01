@@ -42,7 +42,7 @@ export default function DocsPage() {
         <h2 className="mb-4 text-xl font-semibold">Authentication</h2>
         <p className="mb-3 text-sm text-gray-600">
           All API requests require an API key sent in the <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">X-API-Key</code> header.
-          Keys use the <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">vs_</code> prefix and can be managed in{" "}
+          Keys use the <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">vs_</code> prefix and are managed in{" "}
           <a href="/settings/api-keys" className="text-blue-600 underline">Settings → API Keys</a>.
         </p>
         <Code>{`curl -H "X-API-Key: vs_your_key_here" https://scantient.com/api/v1/apps`}</Code>

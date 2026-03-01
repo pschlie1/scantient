@@ -16,7 +16,7 @@ export function ScanButton({ appId }: { appId: string }) {
         alert(`Scan failed: ${data.error ?? "Unknown error"}`);
       }
     } catch {
-      alert("Network error — could not reach scanner");
+      alert("Network error: could not reach scanner");
     } finally {
       setScanning(false);
     }

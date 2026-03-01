@@ -51,7 +51,7 @@ export default function ApiKeysPage() {
 
         {newKey && (
           <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="mb-1 text-sm font-medium text-green-800">Your new API key (copy now — it won&apos;t be shown again):</p>
+            <p className="mb-1 text-sm font-medium text-green-800">Your new API key (copy now; it won&apos;t be shown again):</p>
             <code className="block rounded bg-white p-2 text-sm font-mono">{newKey}</code>
           </div>
         )}

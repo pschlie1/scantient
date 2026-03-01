@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { authenticateApiKeyHeader } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
+import { getOrgLimits } from "@/lib/tenant";
 
 const bodySchema = z.object({
   url: z.string().url(),
@@ -45,6 +46,14 @@ export async function POST(req: Request) {
   const { url, failOn } = parsed.data;
   let app = await db.monitoredApp.findFirst({ where: { url, orgId } });
   if (!app) {
+    const orgLimits = await getOrgLimits(orgId);
+    const existingCount = await db.monitoredApp.count({ where: { orgId } });
+    if (existingCount >= orgLimits.maxApps) {
+      return NextResponse.json(
+        { error: "App limit reached for your plan. Upgrade to add more apps." },
+        { status: 403 }
+      );
+    }
     app = await db.monitoredApp.create({ data: { orgId, name: new URL(url).hostname, url, ownerEmail: "ci@scantient", criticality: "medium" } });
   }
 

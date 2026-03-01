@@ -102,9 +102,9 @@ export default function GitHubActionsPage() {
           <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
             <strong>Badge colors:</strong>
             <ul className="mt-2 list-disc pl-5 text-xs">
-              <li><span className="font-medium text-green-700">Green</span> — score ≥ 80</li>
-              <li><span className="font-medium text-yellow-700">Yellow</span> — score 50–79</li>
-              <li><span className="font-medium text-red-700">Red</span> — score &lt; 50</li>
+              <li><span className="font-medium text-green-700">Green</span>: score ≥ 80</li>
+              <li><span className="font-medium text-yellow-700">Yellow</span>: score 50–79</li>
+              <li><span className="font-medium text-red-700">Red</span>: score &lt; 50</li>
             </ul>
           </div>
         </section>
@@ -121,7 +121,7 @@ export default function GitHubActionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y text-xs">
-                <tr><td className="px-4 py-3 font-mono">critical</td><td className="px-4 py-3">Any CRITICAL finding exists</td><td className="px-4 py-3">Default — all projects</td></tr>
+                <tr><td className="px-4 py-3 font-mono">critical</td><td className="px-4 py-3">Any CRITICAL finding exists</td><td className="px-4 py-3">Default: all projects</td></tr>
                 <tr><td className="px-4 py-3 font-mono">high</td><td className="px-4 py-3">Any HIGH or CRITICAL finding exists</td><td className="px-4 py-3">Production-critical services</td></tr>
                 <tr><td className="px-4 py-3 font-mono">medium</td><td className="px-4 py-3">Any MEDIUM, HIGH, or CRITICAL finding exists</td><td className="px-4 py-3">High-compliance environments</td></tr>
               </tbody>

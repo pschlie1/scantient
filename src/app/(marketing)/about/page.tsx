@@ -12,15 +12,15 @@ export const metadata: Metadata = {
 const values = [
   {
     title: "Security shouldn't require a security team",
-    body: "Most mid-market companies don't have a dedicated AppSec engineer. We built Scantient so IT Directors can enforce security standards across their entire app portfolio without specialized headcount.",
+    body: "Most mid-market companies don't have a dedicated AppSec engineer. We built Scantient so IT Directors enforce security standards across their entire app portfolio without specialized headcount.",
   },
   {
     title: "Visibility before control",
-    body: "You can't secure what you can't see. Scantient starts by giving you a complete map of every AI-built app in your organization, then layers in continuous monitoring and automated remediation guidance.",
+    body: "You won't secure what you won't see. Scantient starts by giving you a complete map of every AI-built app in your organization, then layers in continuous monitoring and automated remediation guidance.",
   },
   {
     title: "Built for buyers, not builders",
-    body: "The people responsible for security outcomes are rarely the people who built the apps. Scantient is designed for the CIO, the CISO, and the IT Director — not the developer who shipped the code.",
+    body: "The people responsible for security outcomes are rarely the people who built the apps. Scantient is designed for the CIO, the CISO, and the IT Director, not the developer who shipped the code.",
   },
 ];
 
@@ -48,10 +48,10 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold">The problem we&apos;re solving</h2>
           <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
             <p>
-              The rise of AI coding tools — Cursor, GitHub Copilot, Replit, Bolt — has fundamentally changed how software gets built. Employees across every department can now build and deploy functional applications in hours, without any developer involvement.
+              The rise of AI coding tools (Cursor, GitHub Copilot, Replit, Bolt) has fundamentally changed how software gets built. Employees across every department now build and deploy functional applications in hours, without any developer involvement.
             </p>
             <p>
-              This is genuinely good for productivity. It&apos;s a serious problem for security. These applications process real data, serve real users, and create real compliance obligations — but they&apos;re built without security review, code standards, or IT oversight.
+              This is genuinely good for productivity. It&apos;s a serious problem for security. These applications process real data, serve real users, and create real compliance obligations, but they&apos;re built without security review, code standards, or IT oversight.
             </p>
             <p>
               IT Directors call it &ldquo;shadow IT on steroids.&rdquo; We built Scantient to give them back control.

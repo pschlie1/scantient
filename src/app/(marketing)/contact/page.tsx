@@ -63,7 +63,7 @@ export default function ContactPage() {
             <a href="mailto:hello@scantient.com" className="text-black underline hover:no-underline">
               hello@scantient.com
             </a>{" "}
-            with a brief description of your environment — number of AI-built apps, compliance obligations, and team size — and we&apos;ll set up a call within 48 hours.
+            with a brief description of your environment (number of AI-built apps, compliance obligations, and team size), and we&apos;ll set up a call within 48 hours.
           </p>
         </div>
 

@@ -13,7 +13,7 @@ const items = [
   {
     num: 1,
     title: "Scan for Exposed API Keys in Client-Side Code",
-    body: "AI code generators frequently embed API keys directly in frontend JavaScript. Check for OpenAI, Stripe, Supabase, Firebase, and AWS keys in your page source and bundled scripts. A single exposed key can cost thousands in unauthorized API usage within hours.",
+    body: "AI code generators frequently embed API keys directly in frontend JavaScript. Check for OpenAI, Stripe, Supabase, Firebase, and AWS keys in your page source and bundled scripts. A single exposed key costs thousands in unauthorized API usage within hours.",
   },
   {
     num: 2,
@@ -28,7 +28,7 @@ const items = [
   {
     num: 4,
     title: "Audit Database Access Rules",
-    body: "If your app uses Supabase or Firebase, verify Row Level Security (RLS) policies are enabled and correctly configured. AI generators often disable RLS for simplicity, exposing entire databases to any authenticated — or unauthenticated — user.",
+    body: "If your app uses Supabase or Firebase, verify Row Level Security (RLS) policies are enabled and correctly configured. AI generators often disable RLS for simplicity, exposing entire databases to any authenticated or unauthenticated user.",
   },
   {
     num: 5,
@@ -38,7 +38,7 @@ const items = [
   {
     num: 6,
     title: "Validate Input on the Server",
-    body: "AI tools love client-side validation — pretty form errors, inline checks, character limits. But without server-side validation, attackers bypass everything with a single curl command. Every API endpoint must validate and sanitize inputs independently.",
+    body: "AI tools love client-side validation: pretty form errors, inline checks, character limits. But without server-side validation, attackers bypass everything with a single curl command. Every API endpoint must validate and sanitize inputs independently.",
   },
   {
     num: 7,
@@ -53,7 +53,7 @@ const items = [
   {
     num: 9,
     title: "Test Rate Limiting on Critical Endpoints",
-    body: "Login, signup, password reset, and payment endpoints must have rate limiting. Without it, attackers can brute-force credentials, create spam accounts, or abuse expensive API calls. Most AI-generated apps have zero rate limiting.",
+    body: "Login, signup, password reset, and payment endpoints must have rate limiting. Without it, attackers brute-force credentials, create spam accounts, or abuse expensive API calls. Most AI-generated apps have zero rate limiting.",
   },
   {
     num: 10,
@@ -83,7 +83,7 @@ const items = [
   {
     num: 15,
     title: "Set Up Continuous Monitoring",
-    body: "Security isn't a one-time check. AI-generated apps change frequently — every prompt-driven update can introduce new vulnerabilities. Set up continuous external monitoring to catch regressions before attackers do. Tools like Scantient automate this entire checklist on a recurring schedule.",
+    body: "Security isn't a one-time check. AI-generated apps change frequently; every prompt-driven update introduces new vulnerabilities. Set up continuous external monitoring to catch regressions before attackers do. Tools like Scantient automate this entire checklist on a recurring schedule.",
   },
 ];
 
@@ -98,7 +98,7 @@ export default function SecurityChecklistPage() {
           AI App Security Checklist: 15 Things to Check Before Going Live
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-gray-500">
-          AI code generators build fast — but they don&apos;t build secure. Whether your team is using Cursor, Lovable, Bolt, or Replit, these 15 checks will catch the most common and most dangerous vulnerabilities before they reach production.
+          AI code generators build fast, but they don&apos;t build secure. Whether your team is using Cursor, Lovable, Bolt, or Replit, these 15 checks will catch the most common and most dangerous vulnerabilities before they reach production.
         </p>
 
         <div className="mt-16 space-y-12">

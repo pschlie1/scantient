@@ -16,7 +16,7 @@ const coverage = [
   },
   {
     outlet: "Dark Reading",
-    headline: "The shadow IT problem just got worse — meet the AI app",
+    headline: "The shadow IT problem just got worse. Meet the AI app",
     date: "January 2026",
     url: "#",
   },

@@ -159,7 +159,7 @@ const faqs = [
     a: "Scantient performs external scans the same way an attacker would probe your applications. We analyze HTTP responses, JavaScript bundles, security headers, and public-facing configurations. No code changes or developer involvement required.",
   },
   {
-    q: "What types of AI-generated apps can Scantient monitor?",
+    q: "What types of AI-generated apps does Scantient monitor?",
     a: "Any web application accessible via URL: built with Cursor, Lovable, Bolt, Replit, or any other AI coding tool. If the app has a URL, Scantient scans the app.",
   },
   {
@@ -518,7 +518,7 @@ export default function LandingPage() {
       <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Simple, transparent pricing</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          One exposed API key can cost up to $4.88M to remediate (IBM Cost of a Data Breach 2024). Scantient catches the exposure in your first scan.
+          One exposed API key costs up to $4.88M to remediate (IBM Cost of a Data Breach 2024). Scantient catches the exposure in your first scan.
 
         </p>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">

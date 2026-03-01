@@ -22,7 +22,7 @@ const faqs = [
       },
       {
         q: "Does Scantient need access to my source code?",
-        a: "No. Scantient operates entirely from the outside — the same way an attacker would. We scan your app's public endpoints without requiring a code integration, repository access, or deployment pipeline changes.",
+        a: "No. Scantient operates entirely from the outside, the same way an attacker would. We scan your app's public endpoints without requiring a code integration, repository access, or deployment pipeline changes.",
       },
       {
         q: "How long does a scan take?",
@@ -35,15 +35,15 @@ const faqs = [
     items: [
       {
         q: "What do the severity levels mean?",
-        a: "Critical: Immediate action required — active vulnerability that could lead to data breach or takeover. High: Fix within 24–48 hours. Medium: Remediate in current sprint. Low: Informational — address when possible. Info: Best-practice improvement, no active risk.",
+        a: "Critical: Immediate action required - active vulnerability that could lead to data breach or takeover. High: Fix within 24–48 hours. Medium: Remediate in current sprint. Low: Informational - address when possible. Info: Best-practice improvement, no active risk.",
       },
       {
-        q: "I got a false positive — what do I do?",
+        q: "I got a false positive. What do I do?",
         a: "Open the finding and click 'Mark as False Positive'. We'll ask for a brief note explaining why. False positives are reviewed by our team to improve scanner accuracy. The finding will be suppressed from your score and future reports.",
       },
       {
         q: "Why does my app have a low security score if nothing looks broken?",
-        a: "Security score reflects missing protections, not just active vulnerabilities. Missing security headers, absent Content-Security-Policy, or cookies without Secure/HttpOnly flags all reduce your score even if no active attack is occurring. These gaps make your app easier to exploit.",
+        a: "Security score reflects missing protections, not only active vulnerabilities. Missing security headers, absent Content-Security-Policy, or cookies without Secure/HttpOnly flags all reduce your score even if no active attack is occurring. These gaps make your app easier to exploit.",
       },
     ],
   },
@@ -60,7 +60,7 @@ const faqs = [
       },
       {
         q: "Do you offer discounts for nonprofits or educational institutions?",
-        a: "Yes — contact us at support@scantient.com with verification and we'll apply a discount to your account.",
+        a: "Yes. Contact us at support@scantient.com with verification and we'll apply a discount to your account.",
       },
     ],
   },

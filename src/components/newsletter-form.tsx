@@ -58,7 +58,7 @@ export default function NewsletterForm() {
       </button>
       {status === "error" && (
         <p className="w-full text-center text-xs text-red-500 sm:w-auto">
-          Something went wrong — try again
+          Something went wrong. Try again
         </p>
       )}
     </form>

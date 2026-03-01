@@ -136,7 +136,7 @@ const tools = [
   },
   {
     name: "resolve_finding",
-    description: "Update the status of a finding — resolve, acknowledge, or ignore it.",
+    description: "Update the status of a finding: resolve, acknowledge, or ignore it.",
     params: [
       { name: "findingId", type: "string", required: true, description: "The finding ID" },
       { name: "status", type: "string", required: true, description: "OPEN | ACKNOWLEDGED | IN_PROGRESS | RESOLVED | IGNORED" },
@@ -172,7 +172,7 @@ export default function McpDocsPage() {
         <a href="https://modelcontextprotocol.io" className="text-blue-600 underline" target="_blank" rel="noopener">
           Model Context Protocol
         </a>
-        . Your agents can list apps, check security scores, trigger scans, and manage findings — all via a single JSON-RPC 2.0 endpoint.
+        . Your agents list apps, check security scores, trigger scans, and manage findings, all via a single JSON-RPC 2.0 endpoint.
       </p>
 
       {/* Auth */}
@@ -197,9 +197,9 @@ export default function McpDocsPage() {
           The endpoint speaks <strong>JSON-RPC 2.0</strong> with MCP methods:
         </p>
         <ul className="mb-4 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-300">
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">initialize</code> — Handshake, returns server info and capabilities</li>
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/list</code> — List available tools and their schemas</li>
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/call</code> — Execute a tool with arguments</li>
+          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">initialize</code>: Handshake, returns server info and capabilities</li>
+          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/list</code>: List available tools and their schemas</li>
+          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/call</code>: Execute a tool with arguments</li>
         </ul>
         <CodeBlock>{`POST /api/mcp
 Content-Type: application/json

@@ -94,9 +94,9 @@ export function NewAppForm() {
             value={data.criticality}
             onChange={(e) => setData({ ...data, criticality: e.target.value as FormState["criticality"] })}
           >
-            <option value="low">Low — internal tool, limited users</option>
-            <option value="medium">Medium — business-critical internal</option>
-            <option value="high">High — customer-facing or handles sensitive data</option>
+            <option value="low">Low: internal tool, limited users</option>
+            <option value="medium">Medium: business-critical internal</option>
+            <option value="high">High: customer-facing or handles sensitive data</option>
           </select>
         </div>
 

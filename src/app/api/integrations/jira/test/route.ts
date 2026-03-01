@@ -13,7 +13,8 @@ export async function POST() {
     const cfg = integration.config as Record<string, string>;
     const apiToken = deobfuscate(cfg.apiToken);
     const credentials = Buffer.from(`${cfg.email}:${apiToken}`).toString("base64");
-    const res = await fetch(`https://${cfg.url}/rest/api/3/myself`, {
+    const baseUrl = cfg.url.replace(/\/$/, "");
+    const res = await fetch(`${baseUrl}/rest/api/3/myself`, {
       headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" },
       signal: AbortSignal.timeout(10000),
     });

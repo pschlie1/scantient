@@ -78,7 +78,7 @@ function ScorePage() {
       });
       const data = await res.json();
       if (res.status === 429) {
-        setError("Rate limit reached — 10 URL scans per hour. Try again later.");
+        setError("Rate limit reached: 10 URL scans per hour. Try again later.");
       } else if (!res.ok) {
         setError(data.error?.message ?? "Scan failed. Try again.");
       } else {
@@ -131,7 +131,7 @@ function ScorePage() {
             <span className="text-black">security score</span>
           </h1>
           <p className="mt-4 text-lg text-gray-500">
-            Get an instant security assessment of any web app — headers, SSL, scripts, CORS &amp; more.
+            Get an instant security assessment of any web app: headers, SSL, scripts, CORS &amp; more.
           </p>
         </div>
 
@@ -298,7 +298,7 @@ function ScorePage() {
               <div>
                 <p className="text-xs font-medium text-gray-700">Share this score</p>
                 <p className="truncate text-xs text-gray-400">
-                  vibesafe-two.vercel.app/score?url={encodeURIComponent(result.url)}
+                  scantient.com/score?url={encodeURIComponent(result.url)}
                 </p>
               </div>
               <button

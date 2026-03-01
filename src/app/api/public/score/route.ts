@@ -96,9 +96,9 @@ export async function POST(req: Request) {
         highCount: 0,
         findings: [],
         scannedAt: new Date().toISOString(),
-        upgradeUrl: "https://vibesafe-two.vercel.app/signup",
+        upgradeUrl: "https://scantient.com/signup",
         message:
-          "Full scan available with VibeSafe account — monitors 10x more attack vectors",
+          "Full scan available with VibeSafe account: monitors 10x more attack vectors",
         error: "Could not reach URL",
       },
       { status: 200 },
@@ -159,8 +159,8 @@ export async function POST(req: Request) {
     highCount,
     findings: topFindings,
     scannedAt: new Date().toISOString(),
-    upgradeUrl: "https://vibesafe-two.vercel.app/signup",
+    upgradeUrl: "https://scantient.com/signup",
     message:
-      "Full scan available with VibeSafe account — monitors 10x more attack vectors",
+      "Full scan available with VibeSafe account: monitors 10x more attack vectors",
   });
 }
