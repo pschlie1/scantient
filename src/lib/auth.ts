@@ -120,9 +120,11 @@ export async function getSession(): Promise<SessionUser | null> {
         orgSlug: user.org.slug,
       };
       const newToken = signToken(refreshed);
+      const isSecureRefresh =
+        process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
       cookieStore.set(SESSION_COOKIE, newToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isSecureRefresh,
         sameSite: "strict",
         maxAge: SESSION_DURATION,
         path: "/",

@@ -56,3 +56,54 @@ export async function isPrivateUrl(url: string): Promise<boolean> {
     return true; // DNS failure treated as private for safety
   }
 }
+
+/**
+ * A fetch wrapper that follows HTTP redirects manually, re-running the SSRF
+ * guard at every hop.  This closes the redirect-chain bypass where an initial
+ * public URL could chain through an open redirect to reach a private/internal
+ * address (e.g. 169.254.169.254 cloud metadata endpoints).
+ *
+ * Drop-in replacement for `fetch(url, { redirect: "follow", ... })`.
+ * Throws an Error (not a Response) if:
+ *   - any hop resolves to a private/internal address
+ *   - the redirect chain exceeds maxRedirects hops
+ */
+export async function ssrfSafeFetch(
+  url: string,
+  options: Omit<RequestInit, "redirect"> & { signal?: AbortSignal },
+  maxRedirects = 5,
+): Promise<Response> {
+  let current = url;
+
+  for (let hop = 0; hop <= maxRedirects; hop++) {
+    // SSRF check at EVERY hop — catches open-redirect chains
+    if (await isPrivateUrl(current)) {
+      throw new Error(`SSRF: blocked request to private/internal address at hop ${hop}: ${current}`);
+    }
+
+    const res = await fetch(current, {
+      ...options,
+      redirect: "manual", // never auto-follow; we control each step
+    });
+
+    // Not a redirect — return the real response
+    if (res.status < 300 || res.status >= 400) {
+      return res;
+    }
+
+    const location = res.headers.get("location");
+    if (!location) {
+      // Redirect with no Location header — return as-is
+      return res;
+    }
+
+    // Resolve relative redirects against current URL
+    try {
+      current = new URL(location, current).toString();
+    } catch {
+      throw new Error(`SSRF: malformed redirect Location header: ${location}`);
+    }
+  }
+
+  throw new Error(`SSRF: too many redirects (max ${maxRedirects}) for URL: ${url}`);
+}

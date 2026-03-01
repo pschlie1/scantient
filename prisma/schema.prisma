@@ -209,6 +209,7 @@ model Finding {
   assignments     FindingAssignment[]
 
   @@index([runId, severity])
+  @@index([runId, status])
   @@index([status])
 }
 

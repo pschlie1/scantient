@@ -216,45 +216,48 @@ export async function verifyResolvedFindings(appId: string, newFindingCodes: Set
     include: { run: { select: { appId: true } } },
   });
 
-  for (const finding of resolvedFindings) {
-    const { userNotes, meta } = parseRemediationMeta(finding.notes);
+  // Process all resolved findings in parallel (was sequential N+1 loop)
+  await Promise.all(
+    resolvedFindings.map(async (finding) => {
+      const { userNotes, meta } = parseRemediationMeta(finding.notes);
 
-    if (newFindingCodes.has(finding.code)) {
-      // Still present — reopen
-      meta.lifecycleStage = "TRIAGED";
-      meta.verificationPending = false;
-      meta.timeline.push({
-        timestamp: new Date().toISOString(),
-        actor: "system",
-        action: "verification_failed",
-        details: "Automated verification failed — issue still present in latest scan",
-      });
+      if (newFindingCodes.has(finding.code)) {
+        // Still present — reopen
+        meta.lifecycleStage = "TRIAGED";
+        meta.verificationPending = false;
+        meta.timeline.push({
+          timestamp: new Date().toISOString(),
+          actor: "system",
+          action: "verification_failed",
+          details: "Automated verification failed — issue still present in latest scan",
+        });
 
-      await db.finding.update({
-        where: { id: finding.id },
-        data: {
-          status: "OPEN",
-          resolvedAt: null,
-          notes: serializeWithMeta(userNotes, meta),
-        },
-      });
-    } else {
-      // Gone — close with evidence
-      meta.lifecycleStage = "CLOSED";
-      meta.verificationPending = false;
-      meta.timeline.push({
-        timestamp: new Date().toISOString(),
-        actor: "system",
-        action: "verified_closed",
-        details: "Verified fixed by automated re-scan — issue no longer detected",
-      });
+        await db.finding.update({
+          where: { id: finding.id },
+          data: {
+            status: "OPEN",
+            resolvedAt: null,
+            notes: serializeWithMeta(userNotes, meta),
+          },
+        });
+      } else {
+        // Gone — close with evidence
+        meta.lifecycleStage = "CLOSED";
+        meta.verificationPending = false;
+        meta.timeline.push({
+          timestamp: new Date().toISOString(),
+          actor: "system",
+          action: "verified_closed",
+          details: "Verified fixed by automated re-scan — issue no longer detected",
+        });
 
-      await db.finding.update({
-        where: { id: finding.id },
-        data: {
-          notes: serializeWithMeta(userNotes, meta),
-        },
-      });
-    }
-  }
+        await db.finding.update({
+          where: { id: finding.id },
+          data: {
+            notes: serializeWithMeta(userNotes, meta),
+          },
+        });
+      }
+    }),
+  );
 }
