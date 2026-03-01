@@ -21,6 +21,7 @@ export async function GET() {
     where: { orgId: session.orgId },
     select: { id: true, name: true, keyPrefix: true, lastUsedAt: true, createdAt: true },
     orderBy: { createdAt: "desc" },
+    take: 100, // defensive cap; actual key counts are plan-capped (max 50)
   });
 
   return NextResponse.json({ keys });

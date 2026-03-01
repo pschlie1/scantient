@@ -12,6 +12,7 @@ export async function GET() {
   const configs = await db.alertConfig.findMany({
     where: { orgId: session.orgId },
     orderBy: { createdAt: "desc" },
+    take: 100,
   });
 
   return NextResponse.json({ configs });

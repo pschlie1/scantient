@@ -296,8 +296,9 @@ async function firePagerDutyIntegration(
         dashboard_url: "https://scantient.com/dashboard",
       },
     });
-  } catch {
+  } catch (err) {
     // Non-fatal: PagerDuty integration errors should not block alert delivery
+    console.warn("[alerts] PagerDuty integration error (non-fatal):", err instanceof Error ? err.message : err);
   }
 }
 
@@ -330,8 +331,9 @@ async function fireTeamsIntegration(
       appUrl,
       dashboardUrl: "https://scantient.com/dashboard",
     });
-  } catch {
+  } catch (err) {
     // Non-fatal: Teams integration errors should not block alert delivery
+    console.warn("[alerts] Teams integration error (non-fatal):", err instanceof Error ? err.message : err);
   }
 }
 

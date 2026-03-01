@@ -14,6 +14,7 @@ export async function GET() {
     where: { orgId: session.orgId },
     select: { id: true, name: true, email: true, role: true, lastLoginAt: true },
     orderBy: { createdAt: "asc" },
+    take: 200,
   });
 
   return NextResponse.json({ members });

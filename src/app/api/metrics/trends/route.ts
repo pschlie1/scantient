@@ -40,6 +40,7 @@ export async function GET() {
 
   // 1. Open findings over time (count per day for last 30 days)
   // We approximate by using finding.createdAt and status
+  // Cap at 5 000 — enough for accurate 30-day trend analysis without OOM risk.
   const allOrgFindings = await db.finding.findMany({
     where: {
       run: { app: { orgId: session.orgId } },
@@ -53,6 +54,8 @@ export async function GET() {
       resolvedAt: true,
       acknowledgedAt: true,
     },
+    orderBy: { createdAt: "desc" },
+    take: 5000,
   });
 
   // Build daily open finding counts
@@ -129,6 +132,7 @@ export async function GET() {
     .map(([code, count]) => ({ code, count }));
 
   // 6. Security score trend (daily average across all apps from recent scans)
+  // Cap at 500 runs — well above what any org would accumulate in 30 days.
   const recentRuns = await db.monitorRun.findMany({
     where: {
       startedAt: { gte: thirtyDaysAgo },
@@ -139,6 +143,7 @@ export async function GET() {
       findings: { select: { severity: true } },
     },
     orderBy: { startedAt: "asc" },
+    take: 500,
   });
 
   // Group by day and compute average score

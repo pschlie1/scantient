@@ -54,10 +54,11 @@ export async function POST(req: Request) {
 
     const remainingSlots = limits.maxApps - currentCount;
 
-    // Fetch existing URLs for dedup check
+    // Fetch existing URLs for dedup check (capped above any plan's app limit)
     const existingApps = await db.monitoredApp.findMany({
       where: { orgId: session.orgId },
       select: { url: true },
+      take: 1000,
     });
     const existingUrls = new Set(existingApps.map((a) => a.url));
 
