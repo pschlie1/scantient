@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import type { SecurityFinding } from "@/lib/types";
+import { sendTeamsNotification } from "@/lib/teams-notify";
 
 /**
  * Retry a function with exponential backoff.
@@ -186,6 +187,43 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
         },
       });
     }
+  }
+
+  // Fire Teams integration (from IntegrationConfig, if configured)
+  await fireTeamsIntegration(app.orgId, app.name, app.url, findings);
+}
+
+async function fireTeamsIntegration(
+  orgId: string,
+  appName: string,
+  appUrl: string,
+  findings: SecurityFinding[],
+) {
+  try {
+    const { deobfuscate } = await import("@/lib/crypto-util");
+    const teamsIntegration = await db.integrationConfig.findUnique({
+      where: { orgId_type: { orgId, type: "teams" } },
+    });
+    if (!teamsIntegration || !teamsIntegration.enabled) return;
+
+    const cfg = teamsIntegration.config as Record<string, string>;
+    const webhookUrl = deobfuscate(cfg.webhookUrl);
+
+    const criticals = findings.filter((f) => f.severity === "CRITICAL");
+    const highs = findings.filter((f) => f.severity === "HIGH");
+    const topSeverity = criticals.length > 0 ? "critical" : highs.length > 0 ? "high" : "medium";
+
+    const lines = findings.slice(0, 5).map((f) => `• [${f.severity}] ${f.title}`).join("\n");
+    await sendTeamsNotification(webhookUrl, {
+      title: `⚠️ Scantient Alert: ${appName}`,
+      text: `${findings.length} security issue(s) detected on ${appUrl}\n\n${lines}`,
+      severity: topSeverity,
+      appName,
+      appUrl,
+      dashboardUrl: "https://scantient.com/dashboard",
+    });
+  } catch {
+    // Non-fatal: Teams integration errors should not block alert delivery
   }
 }
 
