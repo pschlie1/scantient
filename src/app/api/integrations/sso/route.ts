@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
-import { getOrgLimits } from "@/lib/tenant";
+import { getOrgLimits, logAudit } from "@/lib/tenant";
 import { obfuscate } from "@/lib/crypto-util";
 
 const SSO_TIERS = ["ENTERPRISE", "ENTERPRISE_PLUS"];
@@ -57,6 +57,9 @@ export async function POST(req: Request) {
       create: { orgId: session.orgId, provider, clientId, clientSecret: encryptedSecret, tenantId: tenantId ?? null, domain: domain.toLowerCase(), discoveryUrl: discoveryUrl ?? null, enabled: enabled ?? true },
       update: { provider, clientId, clientSecret: encryptedSecret, tenantId: tenantId ?? null, domain: domain.toLowerCase(), discoveryUrl: discoveryUrl ?? null, enabled: enabled ?? true },
     });
+    // Audit log: SSO config change (fire-and-forget)
+    const action = existing ? "sso_config.updated" : "sso_config.created";
+    logAudit(session, action, "sso", `provider:${provider},domain:${domain.toLowerCase()}`).catch(() => { /* non-fatal */ });
     return NextResponse.json({ id: config.id, ok: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unauthorized";
@@ -75,6 +78,8 @@ export async function DELETE() {
       );
     }
     await db.sSOConfig.deleteMany({ where: { orgId: session.orgId } });
+    // Audit log: SSO config removed (fire-and-forget)
+    logAudit(session, "sso_config.deleted", "sso").catch(() => { /* non-fatal */ });
     return NextResponse.json({ ok: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unauthorized";

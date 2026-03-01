@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/tenant";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -67,5 +68,7 @@ export async function POST(req: Request) {
   }
 
   const session = await createSession(user.id);
+  // Audit log: user.login (fire-and-forget — never block the auth response)
+  logAudit(session, "user.login", "auth").catch(() => { /* non-fatal */ });
   return NextResponse.json({ user: session });
 }

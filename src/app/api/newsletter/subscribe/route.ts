@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   // Add to Resend audience (gracefully degrade if not configured)
   if (!audienceId) {
-    console.log("[newsletter] RESEND_AUDIENCE_ID not set — skipping audience add for:", email);
+    console.log("[newsletter] RESEND_AUDIENCE_ID not set — skipping audience add");
   } else if (resendKey) {
     try {
       await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {

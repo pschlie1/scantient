@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { createSession } from "@/lib/auth";
-import { canAddUser } from "@/lib/tenant";
+import { canAddUser, logAudit } from "@/lib/tenant";
 import * as client from "openid-client";
 
 const JWT_SECRET = (() => {
@@ -71,7 +71,9 @@ export async function GET(req: Request) {
       }
       user = await db.user.create({ data: { email: email.toLowerCase(), name, orgId, role: "MEMBER", emailVerified: true } });
     }
-    await createSession(user.id);
+    const session = await createSession(user.id);
+    // Audit log: SSO login (fire-and-forget)
+    logAudit(session, "user.login", "auth", `sso:${ssoConfig.domain}`).catch(() => { /* non-fatal */ });
     cookieStore.delete(STATE_COOKIE);
     return NextResponse.redirect(new URL("/dashboard", requestUrl.origin));
   } catch (err) {

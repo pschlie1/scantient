@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
-import { canAddUser } from "@/lib/tenant";
+import { canAddUser, logAudit } from "@/lib/tenant";
 
 // GET /api/auth/invite/[token] — return invite details
 export async function GET(
@@ -103,6 +103,8 @@ export async function POST(
 
   // Create session
   const session = await createSession(user.id);
+  // Audit log: invite accepted (fire-and-forget)
+  logAudit(session, "invite.accepted", "auth", `invite:${token}`).catch(() => { /* non-fatal */ });
 
   return NextResponse.json({ user: session }, { status: 201 });
 }
