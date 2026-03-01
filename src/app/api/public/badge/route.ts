@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { db } from "@/lib/db";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_PUBLIC } from "@/lib/cors";
+
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_PUBLIC);
+}
 
 export function calcScore(findings: { severity: string }[]): number {
   let score = 100;
@@ -61,7 +66,7 @@ function makeFallbackSvg(message: string): string {
   return makeBadgeSvg(0, message.slice(0, 5));
 }
 
-export async function GET(req: Request) {
+async function handler(req: Request): Promise<NextResponse> {
   const { searchParams } = new URL(req.url);
   const url = searchParams.get("url");
   const format = searchParams.get("format") ?? "svg";
@@ -165,4 +170,8 @@ export async function GET(req: Request) {
 
   // Default: SVG
   return new NextResponse(makeBadgeSvg(score, grade), { headers: svgHeaders });
+}
+
+export async function GET(req: Request) {
+  return applyCors(await handler(req), CORS_HEADERS_PUBLIC);
 }

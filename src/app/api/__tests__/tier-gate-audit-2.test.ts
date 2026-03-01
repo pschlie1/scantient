@@ -48,6 +48,7 @@ const subscriptionFindUnique = vi.fn();
 const monitorRunFindMany = vi.fn();
 const organizationFindUnique = vi.fn();
 const organizationUpdate = vi.fn();
+const dbTransaction = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -88,6 +89,7 @@ vi.mock("@/lib/db", () => ({
       findUnique: organizationFindUnique,
       update: organizationUpdate,
     },
+    $transaction: dbTransaction,
   },
 }));
 
@@ -664,6 +666,9 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
     inviteDelete.mockResolvedValue({});
     createSession.mockResolvedValue({ id: "new_user_1", email: "newuser@example.com" });
     logAudit.mockResolvedValue(undefined);
+    dbTransaction.mockImplementation((cb: (tx: unknown) => unknown) =>
+      cb({ user: { findFirst: userFindFirst, create: userCreate, count: vi.fn().mockResolvedValue(0) }, invite: { findUnique: inviteFindUnique, delete: inviteDelete } })
+    );
   });
 
   it("returns 409 when org has reached user limit at acceptance time", async () => {

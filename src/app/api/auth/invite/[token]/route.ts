@@ -86,20 +86,26 @@ export async function POST(
 
   const passwordHash = await hashPassword(password);
 
-  // Create user in the invite's org
-  const user = await db.user.create({
-    data: {
-      email: invite.email,
-      name,
-      passwordHash,
-      role: invite.role,
-      orgId: invite.orgId,
-      emailVerified: true, // verified by clicking the invite link
-    },
-  });
+  // Atomically create user and delete invite — if either step fails the other
+  // is rolled back. Without this transaction, a failed invite.delete would leave
+  // the invite reusable by a second party to create a duplicate account.
+  const user = await db.$transaction(async (tx) => {
+    const created = await tx.user.create({
+      data: {
+        email: invite.email,
+        name,
+        passwordHash,
+        role: invite.role,
+        orgId: invite.orgId,
+        emailVerified: true, // verified by clicking the invite link
+      },
+    });
 
-  // Delete the invite (one-time use)
-  await db.invite.delete({ where: { token } });
+    // Delete the invite (one-time use)
+    await tx.invite.delete({ where: { token } });
+
+    return created;
+  });
 
   // Create session
   const session = await createSession(user.id);

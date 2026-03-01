@@ -37,6 +37,12 @@ const envSchema = z.object({
 // ---------------------------------------------------------------------------
 
 function validateEnv() {
+  // Skip during Next.js build phase — env vars are only available at runtime
+  // on the deployed server, not during `next build` static analysis.
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    return process.env as NodeJS.ProcessEnv;
+  }
+
   // In test environments, skip strict validation so unit tests can run
   // without a real DATABASE_URL (tests mock the DB layer entirely).
   if (process.env.NODE_ENV === "test") {

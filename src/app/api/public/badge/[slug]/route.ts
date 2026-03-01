@@ -7,11 +7,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { calcScore, scoreToGrade, scoreToColor, makeBadgeSvg } from "@/app/api/public/badge/route";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_PUBLIC } from "@/lib/cors";
 
-export async function GET(
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_PUBLIC);
+}
+
+async function handler(
   req: Request,
-  { params }: { params: Promise<{ slug: string }> },
-) {
+  params: Promise<{ slug: string }>,
+): Promise<NextResponse> {
   const { slug } = await params;
   const { searchParams } = new URL(req.url);
   const format = searchParams.get("format") ?? "svg";
@@ -106,4 +111,11 @@ export async function GET(
 
   // Default: SVG
   return new NextResponse(makeBadgeSvg(avgScore, grade), { headers: svgHeaders });
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  return applyCors(await handler(req, params), CORS_HEADERS_PUBLIC);
 }

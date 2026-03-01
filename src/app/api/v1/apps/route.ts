@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { authenticateApiKey } from "@/lib/api-auth";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_API } from "@/lib/cors";
 
-export async function GET(req: Request) {
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_API);
+}
+
+async function handler(req: Request): Promise<NextResponse> {
   const orgId = await authenticateApiKey(req);
   if (!orgId) return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
 
@@ -23,4 +28,8 @@ export async function GET(req: Request) {
   });
 
   return NextResponse.json({ apps });
+}
+
+export async function GET(req: Request) {
+  return applyCors(await handler(req), CORS_HEADERS_API);
 }

@@ -13,6 +13,7 @@ import { FindingAssignment } from "@/components/finding-assignment";
 import { FindingTimeline } from "@/components/finding-timeline";
 import { TrendCharts } from "@/components/trend-chart-dynamic";
 import { JiraTicketButton } from "@/components/jira-ticket-button";
+import { safeHref } from "@/lib/url";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -60,7 +61,7 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
             <h1 className="text-2xl font-bold">{app.name}</h1>
             <StatusBadge status={app.status} />
           </div>
-          <a href={app.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+          <a href={safeHref(app.url)} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
             {app.url} ↗
           </a>
         </div>

@@ -201,24 +201,78 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     const responseTimeMs = Date.now() - start;
     const status = calcStatus(findings);
 
-    await db.monitorRun.update({
-      where: { id: run.id },
-      data: {
-        status,
-        responseTimeMs,
-        // checksRun: record the actual number of findings evaluated
-        checksRun: findings.length,
-        summary: findings.length
-          ? `${findings.length} issue(s) detected`
-          : "All checks passed — no issues detected",
-        completedAt: new Date(),
-        findings: {
-          create: findings,
+    // Determine scan interval before the transaction (no DB write needed)
+    const orgLimits = await getOrgLimits(app.orgId);
+    const scanIntervalHours: Record<string, number> = {
+      ENTERPRISE: 1,
+      ENTERPRISE_PLUS: 1,
+      PRO: 4,
+      STARTER: 8,
+      FREE: 24,
+      EXPIRED: 24,
+    };
+    const intervalHours = scanIntervalHours[orgLimits.tier] ?? 24;
+
+    // Atomically write the completed run (with findings) and the updated app
+    // status/timing. If either write fails the entire scan completion rolls back
+    // — preventing a state where the run shows CRITICAL but the app still shows
+    // HEALTHY (or vice versa).
+    const completedAt = new Date();
+    await db.$transaction(async (tx) => {
+      await tx.monitorRun.update({
+        where: { id: run.id },
+        data: {
+          status,
+          responseTimeMs,
+          // checksRun: record the actual number of findings evaluated
+          checksRun: findings.length,
+          summary: findings.length
+            ? `${findings.length} issue(s) detected`
+            : "All checks passed — no issues detected",
+          completedAt,
+          findings: {
+            create: findings,
+          },
         },
-      },
+      });
+
+      // Calculate rolling uptime % and avg response ms from last 30 runs
+      // (query runs inside the transaction for consistent read)
+      const recentRuns = await tx.monitorRun.findMany({
+        where: { appId: app.id },
+        orderBy: { startedAt: "desc" },
+        take: 30,
+        select: { status: true, responseTimeMs: true },
+      });
+
+      let uptimePercent: number | undefined;
+      let avgResponseMs: number | undefined;
+
+      if (recentRuns.length > 0) {
+        const upRuns = recentRuns.filter((r) => r.status !== "CRITICAL");
+        uptimePercent = (upRuns.length / recentRuns.length) * 100;
+
+        const runsWithResponse = recentRuns.filter((r) => r.responseTimeMs != null);
+        if (runsWithResponse.length > 0) {
+          const totalMs = runsWithResponse.reduce((sum, r) => sum + (r.responseTimeMs ?? 0), 0);
+          avgResponseMs = Math.round(totalMs / runsWithResponse.length);
+        }
+      }
+
+      await tx.monitoredApp.update({
+        where: { id: app.id },
+        data: {
+          status,
+          lastCheckedAt: completedAt,
+          nextCheckAt: addHours(completedAt, intervalHours),
+          ...(uptimePercent !== undefined ? { uptimePercent } : {}),
+          ...(avgResponseMs !== undefined ? { avgResponseMs } : {}),
+        },
+      });
     });
 
     // Auto-triage new findings in parallel (was sequential N+1 loop)
+    // Runs outside the transaction — failures are non-fatal (triage is best-effort)
     const updatedRun = await db.monitorRun.findUnique({
       where: { id: run.id },
       include: { findings: { select: { id: true } } },
@@ -231,51 +285,6 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     await verifyResolvedFindings(app.id, newFindingCodes);
 
     await sendCriticalFindingsAlert(app.id, findings);
-
-    // Determine scan interval based on org tier
-    const orgLimits = await getOrgLimits(app.orgId);
-    const scanIntervalHours: Record<string, number> = {
-      ENTERPRISE: 1,
-      ENTERPRISE_PLUS: 1,
-      PRO: 4,
-      STARTER: 8,
-      FREE: 24,
-      EXPIRED: 24,
-    };
-    const intervalHours = scanIntervalHours[orgLimits.tier] ?? 24;
-
-    // Calculate rolling uptime % and avg response ms from last 30 runs
-    const recentRuns = await db.monitorRun.findMany({
-      where: { appId: app.id },
-      orderBy: { startedAt: "desc" },
-      take: 30,
-      select: { status: true, responseTimeMs: true },
-    });
-
-    let uptimePercent: number | undefined;
-    let avgResponseMs: number | undefined;
-
-    if (recentRuns.length > 0) {
-      const upRuns = recentRuns.filter((r) => r.status !== "CRITICAL");
-      uptimePercent = (upRuns.length / recentRuns.length) * 100;
-
-      const runsWithResponse = recentRuns.filter((r) => r.responseTimeMs != null);
-      if (runsWithResponse.length > 0) {
-        const totalMs = runsWithResponse.reduce((sum, r) => sum + (r.responseTimeMs ?? 0), 0);
-        avgResponseMs = Math.round(totalMs / runsWithResponse.length);
-      }
-    }
-
-    await db.monitoredApp.update({
-      where: { id: app.id },
-      data: {
-        status,
-        lastCheckedAt: new Date(),
-        nextCheckAt: addHours(new Date(), intervalHours),
-        ...(uptimePercent !== undefined ? { uptimePercent } : {}),
-        ...(avgResponseMs !== undefined ? { avgResponseMs } : {}),
-      },
-    });
 
     await trackEvent({
       event: "scan_completed",

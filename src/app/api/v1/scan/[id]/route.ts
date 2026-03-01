@@ -4,6 +4,11 @@ import { authenticateApiKey } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getOrgLimits } from "@/lib/tenant";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_API } from "@/lib/cors";
+
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_API);
+}
 
 const SCAN_RATE_LIMITS: Record<string, number> = {
   FREE: 3,
@@ -13,7 +18,10 @@ const SCAN_RATE_LIMITS: Record<string, number> = {
   ENTERPRISE_PLUS: 200,
 };
 
-export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handler(
+  req: Request,
+  params: Promise<{ id: string }>,
+): Promise<NextResponse> {
   const orgId = await authenticateApiKey(req);
   if (!orgId) return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
 
@@ -46,4 +54,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       { status: 500 },
     );
   }
+}
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  return applyCors(await handler(req, params), CORS_HEADERS_API);
 }

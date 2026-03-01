@@ -8,12 +8,21 @@ import { db } from "@/lib/db";
 // ────────────────────────────────────────────
 
 const KEY_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
+  // AWS — AKIA is an access key ID; the pattern is consistent and well-known
+  { pattern: /AKIA[0-9A-Z]{16}/g, label: "AWS access key ID" },
+  // AWS secret access key (40 chars, base64url) — only flag when near an assignment
+  { pattern: /aws[_\-.]?secret[_\-.]?(?:access[_\-.]?)?key\s*[:=]\s*["'`]?[A-Za-z0-9/+=]{40}["'`]?/gi, label: "AWS secret access key" },
   { pattern: /sk-[a-zA-Z0-9]{20,}/g, label: "OpenAI secret key" },
   { pattern: /sk-ant-[a-zA-Z0-9\-_]{20,}/g, label: "Anthropic secret key" },
   { pattern: /AIza[0-9A-Za-z\-_]{35}/g, label: "Google API key" },
+  // GitHub tokens
   { pattern: /ghp_[A-Za-z0-9]{36,}/g, label: "GitHub personal access token" },
   { pattern: /gho_[A-Za-z0-9]{36,}/g, label: "GitHub OAuth token" },
+  { pattern: /github_pat_[A-Za-z0-9_]{22,}/g, label: "GitHub fine-grained personal access token" },
+  { pattern: /ghs_[A-Za-z0-9]{36,}/g, label: "GitHub Actions secret" },
+  // Slack
   { pattern: /xoxb-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{20,}/g, label: "Slack bot token" },
+  { pattern: /xoxp-[0-9]{10,}-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{20,}/g, label: "Slack user token" },
   {
     pattern: /eyJhbGciOi[A-Za-z0-9\-_]+\.eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+/g,
     label: "JWT token (possibly service key)",
@@ -26,12 +35,23 @@ const KEY_PATTERNS: Array<{ pattern: RegExp; label: string }> = [
     pattern: /SUPABASE_ANON_KEY|supabaseKey|supabase_key/g,
     label: "Supabase anon key reference (verify not service key)",
   },
+  // Stripe — both live and test secret keys should not appear in client bundles
   { pattern: /stripe[_.]?secret[_.]?key\s*[:=]\s*["'`]sk_live_[^"'`]+["'`]/gi, label: "Stripe live secret key" },
   { pattern: /sk_live_[a-zA-Z0-9]{20,}/g, label: "Stripe live secret key" },
+  { pattern: /sk_test_[a-zA-Z0-9]{20,}/g, label: "Stripe test secret key (should not be in client bundle)" },
+  // npm auth tokens
+  { pattern: /npm_[A-Za-z0-9]{36}/g, label: "npm authentication token" },
+  // Twilio
+  { pattern: /AC[a-fA-F0-9]{32}/g, label: "Twilio Account SID" },
+  { pattern: /SK[a-fA-F0-9]{32}/g, label: "Twilio API key" },
+  // SendGrid
+  { pattern: /SG\.[A-Za-z0-9_\-]{22,}\.[A-Za-z0-9_\-]{43}/g, label: "SendGrid API key" },
 ];
 
 // Known safe public keys to suppress false positives
-const SAFE_PREFIXES = ["pk_test_", "pk_live_", "sb-", "anon."];
+// pk_test_ / pk_live_ are Stripe publishable keys — safe to expose
+// AKID is a common placeholder in docs, not a real key
+const SAFE_PREFIXES = ["pk_test_", "pk_live_", "sb-", "anon.", "AKID"];
 
 function isFalsePositive(match: string): boolean {
   return SAFE_PREFIXES.some((p) => match.startsWith(p));

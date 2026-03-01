@@ -5,6 +5,11 @@ import { authenticateApiKeyHeader } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_PUBLIC } from "@/lib/cors";
+
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_PUBLIC);
+}
 
 const CI_SCAN_RATE_LIMITS: Record<string, number> = {
   FREE: 3,
@@ -42,7 +47,7 @@ function scoreToGrade(score: number): string {
   return "F";
 }
 
-export async function POST(req: Request) {
+async function handler(req: Request): Promise<NextResponse> {
   const orgId = await authenticateApiKeyHeader(req);
   if (!orgId) return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
 
@@ -107,4 +112,8 @@ export async function POST(req: Request) {
   const summary = parts.length > 0 ? `${parts.join(", ")} finding${findings.length !== 1 ? "s" : ""} detected` : "No significant findings";
 
   return NextResponse.json({ passed, score, grade, findingsCount: findings.length, criticalCount, highCount, mediumCount, summary, findings, dashboardUrl: `https://scantient.com/apps/${app.id}` }, { status: passed ? 200 : 422 });
+}
+
+export async function POST(req: Request) {
+  return applyCors(await handler(req), CORS_HEADERS_PUBLIC);
 }

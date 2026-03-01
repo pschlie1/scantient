@@ -36,8 +36,40 @@ const PUBLIC_PATHS = [
   "/api/public",
 ];
 
+// Security headers applied to every non-static response
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "Content-Security-Policy": [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-inline/eval for HMR and RSC
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://api.resend.com https://api.stripe.com",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; "),
+};
+
+function applySecurityHeaders(response: NextResponse, isApiRoute: boolean): void {
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
+  // Prevent caching of authenticated API responses
+  if (isApiRoute) {
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    response.headers.set("Pragma", "no-cache");
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isApiRoute = pathname.startsWith("/api/");
 
   // Public paths (exact or prefix match)
   if (
@@ -49,15 +81,19 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/invite/") // invite token pages
   ) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    applySecurityHeaders(response, isApiRoute);
+    return response;
   }
 
   // Check for session cookie
   const session = request.cookies.get("scantient-session");
   if (!session?.value) {
     // API routes get 401, pages get redirect
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (isApiRoute) {
+      const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      applySecurityHeaders(res, true);
+      return res;
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -66,8 +102,10 @@ export async function middleware(request: NextRequest) {
   const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
     // Config error — fail closed. Never allow unverified access.
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    if (isApiRoute) {
+      const res = NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+      applySecurityHeaders(res, true);
+      return res;
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -76,9 +114,10 @@ export async function middleware(request: NextRequest) {
     await jwtVerify(session.value, secret);
   } catch {
     // Invalid or expired token — clear cookie and redirect/reject
-    if (pathname.startsWith("/api/")) {
+    if (isApiRoute) {
       const res = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       res.cookies.delete("scantient-session");
+      applySecurityHeaders(res, true);
       return res;
     }
     const res = NextResponse.redirect(new URL("/login", request.url));
@@ -86,7 +125,9 @@ export async function middleware(request: NextRequest) {
     return res;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  applySecurityHeaders(response, isApiRoute);
+  return response;
 }
 
 export const config = {

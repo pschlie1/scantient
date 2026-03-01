@@ -19,6 +19,7 @@ const userUpdate = vi.fn();
 const userCreate = vi.fn();
 const inviteFindUnique = vi.fn();
 const inviteDelete = vi.fn();
+const dbTransaction = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -32,6 +33,7 @@ vi.mock("@/lib/db", () => ({
       findUnique: inviteFindUnique,
       delete: inviteDelete,
     },
+    $transaction: dbTransaction,
   },
 }));
 
@@ -64,6 +66,9 @@ beforeEach(() => {
   getClientIp.mockReturnValue("1.2.3.4");
   canAddUser.mockResolvedValue({ allowed: true });
   logAudit.mockResolvedValue(undefined);
+  dbTransaction.mockImplementation((cb: (tx: unknown) => unknown) =>
+    cb({ user: { findFirst: userFindFirst, findUnique: userFindUnique, update: userUpdate, create: userCreate }, invite: { findUnique: inviteFindUnique, delete: inviteDelete } })
+  );
 });
 
 // Helper to build a Request

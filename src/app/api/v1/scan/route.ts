@@ -5,6 +5,11 @@ import { authenticateApiKey } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getOrgLimits } from "@/lib/tenant";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_API } from "@/lib/cors";
+
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_API);
+}
 
 const SCAN_RATE_LIMITS: Record<string, number> = {
   FREE: 3,
@@ -19,7 +24,7 @@ const scanSchema = z.union([
   z.object({ url: z.string().url(), appId: z.undefined().optional() }),
 ]);
 
-export async function POST(req: Request) {
+async function handler(req: Request): Promise<NextResponse> {
   const orgId = await authenticateApiKey(req);
   if (!orgId) {
     return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
@@ -88,4 +93,8 @@ export async function POST(req: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function POST(req: Request) {
+  return applyCors(await handler(req), CORS_HEADERS_API);
 }

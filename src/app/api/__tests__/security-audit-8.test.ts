@@ -27,6 +27,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // ─── @/lib/db — comprehensive mock covering all describe blocks ───────────────
 const inviteFindUnique = vi.fn();
 const inviteDelete = vi.fn();
+const dbTransaction = vi.fn();
 const userFindFirst = vi.fn();
 const userCreate = vi.fn();
 const monitoredAppFindFirst = vi.fn();
@@ -55,6 +56,7 @@ vi.mock("@/lib/db", () => ({
     monitorRun: { findFirst: monitorRunFindFirst, findMany: monitorRunFindMany },
     finding: { findMany: findingFindMany, count: findingCount, update: findingUpdate },
     subscription: { findUnique: subscriptionFindUnique },
+    $transaction: dbTransaction,
   },
 }));
 
@@ -154,6 +156,9 @@ beforeEach(() => {
   runHttpScanForApp.mockResolvedValue({ runId: "r1", appId: "app1", status: "HEALTHY", findingsCount: 0, responseTimeMs: 100 });
   inviteFindUnique.mockResolvedValue(null);
   inviteDelete.mockResolvedValue({});
+  dbTransaction.mockImplementation((cb: (tx: unknown) => unknown) =>
+    cb({ user: { findFirst: userFindFirst, create: userCreate }, invite: { findUnique: inviteFindUnique, delete: inviteDelete } })
+  );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

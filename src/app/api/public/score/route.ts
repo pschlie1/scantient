@@ -10,6 +10,11 @@ import {
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import type { SecurityFinding } from "@/lib/types";
+import { applyCors, corsPreflightResponse, CORS_HEADERS_PUBLIC } from "@/lib/cors";
+
+export function OPTIONS() {
+  return corsPreflightResponse(CORS_HEADERS_PUBLIC);
+}
 
 const requestSchema = z.object({
   url: z.string().url("Must be a valid URL"),
@@ -36,7 +41,7 @@ function computeStatus(score: number): "healthy" | "warning" | "critical" {
   return "critical";
 }
 
-export async function POST(req: Request) {
+async function handler(req: Request): Promise<NextResponse> {
   // Rate limiting: 10 requests per hour per IP
   const ip = getClientIp(req);
   const rateResult = await checkRateLimit(`public-score:${ip}`, {
@@ -169,4 +174,8 @@ export async function POST(req: Request) {
     message:
       "Full scan available with a Scantient account: monitors 10x more attack vectors",
   });
+}
+
+export async function POST(req: Request) {
+  return applyCors(await handler(req), CORS_HEADERS_PUBLIC);
 }
