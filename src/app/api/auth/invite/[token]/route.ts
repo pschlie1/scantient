@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
+import { canAddUser } from "@/lib/tenant";
 
 // GET /api/auth/invite/[token] — return invite details
 export async function GET(
@@ -70,6 +71,15 @@ export async function POST(
   if (existing) {
     return NextResponse.json(
       { error: "An account with this email already exists" },
+      { status: 409 },
+    );
+  }
+
+  // Check if org can still accept more users at acceptance time (prevents race conditions)
+  const userCheck = await canAddUser(invite.orgId);
+  if (!userCheck.allowed) {
+    return NextResponse.json(
+      { error: "Your organization has reached its user limit. Ask the owner to upgrade the plan." },
       { status: 409 },
     );
   }

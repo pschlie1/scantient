@@ -28,7 +28,7 @@ export async function authenticateApiKeyHeader(req: Request): Promise<string | n
 
 /**
  * Authenticate a request using a Scantient API key (Bearer token).
- * Returns the orgId if valid, null otherwise.
+ * Returns the orgId if valid and org has an active PRO+ subscription, null otherwise.
  */
 export async function authenticateApiKey(req: Request): Promise<string | null> {
   const auth = req.headers.get("authorization");
@@ -39,6 +39,11 @@ export async function authenticateApiKey(req: Request): Promise<string | null> {
   const key = await db.apiKey.findFirst({ where: { keyHash: hash } });
   if (!key) return null;
   if (key.expiresAt && key.expiresAt < new Date()) return null;
+
+  // Verify org still has an active PRO+ subscription
+  const sub = await db.subscription.findUnique({ where: { orgId: key.orgId } });
+  const tier = sub?.tier ?? "FREE";
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(tier)) return null;
 
   await db.apiKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } });
   await db.auditLog.create({

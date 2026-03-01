@@ -2,18 +2,24 @@ import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { getOrgLimits } from "@/lib/tenant";
 
 function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
 }
 
-/** POST — generate a new agent key for the app (ADMIN/OWNER only) */
+/** POST — generate a new agent key for the app (ADMIN/OWNER only, PRO+ tier) */
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   if (!["OWNER", "ADMIN"].includes(session.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const limits = await getOrgLimits(session.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    return NextResponse.json({ error: "Scan agent keys require a Pro plan or higher." }, { status: 403 });
   }
 
   const { id } = await params;
