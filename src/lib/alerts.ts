@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import type { SecurityFinding } from "@/lib/types";
 import { sendTeamsNotification } from "@/lib/teams-notify";
 import { createPagerDutyIncident } from "@/lib/pagerduty-notify";
+import { signWebhookPayload } from "@/lib/webhook-signature";
 
 /**
  * Retry a function with exponential backoff.
@@ -94,10 +95,16 @@ function isTeamsWebhookUrl(url: string): boolean {
 }
 
 async function sendWebhook(url: string, payload: Record<string, unknown>) {
+  const body = JSON.stringify(payload);
+  const signature = signWebhookPayload(body, url);
   await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json",
+      "X-Scantient-Signature": signature,
+      "X-Scantient-Timestamp": new Date().toISOString(),
+    },
+    body,
   });
 }
 
@@ -157,12 +164,23 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
               facts,
             ));
           } else {
+            const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://scantient.com"}/dashboard`;
+            const topFinding = relevant[0];
             await withRetry(() => sendWebhook(config.destination, {
-              event: "findings.detected",
+              event: topFinding?.severity === "CRITICAL" ? "finding.critical" : "finding.new",
+              org: { id: app.orgId, name: app.org.name },
               app: { id: app.id, name: app.name, url: app.url },
-              findings: relevant,
+              findings: relevant.map((f) => ({
+                code: f.code,
+                title: f.title,
+                severity: f.severity,
+                description: f.description,
+                fixPrompt: f.fixPrompt,
+              })),
+              findingsCount: relevant.length,
+              dashboardUrl,
               timestamp: new Date().toISOString(),
-            }));
+            }), 3, 1000);
           }
           break;
         }
