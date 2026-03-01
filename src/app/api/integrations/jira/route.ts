@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate, deobfuscate } from "@/lib/crypto-util";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 
 const JIRA_TIERS = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
 
@@ -50,6 +51,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = jiraConfigSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    if (await isPrivateUrl(parsed.data.url)) {
+      return NextResponse.json({ error: "Jira URL must be a public address" }, { status: 400 });
+    }
     const { url, email, apiToken, projectKey, issueType } = parsed.data;
     const config = { url, email, apiToken: obfuscate(apiToken), projectKey, issueType };
     const integration = await db.integrationConfig.upsert({

@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { deobfuscate } from "@/lib/crypto-util";
 import { getOrgLimits } from "@/lib/tenant";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 
 export async function POST() {
   try {
@@ -16,6 +17,9 @@ export async function POST() {
     });
     if (!integration) return NextResponse.json({ ok: false, error: "Jira not configured" }, { status: 404 });
     const cfg = integration.config as Record<string, string>;
+    if (await isPrivateUrl(cfg.url)) {
+      return NextResponse.json({ ok: false, error: "Jira URL must be a public address" }, { status: 400 });
+    }
     const apiToken = deobfuscate(cfg.apiToken);
     const credentials = Buffer.from(`${cfg.email}:${apiToken}`).toString("base64");
     const baseUrl = cfg.url.replace(/\/$/, "");

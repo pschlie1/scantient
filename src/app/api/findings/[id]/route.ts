@@ -38,6 +38,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (session.role === "VIEWER") {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
   const { id } = await params;
   const body = await req.json();
   const parsed = updateFindingSchema.safeParse(body);

@@ -11,6 +11,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (["VIEWER", "MEMBER"].includes(session.role)) {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
   const { id } = await params;
   const body = await req.json();
   const parsed = updateAlertSchema.safeParse(body);
@@ -34,6 +38,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (["VIEWER", "MEMBER"].includes(session.role)) {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
 
   const { id } = await params;
   const config = await db.alertConfig.findFirst({

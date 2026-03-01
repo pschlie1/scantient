@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 
 export async function GET() {
   const session = await getSession();
@@ -35,6 +36,10 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (["VIEWER", "MEMBER"].includes(session.role)) {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
   const limits = await getOrgLimits(session.orgId);
   const allowedChannels = TIER_CHANNELS[limits.tier] ?? [];
 
@@ -52,6 +57,22 @@ export async function POST(req: Request) {
       { error: `${parsed.data.channel} alerts are not available on your plan. ${available} Upgrade for more options.` },
       { status: 403 },
     );
+  }
+
+  // SSRF guard for URL-based channels
+  if (["SLACK", "WEBHOOK"].includes(parsed.data.channel)) {
+    let isBlocked = false;
+    try {
+      isBlocked = await isPrivateUrl(parsed.data.destination);
+    } catch {
+      isBlocked = true;
+    }
+    if (isBlocked) {
+      return NextResponse.json(
+        { error: "Destination URL points to a private or internal address. Use a public webhook URL." },
+        { status: 400 },
+      );
+    }
   }
 
   const config = await db.alertConfig.create({

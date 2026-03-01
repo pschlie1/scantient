@@ -91,6 +91,12 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+// ─── SSRF guard mock ─────────────────────────────────────────────────────────
+vi.mock("@/lib/ssrf-guard", () => ({
+  isPrivateUrl: vi.fn().mockResolvedValue(false),
+  isPrivateIp: vi.fn().mockReturnValue(false),
+}));
+
 // ─── Utility/library mocks ────────────────────────────────────────────────────
 vi.mock("@/lib/observability", () => ({ logApiError: vi.fn() }));
 vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));

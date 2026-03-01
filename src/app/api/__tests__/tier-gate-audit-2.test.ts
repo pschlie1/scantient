@@ -123,6 +123,12 @@ vi.mock("@/lib/crypto-util", () => ({
   obfuscate: vi.fn((v: string) => v),
 }));
 
+// ─── SSRF guard mock ─────────────────────────────────────────────────────────
+vi.mock("@/lib/ssrf-guard", () => ({
+  isPrivateUrl: vi.fn().mockResolvedValue(false),
+  isPrivateIp: vi.fn().mockReturnValue(false),
+}));
+
 // ─── GitHub issues mock ───────────────────────────────────────────────────────
 const createGitHubIssue = vi.fn();
 vi.mock("@/lib/github-issues", () => ({ createGitHubIssue }));

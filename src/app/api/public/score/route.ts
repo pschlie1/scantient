@@ -8,6 +8,7 @@ import {
   checkCORSMisconfiguration,
 } from "@/lib/security";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
 import type { SecurityFinding } from "@/lib/types";
 
 const requestSchema = z.object({
@@ -69,6 +70,11 @@ export async function POST(req: Request) {
 
   const { url } = parsed.data;
 
+  // SSRF guard: block private and internal addresses
+  if (await isPrivateUrl(url)) {
+    return NextResponse.json({ error: "URL not allowed" }, { status: 400 });
+  }
+
   // Fetch the URL with 30s timeout
   let html = "";
   let headers: Headers = new Headers();
@@ -76,7 +82,7 @@ export async function POST(req: Request) {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "User-Agent": "VibeSafe-Scanner/1.0 (Security Check)",
+        "User-Agent": "Scantient-Scanner/1.0 (Security Check)",
         Accept: "text/html,application/xhtml+xml",
       },
       redirect: "follow",
@@ -98,7 +104,7 @@ export async function POST(req: Request) {
         scannedAt: new Date().toISOString(),
         upgradeUrl: "https://scantient.com/signup",
         message:
-          "Full scan available with VibeSafe account: monitors 10x more attack vectors",
+          "Full scan available with a Scantient account: monitors 10x more attack vectors",
         error: "Could not reach URL",
       },
       { status: 200 },
@@ -161,6 +167,6 @@ export async function POST(req: Request) {
     scannedAt: new Date().toISOString(),
     upgradeUrl: "https://scantient.com/signup",
     message:
-      "Full scan available with VibeSafe account: monitors 10x more attack vectors",
+      "Full scan available with a Scantient account: monitors 10x more attack vectors",
   });
 }

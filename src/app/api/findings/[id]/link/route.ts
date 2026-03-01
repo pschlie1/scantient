@@ -17,6 +17,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (session.role === "VIEWER") {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
   const limits = await getOrgLimits(session.orgId);
   if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
     return NextResponse.json({ error: "PR linking requires a Pro plan or higher." }, { status: 403 });

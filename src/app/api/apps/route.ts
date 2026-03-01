@@ -57,6 +57,10 @@ export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  if (session.role === "VIEWER") {
+    return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const parsed = createAppSchema.safeParse(body);

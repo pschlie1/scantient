@@ -29,6 +29,11 @@ vi.mock("@/lib/db", () => ({
 }));
 
 // deobfuscate must return the original value (simulating no-op in tests)
+vi.mock("@/lib/ssrf-guard", () => ({
+  isPrivateUrl: vi.fn().mockResolvedValue(false),
+  isPrivateIp: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock("@/lib/crypto-util", () => ({
   obfuscate: (v: string) => v,
   deobfuscate: (v: string) => v,
