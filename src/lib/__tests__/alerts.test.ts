@@ -10,22 +10,29 @@ import type { SecurityFinding } from "@/lib/types";
 
 // ── DB mocks ──────────────────────────────────────────────────────────────────
 const monitoredAppFindUnique = vi.fn();
+const alertConfigFindUnique = vi.fn();
 const alertConfigFindMany = vi.fn();
 const notificationCreate = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
     monitoredApp: { findUnique: monitoredAppFindUnique },
-    alertConfig: { findMany: alertConfigFindMany },
+    alertConfig: { findUnique: alertConfigFindUnique, findMany: alertConfigFindMany },
     notification: { create: notificationCreate },
   },
 }));
+
+// ── Tenant mocks ──────────────────────────────────────────────────────────────
+const getOrgLimits = vi.fn();
+vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
 
 // ── Use fake timers so withRetry delays don't slow tests ──────────────────────
 beforeEach(() => {
   vi.useFakeTimers();
   vi.clearAllMocks();
   notificationCreate.mockResolvedValue({});
+  // Default to ENTERPRISE so existing tests with configs continue to pass
+  getOrgLimits.mockResolvedValue({ tier: "ENTERPRISE", status: "ACTIVE" });
 });
 
 afterEach(() => {

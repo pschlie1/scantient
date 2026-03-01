@@ -5,6 +5,7 @@ import { addHours } from "date-fns";
 import { db } from "@/lib/db";
 import { getOrgLimits } from "@/lib/tenant";
 import { sendCriticalFindingsAlert } from "@/lib/alerts";
+import { VALID_FINDING_CODES } from "@/lib/finding-codes";
 import type { SecurityFinding } from "@/lib/types";
 
 function sha256(input: string): string {
@@ -12,15 +13,18 @@ function sha256(input: string): string {
 }
 
 const findingSchema = z.object({
-  code: z.string(),
-  title: z.string(),
-  description: z.string(),
+  code: z.string().refine(
+    (c) => (VALID_FINDING_CODES as readonly string[]).includes(c),
+    { message: "Invalid finding code. Must be a recognized Scantient finding code." },
+  ),
+  title: z.string().max(200),
+  description: z.string().max(1000),
   severity: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
-  fixPrompt: z.string(),
+  fixPrompt: z.string().max(2000),
 });
 
 const bodySchema = z.object({
-  findings: z.array(findingSchema),
+  findings: z.array(findingSchema).max(200, "Maximum 200 findings per scan submission"),
   responseTimeMs: z.number().optional(),
   statusCode: z.number().optional(),
 });
@@ -37,7 +41,14 @@ async function resolveAppFromBearer(authHeader: string | null) {
   if (!token.startsWith("sa_")) return null;
 
   const hash = sha256(token);
-  return db.monitoredApp.findFirst({ where: { agentKeyHash: hash, agentEnabled: true } });
+  const app = await db.monitoredApp.findFirst({ where: { agentKeyHash: hash, agentEnabled: true } });
+  if (!app) return null;
+
+  // Verify org still has PRO+ subscription
+  const limits = await getOrgLimits(app.orgId);
+  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) return null;
+
+  return app;
 }
 
 /** POST — agent pushes scan results */

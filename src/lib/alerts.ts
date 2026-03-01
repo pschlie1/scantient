@@ -1,8 +1,18 @@
 import { db } from "@/lib/db";
+import { getOrgLimits } from "@/lib/tenant";
 import type { SecurityFinding } from "@/lib/types";
 import { sendTeamsNotification } from "@/lib/teams-notify";
 import { createPagerDutyIncident } from "@/lib/pagerduty-notify";
 import { signWebhookPayload } from "@/lib/webhook-signature";
+
+const TIER_CHANNELS: Record<string, string[]> = {
+  FREE: [],
+  STARTER: ["EMAIL"],
+  PRO: ["EMAIL", "SLACK"],
+  ENTERPRISE: ["EMAIL", "SLACK", "WEBHOOK"],
+  ENTERPRISE_PLUS: ["EMAIL", "SLACK", "WEBHOOK"],
+  EXPIRED: [],
+};
 
 /**
  * Retry a function with exponential backoff.
@@ -134,7 +144,17 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
     return;
   }
 
+  // Enforce tier-based channel restrictions before dispatching
+  const limits = await getOrgLimits(app.orgId);
+  const allowedChannels = TIER_CHANNELS[limits.tier] ?? [];
+
   for (const config of configs) {
+    if (!allowedChannels.includes(config.channel)) {
+      console.warn(
+        `[alerts] Skipping ${config.channel} alert config ${config.id} — channel not allowed for org ${app.orgId} on tier ${limits.tier}. Config is stale.`,
+      );
+      continue;
+    }
     const minOrder = SEVERITY_ORDER[config.minSeverity as keyof typeof SEVERITY_ORDER] ?? 1;
     const relevant = findings.filter(
       (f) => (SEVERITY_ORDER[f.severity as keyof typeof SEVERITY_ORDER] ?? 3) <= minOrder,
@@ -292,6 +312,15 @@ export async function sendTestNotification(configId: string) {
   const config = await db.alertConfig.findUnique({ where: { id: configId } });
   if (!config) throw new Error("Alert config not found");
 
+  // Check that the org still has a tier that supports this channel
+  const testLimits = await getOrgLimits(config.orgId);
+  const testAllowedChannels = TIER_CHANNELS[testLimits.tier] ?? [];
+  if (!testAllowedChannels.includes(config.channel)) {
+    throw new Error(
+      `${config.channel} alerts are not available on your current ${testLimits.tier} plan.`,
+    );
+  }
+
   const subject = "✅ Scantient Test Notification";
   const body = "This is a test notification from Scantient. Your alert channel is working correctly!";
 
@@ -343,7 +372,17 @@ export async function sendChangeDetectedAlert(appId: string, appName: string, ap
   const subject = `🔄 Scantient: ${appName} has changed`;
   const message = `Deployment change detected on ${appName} (${appUrl}). The application content has changed since the last scan.`;
 
+  // Enforce tier-based channel restrictions before dispatching
+  const changeLimits = await getOrgLimits(app.orgId);
+  const changeAllowedChannels = TIER_CHANNELS[changeLimits.tier] ?? [];
+
   for (const config of configs) {
+    if (!changeAllowedChannels.includes(config.channel)) {
+      console.warn(
+        `[alerts] Skipping ${config.channel} change-detected alert config ${config.id} — channel not allowed for org ${app.orgId} on tier ${changeLimits.tier}. Config is stale.`,
+      );
+      continue;
+    }
     try {
       switch (config.channel) {
         case "EMAIL":

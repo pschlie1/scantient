@@ -71,7 +71,7 @@ function makeRequest(method: string, body?: unknown, headers?: Record<string, st
 
 const validFindings = [
   {
-    code: "MISSING_CSP",
+    code: "MISSING_HEADER_CONTENT_SECURITY_POLICY",
     title: "CSP missing",
     description: "No CSP header",
     severity: "HIGH" as const,
@@ -120,6 +120,7 @@ describe("POST /api/agent/scan", () => {
       agentKeyHash: hash,
       agentEnabled: true,
     });
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
 
     const { POST } = await import("@/app/api/agent/scan/route");
     const req = makeRequest("POST", { invalid: "body" }, { Authorization: `Bearer ${raw}` });
@@ -159,7 +160,7 @@ describe("POST /api/agent/scan", () => {
         data: expect.objectContaining({
           appId: "app_1",
           status: "WARNING",
-          findings: expect.objectContaining({ create: expect.arrayContaining([expect.objectContaining({ code: "MISSING_CSP" })]) }),
+          findings: expect.objectContaining({ create: expect.arrayContaining([expect.objectContaining({ code: "MISSING_HEADER_CONTENT_SECURITY_POLICY" })]) }),
         }),
       }),
     );
@@ -174,7 +175,8 @@ describe("POST /api/agent/scan", () => {
       agentEnabled: true,
     });
     monitorRunCreate.mockResolvedValue({ id: "run_2" });
-    getOrgLimits.mockResolvedValue({ tier: "STARTER" });
+    // PRO is required for agent endpoints; STARTER orgs are blocked at resolveAppFromBearer
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
     monitoredAppUpdate.mockResolvedValue({});
     sendCriticalFindingsAlert.mockResolvedValue(undefined);
 
@@ -208,13 +210,14 @@ describe("POST /api/agent/scan", () => {
       agentEnabled: true,
     });
     monitorRunCreate.mockResolvedValue({ id: "run_3" });
-    getOrgLimits.mockResolvedValue({ tier: "FREE" });
+    // PRO is required for agent endpoints
+    getOrgLimits.mockResolvedValue({ tier: "PRO" });
     monitoredAppUpdate.mockResolvedValue({});
     sendCriticalFindingsAlert.mockResolvedValue(undefined);
 
     const criticalFindings = [
       {
-        code: "HTTP_NOT_HTTPS",
+        code: "NO_HTTPS",
         title: "Not HTTPS",
         description: "Served over HTTP",
         severity: "CRITICAL" as const,

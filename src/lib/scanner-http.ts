@@ -128,6 +128,16 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
   const app = await db.monitoredApp.findUnique({ where: { id: appId } });
   if (!app) throw new Error("App not found");
 
+  // Skip scan for canceled/expired orgs to avoid consuming compute
+  const orgLimitsEarly = await getOrgLimits(app.orgId);
+  if (orgLimitsEarly.tier === "EXPIRED" || orgLimitsEarly.status === "CANCELED") {
+    await db.monitoredApp.update({
+      where: { id: appId },
+      data: { nextCheckAt: addHours(new Date(), 24) },
+    });
+    return { runId: "skipped", appId, status: "HEALTHY" as const, findingsCount: 0 };
+  }
+
   const run = await db.monitorRun.create({
     data: {
       appId: app.id,
