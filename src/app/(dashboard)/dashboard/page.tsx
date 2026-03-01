@@ -13,6 +13,7 @@ import { SummaryCards } from "@/components/summary-cards";
 import { getOrgLimits } from "@/lib/tenant";
 import { OnboardingWrapper } from "@/components/onboarding-wrapper";
 import { MetricsDashboard } from "@/components/metrics-dashboard";
+import { SpaBanner } from "@/components/spa-disclaimer-banner";
 
 
 export default async function DashboardPage() {
@@ -65,6 +66,8 @@ export default async function DashboardPage() {
         critical={critical}
         totalFindings={totalFindings}
       />
+
+      <SpaBanner />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
         <section className="rounded-lg border bg-white">
