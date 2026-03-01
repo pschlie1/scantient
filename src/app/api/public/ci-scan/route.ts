@@ -4,6 +4,15 @@ import { db } from "@/lib/db";
 import { authenticateApiKeyHeader } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { getOrgLimits } from "@/lib/tenant";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+const CI_SCAN_RATE_LIMITS: Record<string, number> = {
+  FREE: 3,
+  STARTER: 10,
+  PRO: 50,
+  ENTERPRISE: 200,
+  ENTERPRISE_PLUS: 200,
+};
 
 const bodySchema = z.object({
   url: z.string().url(),
@@ -37,6 +46,20 @@ export async function POST(req: Request) {
   const orgId = await authenticateApiKeyHeader(req);
   if (!orgId) return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
 
+  // Tier-based rate limit — shared bucket with manual-scan to prevent bypass
+  const orgLimits = await getOrgLimits(orgId);
+  const maxScans = CI_SCAN_RATE_LIMITS[orgLimits.tier] ?? CI_SCAN_RATE_LIMITS.FREE;
+  const rateCheck = await checkRateLimit(`manual-scan:${orgId}`, {
+    maxAttempts: maxScans,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: `CI scan limit reached. Your ${orgLimits.tier} plan allows ${maxScans} scans per day.` },
+      { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds ?? 3600) } },
+    );
+  }
+
   let body: unknown;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 }); }
 
@@ -46,7 +69,6 @@ export async function POST(req: Request) {
   const { url, failOn } = parsed.data;
   let app = await db.monitoredApp.findFirst({ where: { url, orgId } });
   if (!app) {
-    const orgLimits = await getOrgLimits(orgId);
     const existingCount = await db.monitoredApp.count({ where: { orgId } });
     if (existingCount >= orgLimits.maxApps) {
       return NextResponse.json(

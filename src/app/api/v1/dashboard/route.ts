@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     db.monitoredApp.findMany({
       where: { orgId },
       select: { id: true, name: true, status: true, lastCheckedAt: true, avgResponseMs: true },
+      take: 200,
     }),
     db.finding.count({
       where: {

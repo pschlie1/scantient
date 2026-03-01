@@ -668,7 +668,7 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
     canAddUser.mockResolvedValue({ allowed: false, reason: "User limit reached" });
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
     const res = await POST(
-      makeReq("POST", { name: "New User", password: "password123" }),
+      makeReq("POST", { name: "New User", password: "password123456" }),
       { params: Promise.resolve({ token: "valid_token" }) },
     );
     expect(res.status).toBe(409);
@@ -680,7 +680,7 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
     canAddUser.mockResolvedValue({ allowed: true });
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
     const res = await POST(
-      makeReq("POST", { name: "New User", password: "password123" }),
+      makeReq("POST", { name: "New User", password: "password123456" }),
       { params: Promise.resolve({ token: "valid_token" }) },
     );
     expect(res.status).toBe(201);
@@ -690,7 +690,7 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
   it("calls canAddUser before creating the user", async () => {
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
     await POST(
-      makeReq("POST", { name: "New User", password: "password123" }),
+      makeReq("POST", { name: "New User", password: "password123456" }),
       { params: Promise.resolve({ token: "valid_token" }) },
     );
     expect(canAddUser).toHaveBeenCalledWith("org_pro");
@@ -701,7 +701,7 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
     inviteFindUnique.mockResolvedValue(null);
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
     const res = await POST(
-      makeReq("POST", { name: "New User", password: "password123" }),
+      makeReq("POST", { name: "New User", password: "password123456" }),
       { params: Promise.resolve({ token: "bad_token" }) },
     );
     expect(res.status).toBe(404);

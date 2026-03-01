@@ -48,6 +48,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
   }
 
+  if (to <= from) {
+    return NextResponse.json({ error: "'to' date must be after 'from' date" }, { status: 400 });
+  }
+
+  const MAX_RANGE_MS = 365 * 24 * 60 * 60 * 1000; // 1 year
+  if (to.getTime() - from.getTime() > MAX_RANGE_MS) {
+    return NextResponse.json({ error: "Date range cannot exceed 1 year" }, { status: 400 });
+  }
+
   try {
     const pdfBuffer = await generateEvidencePack(
       session.orgId,

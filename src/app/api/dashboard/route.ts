@@ -24,7 +24,14 @@ export async function GET() {
         startedAt: { gte: sevenDaysAgo },
         app: { orgId: session.orgId },
       },
-      include: { app: true, findings: true },
+      include: {
+        app: true,
+        findings: {
+          select: { id: true, code: true, title: true, severity: true, status: true },
+          take: 50,
+          orderBy: { severity: "asc" },
+        },
+      },
       orderBy: { startedAt: "desc" },
       take: 30,
     }),

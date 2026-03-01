@@ -20,7 +20,7 @@ export async function GET() {
     );
   }
 
-  // Load all open findings for this org (across all apps and runs)
+  // Load open findings for this org — capped at 2000 (enough for accurate scoring)
   const openFindings = await db.finding.findMany({
     where: {
       status: "OPEN",
@@ -31,6 +31,8 @@ export async function GET() {
       title: true,
       severity: true,
     },
+    orderBy: { createdAt: "desc" },
+    take: 2000,
   });
 
   const result = calculateComplianceScore(

@@ -31,10 +31,15 @@ vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp }));
 const checkRateLimit = vi.fn();
 vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
 
+// --- Tenant mock (getOrgLimits used by rate-limited scan routes) ---
+const getOrgLimits = vi.fn();
+vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
+
 beforeEach(() => {
   vi.clearAllMocks();
   authenticateApiKey.mockResolvedValue("org_a");
   checkRateLimit.mockResolvedValue({ allowed: true });
+  getOrgLimits.mockResolvedValue({ tier: "PRO", maxApps: 15, maxUsers: 10 });
 });
 
 function getReq(extraHeaders: Record<string, string> = {}) {

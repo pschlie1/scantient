@@ -19,6 +19,7 @@ export async function GET(req: Request) {
       avgResponseMs: true,
     },
     orderBy: { name: "asc" },
+    take: 200,
   });
 
   return NextResponse.json({ apps });

@@ -204,7 +204,7 @@ describe("POST /api/auth/invite/[token]", () => {
   it("returns 404 when invite not found", async () => {
     inviteFindUnique.mockResolvedValueOnce(null);
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
-    const res = await POST(makeReq({ name: "Alice", password: "password123" }), {
+    const res = await POST(makeReq({ name: "Alice", password: "password123456" }), {
       params: Promise.resolve({ token: "no-such-token" }),
     });
     expect(res.status).toBe(404);
@@ -220,7 +220,7 @@ describe("POST /api/auth/invite/[token]", () => {
       org: { name: "TestOrg", id: "org_1" },
     });
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
-    const res = await POST(makeReq({ name: "Alice", password: "password123" }), {
+    const res = await POST(makeReq({ name: "Alice", password: "password123456" }), {
       params: Promise.resolve({ token: "expired-token" }),
     });
     expect(res.status).toBe(410);
@@ -242,7 +242,7 @@ describe("POST /api/auth/invite/[token]", () => {
     createSession.mockResolvedValueOnce({ id: "new_user_1", email: "new@example.com" });
 
     const { POST } = await import("@/app/api/auth/invite/[token]/route");
-    const res = await POST(makeReq({ name: "Alice", password: "password123" }), {
+    const res = await POST(makeReq({ name: "Alice", password: "password123456" }), {
       params: Promise.resolve({ token: "valid-token" }),
     });
     expect(res.status).toBe(201);

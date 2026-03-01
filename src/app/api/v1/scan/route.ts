@@ -4,6 +4,15 @@ import { db } from "@/lib/db";
 import { authenticateApiKey } from "@/lib/api-auth";
 import { runHttpScanForApp } from "@/lib/scanner-http";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getOrgLimits } from "@/lib/tenant";
+
+const SCAN_RATE_LIMITS: Record<string, number> = {
+  FREE: 3,
+  STARTER: 10,
+  PRO: 50,
+  ENTERPRISE: 200,
+  ENTERPRISE_PLUS: 200,
+};
 
 const scanSchema = z.union([
   z.object({ appId: z.string().min(1), url: z.undefined().optional() }),
@@ -16,15 +25,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
   }
 
-  // Rate limit: max 10 API scans per hour per org
-  const rateLimit = await checkRateLimit(`api-scan:${orgId}`, {
-    maxAttempts: 10,
-    windowMs: 60 * 60 * 1000,
-    fallbackMode: "fail-open",
+  // Tier-based rate limit — shared bucket with UI manual scans to prevent bypass
+  const limits = await getOrgLimits(orgId);
+  const maxScans = SCAN_RATE_LIMITS[limits.tier] ?? SCAN_RATE_LIMITS.FREE;
+  const rateLimit = await checkRateLimit(`manual-scan:${orgId}`, {
+    maxAttempts: maxScans,
+    windowMs: 24 * 60 * 60 * 1000,
   });
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Rate limit exceeded. Max 10 API scans per hour." },
+      { error: `Scan limit reached. Your ${limits.tier} plan allows ${maxScans} scans per day.` },
       {
         status: 429,
         headers: { "Retry-After": String(rateLimit.retryAfterSeconds ?? 3600) },

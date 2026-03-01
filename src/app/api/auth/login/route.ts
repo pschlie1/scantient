@@ -32,6 +32,19 @@ export async function POST(req: Request) {
 
   const { email, password } = parsed.data;
 
+  // Per-email rate limit: 10 attempts/hour — stops brute-force via IP rotation
+  const emailLimit = await checkRateLimit(`login-email:${email.toLowerCase()}`, {
+    maxAttempts: 10,
+    windowMs: 60 * 60 * 1000,
+    fallbackMode: "fail-closed",
+  });
+  if (!emailLimit.allowed) {
+    return NextResponse.json({ error: "Too many login attempts. Please try again later." }, {
+      status: 429,
+      headers: { "Retry-After": String(emailLimit.retryAfterSeconds ?? 3600) },
+    });
+  }
+
   const user = await db.user.findFirst({
     where: { email },
     include: { org: true },

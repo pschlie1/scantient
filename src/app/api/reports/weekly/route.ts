@@ -33,10 +33,18 @@ export async function GET(req: Request) {
     for (const org of orgs) {
       const apps = await db.monitoredApp.findMany({
         where: { orgId: org.id },
+        take: 100,
         include: {
           monitorRuns: {
             where: { startedAt: { gte: since } },
-            include: { findings: true },
+            take: 10,
+            orderBy: { startedAt: "desc" },
+            include: {
+              findings: {
+                select: { severity: true },
+                take: 200,
+              },
+            },
           },
         },
       });
@@ -59,10 +67,18 @@ export async function GET(req: Request) {
 
   const apps = await db.monitoredApp.findMany({
     where: { orgId: session.orgId },
+    take: 100,
     include: {
       monitorRuns: {
         where: { startedAt: { gte: since } },
-        include: { findings: true },
+        take: 10,
+        orderBy: { startedAt: "desc" },
+        include: {
+          findings: {
+            select: { severity: true },
+            take: 200,
+          },
+        },
       },
     },
   });

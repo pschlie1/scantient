@@ -135,6 +135,7 @@ async function executeTool(name: string, args: Record<string, unknown>, orgId: s
         where: { orgId },
         select: { id: true, name: true, url: true, status: true, lastCheckedAt: true },
         orderBy: { name: "asc" },
+        take: 200,
       });
       return { apps };
     }
@@ -275,12 +276,16 @@ async function executeTool(name: string, args: Record<string, unknown>, orgId: s
       const appIds = await db.monitoredApp.findMany({
         where: { orgId },
         select: { id: true },
+        take: 200,
       });
       const appIdList = appIds.map((a) => a.id);
 
+      // Cap at 5000 findings — sufficient for metrics; prevents OOM on large orgs
       const allFindings = await db.finding.findMany({
         where: { run: { appId: { in: appIdList } } },
         select: { status: true, createdAt: true, resolvedAt: true, acknowledgedAt: true },
+        orderBy: { createdAt: "desc" },
+        take: 5000,
       });
 
       const byStatus: Record<string, number> = {};
