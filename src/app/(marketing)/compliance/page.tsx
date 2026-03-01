@@ -4,7 +4,7 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Continuous Compliance Monitoring for AI-Generated Applications | VibeSafe",
+  title: "Continuous Compliance Monitoring for AI-Generated Applications | Scantient",
   description:
     "How to maintain SOC 2, ISO 27001, and NIST CSF compliance when your organization deploys AI-generated applications. Automated monitoring for IT leaders.",
 };
@@ -13,7 +13,7 @@ const frameworks = [
   {
     name: "SOC 2 Type II",
     controls: [
-      { id: "CC6.1", desc: "Logical access security — VibeSafe detects exposed authentication endpoints and client-side auth bypass patterns" },
+      { id: "CC6.1", desc: "Logical access security — Scantient detects exposed authentication endpoints and client-side auth bypass patterns" },
       { id: "CC6.6", desc: "System boundary protection — continuous monitoring of security headers, CORS, and network exposure" },
       { id: "CC7.2", desc: "Monitoring for anomalies — automated alerts on configuration drift, new vulnerabilities, and availability changes" },
       { id: "CC8.1", desc: "Change management — scan-on-deploy detection identifies when apps change and re-evaluates security posture" },
@@ -69,7 +69,7 @@ export default function CompliancePage() {
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">Framework Mapping</h2>
           <p className="mt-4 text-gray-500">
-            VibeSafe&apos;s continuous monitoring maps directly to controls across major compliance frameworks.
+            Scantient&apos;s continuous monitoring maps directly to controls across major compliance frameworks.
           </p>
 
           <div className="mt-8 space-y-12">
@@ -93,7 +93,7 @@ export default function CompliancePage() {
           <h2 className="text-2xl font-semibold">Audit-Ready Reporting</h2>
           <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
             <p>
-              VibeSafe generates weekly and on-demand compliance reports that document the security posture of every AI-generated application in your organization. Each report includes:
+              Scantient generates weekly and on-demand compliance reports that document the security posture of every AI-generated application in your organization. Each report includes:
             </p>
             <ul className="ml-4 space-y-2">
               <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Complete application inventory with security scores</li>
@@ -109,7 +109,7 @@ export default function CompliancePage() {
         <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
           <h2 className="text-2xl font-bold">Be audit-ready, always</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
-            VibeSafe provides the continuous monitoring and documentation your auditors require — automatically. Start your free trial and generate your first compliance report in minutes.
+            Scantient provides the continuous monitoring and documentation your auditors require — automatically. Start your free trial and generate your first compliance report in minutes.
           </p>
           <Link
             href="/signup"

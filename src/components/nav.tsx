@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
 
 const navItems = [
-  { href: "/dashboard", label: "Portfolio" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/reports", label: "Reports" },
   { href: "/ops", label: "Ops" },
   { href: "/readiness", label: "Readiness" },
@@ -37,7 +38,7 @@ export function Nav() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
               <span className="text-sm font-bold text-white">V</span>
             </div>
-            <span className="text-sm font-bold">VibeSafe</span>
+            <span className="text-sm font-bold">Scantient</span>
           </Link>
 
           <div className="hidden items-center gap-1 sm:flex">

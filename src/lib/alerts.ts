@@ -27,7 +27,7 @@ async function withRetry<T>(
 
 async function sendEmail(to: string, subject: string, html: string) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.ALERT_FROM_EMAIL ?? "alerts@vibesafe.app";
+  const from = process.env.ALERT_FROM_EMAIL ?? "alerts@scantient.com";
 
   if (!key) {
     console.warn("[alerts] RESEND_API_KEY not set. Skipping email.");
@@ -120,7 +120,7 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
     const high = findings.filter((f) => ["HIGH", "CRITICAL"].includes(f.severity));
     if (high.length > 0) {
       const html = buildAlertHtml(app.name, app.url, high);
-      await withRetry(() => sendEmail(app.ownerEmail, `⚠️ VibeSafe Alert: ${app.name}`, html));
+      await withRetry(() => sendEmail(app.ownerEmail, `⚠️ Scantient Alert: ${app.name}`, html));
     }
     return;
   }
@@ -137,7 +137,7 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
       switch (config.channel) {
         case "EMAIL": {
           const html = buildAlertHtml(app.name, app.url, relevant);
-          await withRetry(() => sendEmail(config.destination, `⚠️ VibeSafe Alert: ${app.name}`, html));
+          await withRetry(() => sendEmail(config.destination, `⚠️ Scantient Alert: ${app.name}`, html));
           break;
         }
         case "SLACK": {
@@ -150,7 +150,7 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
             const facts = relevant.slice(0, 5).map((f) => ({ name: f.severity, value: f.title }));
             await withRetry(() => sendTeams(
               config.destination,
-              `⚠️ VibeSafe Alert: ${app.name}`,
+              `⚠️ Scantient Alert: ${app.name}`,
               `${relevant.length} security issue(s) detected on ${app.url}`,
               facts,
             ));
@@ -193,8 +193,8 @@ export async function sendTestNotification(configId: string) {
   const config = await db.alertConfig.findUnique({ where: { id: configId } });
   if (!config) throw new Error("Alert config not found");
 
-  const subject = "✅ VibeSafe Test Notification";
-  const body = "This is a test notification from VibeSafe. Your alert channel is working correctly!";
+  const subject = "✅ Scantient Test Notification";
+  const body = "This is a test notification from Scantient. Your alert channel is working correctly!";
 
   try {
     switch (config.channel) {
@@ -241,7 +241,7 @@ export async function sendChangeDetectedAlert(appId: string, appName: string, ap
     where: { orgId: app.orgId, enabled: true },
   });
 
-  const subject = `🔄 VibeSafe: ${appName} has changed`;
+  const subject = `🔄 Scantient: ${appName} has changed`;
   const message = `Deployment change detected on ${appName} (${appUrl}). The application content has changed since the last scan.`;
 
   for (const config of configs) {
@@ -271,7 +271,7 @@ export async function sendChangeDetectedAlert(appId: string, appName: string, ap
 function buildAlertHtml(appName: string, appUrl: string, findings: SecurityFinding[]): string {
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px;">
-      <h2 style="margin-bottom: 4px;">⚠️ VibeSafe Alert: ${appName}</h2>
+      <h2 style="margin-bottom: 4px;">⚠️ Scantient Alert: ${appName}</h2>
       <p style="color: #666; margin-top: 0;">
         <a href="${appUrl}">${appUrl}</a>
       </p>
@@ -287,7 +287,7 @@ function buildAlertHtml(appName: string, appUrl: string, findings: SecurityFindi
         )
         .join("")}
       <p style="font-size: 13px; color: #888;">
-        View details and fix prompts in your <a href="#">VibeSafe dashboard</a>.
+        View details and fix prompts in your <a href="#">Scantient dashboard</a>.
       </p>
     </div>
   `;
@@ -295,5 +295,5 @@ function buildAlertHtml(appName: string, appUrl: string, findings: SecurityFindi
 
 function buildSlackMessage(appName: string, appUrl: string, findings: SecurityFinding[]): string {
   const lines = findings.map((f) => `• *[${f.severity}]* ${f.title}`);
-  return `⚠️ *VibeSafe Alert: ${appName}*\n<${appUrl}>\n\n${findings.length} issue(s) detected:\n${lines.join("\n")}`;
+  return `⚠️ *Scantient Alert: ${appName}*\n<${appUrl}>\n\n${findings.length} issue(s) detected:\n${lines.join("\n")}`;
 }

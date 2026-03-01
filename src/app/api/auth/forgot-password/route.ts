@@ -16,7 +16,7 @@ function getJwtSecret(): string {
 
 async function sendPasswordResetEmail(to: string, resetLink: string) {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@vibesafe.app";
+  const from = process.env.ALERT_FROM_EMAIL ?? "noreply@scantient.com";
 
   if (!key) {
     console.warn("[auth] RESEND_API_KEY not set. Skipping password reset email.");
@@ -25,7 +25,7 @@ async function sendPasswordResetEmail(to: string, resetLink: string) {
 
   const html = `
     <div style="font-family: -apple-system, sans-serif; max-width: 480px;">
-      <h2>Reset your VibeSafe password</h2>
+      <h2>Reset your Scantient password</h2>
       <p>Click the link below to reset your password. This link expires in 1 hour.</p>
       <p><a href="${resetLink}" style="display:inline-block;padding:10px 20px;background:#000;color:#fff;border-radius:6px;text-decoration:none;">Reset Password</a></p>
       <p style="font-size:12px;color:#666;">If you didn't request this, you can ignore this email.</p>
@@ -38,7 +38,7 @@ async function sendPasswordResetEmail(to: string, resetLink: string) {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to: [to], subject: "Reset your VibeSafe password", html }),
+    body: JSON.stringify({ from, to: [to], subject: "Reset your Scantient password", html }),
   });
 }
 
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const limit = await checkRateLimit(`forgot-password:${ip}`, {
     maxAttempts: 5,
     windowMs: 60 * 60 * 1000,
-    fallbackMode: "fail-open",
+    fallbackMode: "fail-closed",
   });
   if (!limit.allowed) {
     // Still return 200 to avoid leaking info, but don't process
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       { expiresIn: "1h" },
     );
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://vibesafe-two.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://scantient.com";
     const resetLink = `${appUrl}/reset-password?token=${token}`;
 
     await sendPasswordResetEmail(email, resetLink);

@@ -4,7 +4,7 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "AI App Security Checklist: 15 Things to Check Before Going Live | VibeSafe",
+  title: "AI App Security Checklist: 15 Things to Check Before Going Live | Scantient",
   description:
     "A comprehensive security checklist for AI-generated applications. 15 critical checks every IT leader should verify before deploying vibe-coded apps to production.",
 };
@@ -83,7 +83,7 @@ const items = [
   {
     num: 15,
     title: "Set Up Continuous Monitoring",
-    body: "Security isn't a one-time check. AI-generated apps change frequently — every prompt-driven update can introduce new vulnerabilities. Set up continuous external monitoring to catch regressions before attackers do. Tools like VibeSafe automate this entire checklist on a recurring schedule.",
+    body: "Security isn't a one-time check. AI-generated apps change frequently — every prompt-driven update can introduce new vulnerabilities. Set up continuous external monitoring to catch regressions before attackers do. Tools like Scantient automate this entire checklist on a recurring schedule.",
   },
 ];
 
@@ -116,7 +116,7 @@ export default function SecurityChecklistPage() {
         <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
           <h2 className="text-2xl font-bold">Automate this entire checklist</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
-            VibeSafe runs these checks continuously on every AI-generated app in your organization. No SDK required. Start your free trial and scan your first app in under 2 minutes.
+            Scantient runs these checks continuously on every AI-generated app in your organization. No SDK required. Start your free trial and scan your first app in under 2 minutes.
           </p>
           <Link
             href="/signup"

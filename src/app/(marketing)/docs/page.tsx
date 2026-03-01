@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
-export const metadata: Metadata = { title: "API Documentation — VibeSafe" };
+export const metadata: Metadata = { title: "API Documentation — Scantient" };
 
 function Code({ children }: { children: string }) {
   return (
@@ -34,8 +34,8 @@ export default function DocsPage() {
     <div className="bg-white">
       <MarketingNav />
     <main className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <h1 className="mb-2 text-3xl font-bold">VibeSafe API Documentation</h1>
-      <p className="mb-10 text-gray-600">Integrate VibeSafe into your workflow with our REST API.</p>
+      <h1 className="mb-2 text-3xl font-bold">Scantient API Documentation</h1>
+      <p className="mb-10 text-gray-600">Integrate Scantient into your workflow with our REST API.</p>
 
       {/* Auth */}
       <section className="mb-12">
@@ -45,7 +45,7 @@ export default function DocsPage() {
           Keys use the <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">vs_</code> prefix and can be managed in{" "}
           <a href="/settings/api-keys" className="text-blue-600 underline">Settings → API Keys</a>.
         </p>
-        <Code>{`curl -H "X-API-Key: vs_your_key_here" https://vibesafe.app/api/v1/apps`}</Code>
+        <Code>{`curl -H "X-API-Key: vs_your_key_here" https://scantient.com/api/v1/apps`}</Code>
       </section>
 
       {/* Endpoints */}
@@ -56,7 +56,7 @@ export default function DocsPage() {
           path="/api/v1/apps"
           desc="List all monitored applications for the authenticated organization."
           curl={`curl -H "X-API-Key: vs_your_key_here" \\
-  https://vibesafe.app/api/v1/apps`}
+  https://scantient.com/api/v1/apps`}
           response={`{
   "apps": [
     {
@@ -78,7 +78,7 @@ export default function DocsPage() {
           path="/api/v1/scan/:id"
           desc="Retrieve the results of a specific security scan by ID."
           curl={`curl -H "X-API-Key: vs_your_key_here" \\
-  https://vibesafe.app/api/v1/scan/scan_abc123`}
+  https://scantient.com/api/v1/scan/scan_abc123`}
           response={`{
   "scan": {
     "id": "scan_abc123",
@@ -100,7 +100,7 @@ export default function DocsPage() {
           path="/api/v1/dashboard"
           desc="Get the organization-wide security dashboard summary."
           curl={`curl -H "X-API-Key: vs_your_key_here" \\
-  https://vibesafe.app/api/v1/dashboard`}
+  https://scantient.com/api/v1/dashboard`}
           response={`{
   "securityScore": 87,
   "totalApps": 5,
@@ -117,10 +117,10 @@ export default function DocsPage() {
       <section className="mt-12">
         <h2 className="mb-4 text-xl font-semibold">MCP (Model Context Protocol)</h2>
         <p className="mb-3 text-sm text-gray-600">
-          VibeSafe exposes an MCP-compatible endpoint at <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">/api/mcp</code> for AI agent integration.
+          Scantient exposes an MCP-compatible endpoint at <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">/api/mcp</code> for AI agent integration.
           Send JSON-RPC 2.0 requests to query apps, findings, and trigger scans programmatically.
         </p>
-        <Code>{`curl -X POST https://vibesafe.app/api/mcp \\
+        <Code>{`curl -X POST https://scantient.com/api/mcp \\
   -H "Content-Type: application/json" \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</Code>
         <p className="mt-3 text-sm text-gray-600">
@@ -130,7 +130,19 @@ export default function DocsPage() {
         </p>
       </section>
 
-      {/* Rate limits */}
+      {/* CI Integration */}
+      <section className="mt-12">
+        <h2 className="mb-4 text-xl font-semibold">CI / CD Integration</h2>
+        <p className="mb-3 text-sm text-gray-600">
+          Run automated security scans on every push or pull request. Scantient&apos;s CI endpoint
+          returns structured JSON and uses HTTP 422 when the scan fails.
+        </p>
+        <a href="/docs/github-actions" className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium hover:bg-gray-50">
+          GitHub Actions Integration Guide →
+        </a>
+      </section>
+
+            {/* Rate limits */}
       <section className="mt-12">
         <h2 className="mb-4 text-xl font-semibold">Rate Limits</h2>
         <div className="rounded-lg border border-gray-200 p-4 text-sm text-gray-600">

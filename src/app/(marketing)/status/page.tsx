@@ -3,8 +3,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "System Status — VibeSafe",
-  description: "Current operational status of VibeSafe services.",
+  title: "System Status — Scantient",
+  description: "Current operational status of Scantient services.",
 };
 
 const services = [
@@ -132,8 +132,8 @@ export default function StatusPage() {
           <p className="text-sm font-medium text-gray-700">Get notified about incidents and maintenance</p>
           <p className="mt-1 text-sm text-gray-500">
             Email{" "}
-            <a href="mailto:status@vibesafe.app" className="text-black underline hover:no-underline">
-              status@vibesafe.app
+            <a href="mailto:status@scantient.com" className="text-black underline hover:no-underline">
+              status@scantient.com
             </a>{" "}
             to be added to our incident notification list.
           </p>

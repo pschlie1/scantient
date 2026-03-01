@@ -15,11 +15,11 @@ chmod +x scripts/db-backup.sh scripts/db-restore-verify.sh
 DATABASE_URL="postgresql://..." ./scripts/db-backup.sh
 ```
 
-Output: `./backups/vibesafe-<timestamp>.dump`
+Output: `./backups/scantient-<timestamp>.dump`
 
 ## Restore Verification Procedure
 ```bash
-./scripts/db-restore-verify.sh ./backups/vibesafe-<timestamp>.dump "postgresql://staging-user:pass@host:5432/vibesafe_restore_test"
+./scripts/db-restore-verify.sh ./backups/scantient-<timestamp>.dump "postgresql://staging-user:pass@host:5432/scantient_restore_test"
 ```
 
 The script:

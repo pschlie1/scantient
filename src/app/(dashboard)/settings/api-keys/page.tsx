@@ -46,7 +46,7 @@ export default function ApiKeysPage() {
       <div className="rounded-lg border bg-white p-6">
         <h2 className="mb-2 text-lg font-semibold">API keys</h2>
         <p className="mb-4 text-sm text-gray-500">
-          Use API keys to integrate VibeSafe with your CI/CD pipeline, agents, or custom tooling.
+          Use API keys to integrate Scantient with your CI/CD pipeline, agents, or custom tooling.
         </p>
 
         {newKey && (
@@ -114,15 +114,15 @@ export default function ApiKeysPage() {
         <h3 className="mb-2 font-semibold">API usage</h3>
         <pre className="overflow-x-auto rounded bg-gray-900 p-4 text-xs text-green-400">{`# List your monitored apps
 curl -H "Authorization: Bearer vs_YOUR_KEY" \\
-  https://your-vibesafe.vercel.app/api/v1/apps
+  https://your-scantient.vercel.app/api/v1/apps
 
 # Trigger a scan
 curl -X POST -H "Authorization: Bearer vs_YOUR_KEY" \\
-  https://your-vibesafe.vercel.app/api/v1/scan/APP_ID
+  https://your-scantient.vercel.app/api/v1/scan/APP_ID
 
 # Get dashboard summary
 curl -H "Authorization: Bearer vs_YOUR_KEY" \\
-  https://your-vibesafe.vercel.app/api/v1/dashboard`}</pre>
+  https://your-scantient.vercel.app/api/v1/dashboard`}</pre>
       </div>
     </div>
   );

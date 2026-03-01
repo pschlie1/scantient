@@ -3,8 +3,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy — VibeSafe",
-  description: "How VibeSafe uses cookies and similar technologies.",
+  title: "Cookie Policy — Scantient",
+  description: "How Scantient uses cookies and similar technologies.",
 };
 
 const cookies = [
@@ -54,7 +54,7 @@ export default function CookiePolicyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900">How we use cookies</h2>
-            <p className="mt-3">VibeSafe uses a small number of cookies, all listed below. We do not use cookies for advertising or cross-site tracking.</p>
+            <p className="mt-3">Scantient uses a small number of cookies, all listed below. We do not use cookies for advertising or cross-site tracking.</p>
           </section>
 
           <section>
@@ -78,14 +78,14 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900">Essential vs. analytics cookies</h2>
             <p className="mt-3">
-              Essential cookies are required for VibeSafe to function and cannot be disabled. Analytics cookies help us understand how the product is used so we can improve it. You can disable analytics cookies by using browser settings or a privacy tool like uBlock Origin — the Service will continue to work normally.
+              Essential cookies are required for Scantient to function and cannot be disabled. Analytics cookies help us understand how the product is used so we can improve it. You can disable analytics cookies by using browser settings or a privacy tool like uBlock Origin — the Service will continue to work normally.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-gray-900">Third-party cookies</h2>
             <p className="mt-3">
-              Our payment processor (Stripe) may set cookies during the checkout flow. These are governed by Stripe&apos;s privacy policy. No advertising networks set cookies through VibeSafe.
+              Our payment processor (Stripe) may set cookies during the checkout flow. These are governed by Stripe&apos;s privacy policy. No advertising networks set cookies through Scantient.
             </p>
           </section>
 
@@ -102,7 +102,7 @@ export default function CookiePolicyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
             <p className="mt-3">
-              Questions about our use of cookies: <a href="mailto:privacy@vibesafe.app" className="text-black underline hover:no-underline">privacy@vibesafe.app</a>.
+              Questions about our use of cookies: <a href="mailto:privacy@scantient.com" className="text-black underline hover:no-underline">privacy@scantient.com</a>.
             </p>
           </section>
         </div>

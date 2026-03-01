@@ -3,8 +3,8 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Press — VibeSafe",
-  description: "Press resources, brand assets, and media inquiries for VibeSafe.",
+  title: "Press — Scantient",
+  description: "Press resources, brand assets, and media inquiries for Scantient.",
 };
 
 const coverage = [
@@ -47,8 +47,8 @@ export default function PressPage() {
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-gray-500">
           For press inquiries, interviews, or to request a briefing, contact{" "}
-          <a href="mailto:press@vibesafe.app" className="text-black underline hover:no-underline">
-            press@vibesafe.app
+          <a href="mailto:press@scantient.com" className="text-black underline hover:no-underline">
+            press@scantient.com
           </a>.
         </p>
 
@@ -64,14 +64,14 @@ export default function PressPage() {
 
         {/* Boilerplate */}
         <div className="mt-12">
-          <h2 className="text-lg font-semibold">About VibeSafe (boilerplate)</h2>
+          <h2 className="text-lg font-semibold">About Scantient (boilerplate)</h2>
           <div className="mt-4 rounded-xl bg-gray-50 p-6 text-sm leading-relaxed text-gray-600">
             <p>
-              VibeSafe is the AI-generated application security platform built for IT Directors and CISOs.
+              Scantient is the AI-generated application security platform built for IT Directors and CISOs.
               As AI coding tools enable employees across every department to build and deploy production
-              software without developer oversight, VibeSafe provides continuous security monitoring,
+              software without developer oversight, Scantient provides continuous security monitoring,
               compliance evidence, and automated remediation guidance for the apps IT didn&apos;t commission
-              but is now responsible for. Founded in 2025, VibeSafe is headquartered in Chicago, Illinois.
+              but is now responsible for. Founded in 2025, Scantient is headquartered in Chicago, Illinois.
             </p>
           </div>
         </div>
@@ -100,8 +100,8 @@ export default function PressPage() {
           <h2 className="text-lg font-semibold">Brand assets</h2>
           <p className="mt-3 text-sm text-gray-500">
             Logos, screenshots, and brand guidelines are available on request. Email{" "}
-            <a href="mailto:press@vibesafe.app" className="text-black underline hover:no-underline">
-              press@vibesafe.app
+            <a href="mailto:press@scantient.com" className="text-black underline hover:no-underline">
+              press@scantient.com
             </a>{" "}
             and we&apos;ll send a press kit within one business day.
           </p>

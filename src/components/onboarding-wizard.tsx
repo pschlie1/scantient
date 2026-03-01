@@ -23,7 +23,7 @@ export function OnboardingWizard() {
   const [alertEmail, setAlertEmail] = useState("");
   const [dismissed, setDismissed] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("vibesafe-onboarding-done") === "true";
+      return localStorage.getItem("scantient-onboarding-done") === "true";
     }
     return false;
   });
@@ -31,7 +31,7 @@ export function OnboardingWizard() {
   if (dismissed) return null;
 
   function complete() {
-    localStorage.setItem("vibesafe-onboarding-done", "true");
+    localStorage.setItem("scantient-onboarding-done", "true");
     setDismissed(true);
     window.location.reload();
   }

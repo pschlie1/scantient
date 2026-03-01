@@ -1,4 +1,4 @@
-# VibeSafe
+# Scantient
 
 Production health + security monitoring for AI-generated apps. External scans, no SDK required.
 
@@ -6,7 +6,7 @@ Production health + security monitoring for AI-generated apps. External scans, n
 
 Employees at mid-market companies ship AI-built internal tools and customer-facing apps in hours using Cursor, Lovable, and Replit. IT leaders are accountable for those apps but have zero visibility into whether they're healthy or secure.
 
-**VibeSafe solves this** with continuous external monitoring that requires no SDK integration in the monitored apps.
+**Scantient solves this** with continuous external monitoring that requires no SDK integration in the monitored apps.
 
 ## What This Ships (Customer Value)
 
@@ -24,8 +24,8 @@ Employees at mid-market companies ship AI-built internal tools and customer-faci
 
 ```bash
 # Clone and install
-git clone https://github.com/pschlie1/vibesafe.git
-cd vibesafe
+git clone https://github.com/pschlie1/scantient.git
+cd scantient
 npm install
 
 # Set up environment
@@ -53,7 +53,7 @@ Open http://localhost:3000
 | `SENTRY_ENVIRONMENT` | No | Environment tag (e.g. production, staging) |
 | `UPSTASH_REDIS_REST_URL` | Recommended (prod) | Upstash Redis REST URL for distributed rate limiting |
 | `UPSTASH_REDIS_REST_TOKEN` | Recommended (prod) | Upstash Redis REST token for distributed rate limiting |
-| `RATE_LIMIT_PREFIX` | No | Redis key prefix for limiter keys (default `vibesafe:rate-limit`) |
+| `RATE_LIMIT_PREFIX` | No | Redis key prefix for limiter keys (default `scantient:rate-limit`) |
 | `RATE_LIMIT_FALLBACK_MODE` | No | Global fallback policy if Redis fails: `fail-open` or `fail-closed` |
 | `HEALTH_CRON_STALE_MINUTES` | No | Threshold for stale cron freshness in `/api/health` |
 

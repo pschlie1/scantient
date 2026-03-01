@@ -3,29 +3,29 @@ import MarketingNav from "@/components/marketing-nav";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Contact — VibeSafe",
-  description: "Get in touch with the VibeSafe team.",
+  title: "Contact — Scantient",
+  description: "Get in touch with the Scantient team.",
 };
 
 const channels = [
   {
     label: "General inquiries",
-    email: "hello@vibesafe.app",
-    desc: "Questions about VibeSafe, pricing, or how we can help your organization.",
+    email: "hello@scantient.com",
+    desc: "Questions about Scantient, pricing, or how we can help your organization.",
   },
   {
     label: "Support",
-    email: "support@vibesafe.app",
+    email: "support@scantient.com",
     desc: "Help with your account, billing, or technical issues.",
   },
   {
     label: "Security disclosures",
-    email: "security@vibesafe.app",
+    email: "security@scantient.com",
     desc: "Responsible disclosure of security vulnerabilities. We respond within 24 hours.",
   },
   {
     label: "Press & media",
-    email: "press@vibesafe.app",
+    email: "press@scantient.com",
     desc: "Interview requests, press kit, or media briefings.",
   },
 ];
@@ -60,8 +60,8 @@ export default function ContactPage() {
           <h2 className="text-lg font-semibold">Schedule a demo</h2>
           <p className="mt-3 text-sm leading-relaxed text-gray-500">
             Prefer to talk through your situation? Email{" "}
-            <a href="mailto:hello@vibesafe.app" className="text-black underline hover:no-underline">
-              hello@vibesafe.app
+            <a href="mailto:hello@scantient.com" className="text-black underline hover:no-underline">
+              hello@scantient.com
             </a>{" "}
             with a brief description of your environment — number of AI-built apps, compliance obligations, and team size — and we&apos;ll set up a call within 48 hours.
           </p>

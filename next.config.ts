@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const ALLOWED_ORIGIN =
+  process.env.NODE_ENV === "production"
+    ? "https://scantient.com"
+
+    : "http://localhost:3000";
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -13,8 +19,17 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https:;",
           },
+        ],
+      },
+      {
+        // Restrict CORS on API routes to the production domain or localhost in dev
+        source: "/api/(.*)",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: ALLOWED_ORIGIN },
+          { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, PATCH, DELETE, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" },
         ],
       },
     ];

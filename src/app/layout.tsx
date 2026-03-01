@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VibeSafe – Security Monitoring for AI-Generated Apps",
+  title: "Scantient – Security Monitoring for AI-Generated Apps",
   description:
     "Continuous security monitoring for AI-built applications. No SDK required. Protect your vibe-coded apps from exposed API keys, missing headers, and auth bypasses.",
 };
