@@ -37,6 +37,8 @@ import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lif
 import type { SecurityFinding } from "@/lib/types";
 import { trackEvent } from "@/lib/analytics";
 import { runProbe, type ProbeOutcome } from "@/lib/probe-client";
+import { runConnectors } from "@/lib/connectors/runner";
+import type { ConnectorResult } from "@/lib/connectors/types";
 
 function calcStatus(findings: SecurityFinding[]) {
   if (findings.some((f) => f.severity === "CRITICAL")) return "CRITICAL" as const;
@@ -369,9 +371,8 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       );
     }
 
-    const findings = dedup(rawFindings);
+    const securityFindings = dedup(rawFindings);
     const responseTimeMs = Date.now() - start;
-    const status = calcStatus(findings);
 
     // ── Tier 2: Subsystem Health Probe ──────────────────────────────────────
     // After the main security scan, if the app has a probeUrl + probeToken
@@ -392,7 +393,48 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
         );
       }
     }
+
+    // Probe subsystem unhealthy findings: if any subsystem reports ok=false,
+    // surface it as a MEDIUM finding so it shows up in the security findings list.
+    const probeFindings: SecurityFinding[] = [];
+    if (probeOutcome && probeOutcome.ok === true) {
+      const subsystems = probeOutcome.subsystems;
+      for (const [name, sub] of Object.entries(subsystems)) {
+        if (sub && !sub.ok) {
+          probeFindings.push({
+            code: `SUBSYSTEM_UNHEALTHY_${name.toUpperCase()}`,
+            title: `Subsystem unhealthy: ${name}`,
+            description: `The ${name} subsystem reported an unhealthy status${sub.error ? `: ${sub.error}` : ""}. This was detected by the Scantient probe endpoint.`,
+            severity: "MEDIUM",
+            fixPrompt: `Investigate the ${name} subsystem. Check service availability, configuration, and error logs. Resolve the underlying issue and confirm recovery by triggering a new scan.`,
+          });
+        }
+      }
+    }
     // ── End Tier 2 ──────────────────────────────────────────────────────────
+
+    // ── Tier 3: Infrastructure Connectors ───────────────────────────────────
+    // Run all configured infrastructure connectors (Vercel, GitHub, Stripe).
+    // Connector findings are merged into the final findings list.
+    // Connector results are stored in MonitorRun.connectorResults for display.
+    // Wrapped in try/catch — connector failures never block the main scan.
+    let connectorResults: Record<string, ConnectorResult> = {};
+    const connectorFindings: SecurityFinding[] = [];
+    try {
+      const connResult = await runConnectors(app.orgId);
+      connectorResults = connResult.connectorResults;
+      connectorFindings.push(...connResult.allFindings);
+    } catch (connErr) {
+      console.warn(
+        "[tier3-connectors] Connector run failed (non-fatal):",
+        connErr instanceof Error ? connErr.message : connErr,
+      );
+    }
+    // ── End Tier 3 ──────────────────────────────────────────────────────────
+
+    // Combine all findings: security + probe subsystem + connector
+    const findings = dedup([...securityFindings, ...probeFindings, ...connectorFindings]);
+    const status = calcStatus(findings);
 
     // Determine scan interval before the transaction (no DB write needed)
     const orgLimits = await getOrgLimits(app.orgId);
@@ -427,6 +469,10 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
           discoveredEndpointCount,
           // Tier 2: store probe result if one was obtained
           ...(probeOutcome !== null ? { probeResult: probeOutcome as object } : {}),
+          // Tier 3: store connector results if any connectors ran
+          ...(Object.keys(connectorResults).length > 0
+            ? { connectorResults: connectorResults as object }
+            : {}),
         },
       });
 

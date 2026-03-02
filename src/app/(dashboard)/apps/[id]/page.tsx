@@ -17,6 +17,7 @@ import { safeHref } from "@/lib/url";
 import { isAiFinding, parseAiPolicyMeta } from "@/lib/ai-policy-scanner";
 import { AiPolicyBadge } from "@/components/ai-policy-badge";
 import type { ProbeResult } from "@/lib/probe-client";
+import type { ConnectorResult } from "@/lib/connectors/types";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -56,6 +57,11 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
   const latestProbeResult = app.monitorRuns
     .find((r) => r.probeResult != null)
     ?.probeResult as ProbeResult | null | undefined;
+
+  // Extract the most recent connector results (if any) from the latest run
+  const latestConnectorResults = app.monitorRuns
+    .find((r) => r.connectorResults != null)
+    ?.connectorResults as Record<string, ConnectorResult> | null | undefined;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -102,6 +108,14 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
         <div className="mb-8">
           <h2 className="mb-4 text-lg font-semibold">Subsystem Health</h2>
           <SubsystemHealthCard probeResult={latestProbeResult ?? null} probeUrl={app.probeUrl} />
+        </div>
+      )}
+
+      {/* Infrastructure Health — only shown if connector results are present */}
+      {latestConnectorResults && Object.keys(latestConnectorResults).length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold">Infrastructure Health</h2>
+          <InfrastructureHealthCard connectorResults={latestConnectorResults} />
         </div>
       )}
 
@@ -279,6 +293,54 @@ function SubsystemRow({
             {data.error}
           </span>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Infrastructure Health Card ───────────────────────────────────────────────
+
+const CONNECTOR_LABELS: Record<string, string> = {
+  vercel: "Vercel",
+  github: "GitHub",
+  stripe: "Stripe",
+};
+
+function InfrastructureHealthCard({
+  connectorResults,
+}: {
+  connectorResults: Record<string, ConnectorResult>;
+}) {
+  const entries = Object.entries(connectorResults);
+
+  return (
+    <div className="rounded-lg border bg-white">
+      <div className="divide-y">
+        {entries.map(([connector, result]) => (
+          <div key={connector} className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              {result.ok ? (
+                <span className="text-green-500" aria-label="healthy">✓</span>
+              ) : (
+                <span className="text-red-500" aria-label="issues detected">✗</span>
+              )}
+              <span className="text-sm font-medium">
+                {CONNECTOR_LABELS[connector] ?? connector}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              {result.findings.length > 0 && (
+                <span className="text-amber-600">
+                  {result.findings.length} finding{result.findings.length === 1 ? "" : "s"}
+                </span>
+              )}
+              {result.ok && result.findings.length === 0 && (
+                <span className="text-green-600">All checks passed</span>
+              )}
+              <span>{new Date(result.checkedAt).toLocaleTimeString()}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
