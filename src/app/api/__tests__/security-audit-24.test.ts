@@ -96,6 +96,8 @@ vi.mock("@/lib/scanner-http", () => ({
 
 // ─── Observability mock ───────────────────────────────────────────────────────
 vi.mock("@/lib/observability", () => ({ logApiError: vi.fn() }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 // ─── Session stubs ────────────────────────────────────────────────────────────
 const OWNER_SESSION = {

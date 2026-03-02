@@ -116,6 +116,8 @@ vi.mock("next/headers", () => ({
   cookies: vi.fn().mockResolvedValue({ get: vi.fn(), set: vi.fn(), delete: vi.fn() }),
 }));
 vi.mock("@/lib/remediation-lifecycle", () => ({
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
   parseRemediationMeta: vi.fn().mockReturnValue({ meta: { linkedPRs: [] } }),
   linkPRToFinding: vi.fn().mockResolvedValue({ linkedPRs: [] }),
   addTimelineEvent: vi.fn().mockResolvedValue(undefined),

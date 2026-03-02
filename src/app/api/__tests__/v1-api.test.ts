@@ -34,6 +34,8 @@ vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
 // --- Tenant mock (getOrgLimits used by rate-limited scan routes) ---
 const getOrgLimits = vi.fn();
 vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

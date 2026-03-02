@@ -115,6 +115,8 @@ vi.mock("next/headers", () => ({
 
 // ─── ssrf-guard ───────────────────────────────────────────────────────────────
 vi.mock("@/lib/ssrf-guard", () => ({
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
   isPrivateUrl: vi.fn().mockResolvedValue(false),
   isPrivateIp: vi.fn().mockReturnValue(false),
   ssrfSafeFetch: vi.fn(),

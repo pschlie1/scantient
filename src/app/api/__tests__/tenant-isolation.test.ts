@@ -29,6 +29,8 @@ vi.mock("@/lib/db", () => ({
 vi.mock("@/lib/tenant", () => ({ logAudit: vi.fn() }));
 vi.mock("@/lib/scanner-http", () => ({ runHttpScanForApp: vi.fn() }));
 vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 describe("tenant isolation - negative access checks", () => {
   beforeEach(() => {

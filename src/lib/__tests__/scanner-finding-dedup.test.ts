@@ -93,6 +93,8 @@ vi.mock("@/lib/remediation-lifecycle", () => ({
   verifyResolvedFindings: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("@/lib/ai-policy-scanner", () => ({ checkAITools: vi.fn().mockReturnValue([]) }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 const APP = {
   id: "app_dedup",

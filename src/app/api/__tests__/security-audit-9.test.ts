@@ -95,6 +95,8 @@ vi.mock("@/lib/auth-headers", () => ({ decryptAuthHeaders: vi.fn().mockReturnVal
 // A9-1 tests that involve hostname→IP resolution use dnsLookup.mockResolvedValue()
 const dnsLookup = vi.fn();
 vi.mock("dns/promises", () => ({ lookup: dnsLookup }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 // ─── Default mock state reset ─────────────────────────────────────────────────
 beforeEach(() => {

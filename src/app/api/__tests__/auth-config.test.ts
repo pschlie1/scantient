@@ -42,6 +42,8 @@ vi.mock("@/lib/crypto-util", () => ({
 const getOrgLimits = vi.fn();
 vi.mock("@/lib/tenant", () => ({ getOrgLimits, logAudit: vi.fn() }));
 vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 // ─── Scanner mock (used for "scanner applies auth headers" test) ───────────────
 const fetchMock = vi.fn();
