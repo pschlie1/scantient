@@ -1,9 +1,22 @@
 import { subDays } from "date-fns";
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+
+/**
+ * audit-23: Timing-safe string comparison for CRON_SECRET.
+ * The previous `auth === \`Bearer ${cronSecret}\`` used a JS equality check whose
+ * execution time leaks the length/prefix of the secret via timing side-channel.
+ * Uses the same approach as cron/run/route.ts (audit-14).
+ */
+function timingSafeStringEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a.padEnd(512));
+  const bufB = Buffer.from(b.padEnd(512));
+  return timingSafeEqual(bufA, bufB) && a.length === b.length;
+}
 
 function buildReport(apps: Array<{ name: string; ownerEmail: string | null; status: string; lastCheckedAt: Date | null; monitorRuns: Array<{ findings: Array<{ severity: string }> }> }>) {
   return apps.map((app) => {
@@ -24,8 +37,11 @@ export async function GET(req: Request) {
   const since = subDays(new Date(), 7);
 
   // Cron path: iterate per-org
-  const auth = req.headers.get("authorization");
-  const isCron = process.env.CRON_SECRET && auth === `Bearer ${process.env.CRON_SECRET}`;
+  const auth = req.headers.get("authorization") ?? "";
+  const cronSecret = process.env.CRON_SECRET;
+  // audit-23: Use timing-safe comparison to prevent timing-oracle attacks on the secret.
+  // A plain `===` leaks how many prefix bytes matched, which allows brute-force recovery.
+  const isCron = cronSecret && timingSafeStringEqual(auth, `Bearer ${cronSecret}`);
 
   if (isCron) {
     // Intentionally unbounded: this is a cron batch job that must process all orgs.
