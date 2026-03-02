@@ -24,12 +24,15 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
 
   // ─── Optional — validated when present ────────────────────────────────────
-  RESEND_API_KEY: z.string().min(1).optional(),
-  STRIPE_SECRET_KEY: z.string().startsWith("sk_", { message: "STRIPE_SECRET_KEY must start with 'sk_'" }).optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_", { message: "STRIPE_WEBHOOK_SECRET must start with 'whsec_'" }).optional(),
-  UPSTASH_REDIS_REST_URL: z.string().url({ message: "UPSTASH_REDIS_REST_URL must be a valid URL" }).optional(),
-  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
-  SENTRY_DSN: z.string().url({ message: "SENTRY_DSN must be a valid URL" }).optional(),
+  // Non-critical env vars are intentionally lenient here to avoid taking down
+  // the entire API surface due to optional integration misconfiguration.
+  // Each integration validates its own config at use-time.
+  RESEND_API_KEY: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
 });
 
 // ---------------------------------------------------------------------------
