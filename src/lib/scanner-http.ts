@@ -223,10 +223,11 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     };
     const intervalHours = scanIntervalHours[orgLimits.tier] ?? 24;
 
-    // Atomically write the completed run (with findings) and the updated app
-    // status/timing. If either write fails the entire scan completion rolls back
-    // — preventing a state where the run shows CRITICAL but the app still shows
-    // HEALTHY (or vice versa).
+    // Atomically write the completed run and the updated app status/timing.
+    // If either write fails the entire scan completion rolls back — preventing
+    // a state where the run shows CRITICAL but the app still shows HEALTHY.
+    // Note: findings are upserted AFTER this transaction (see below) so that
+    // per-finding DB errors don't roll back the whole run record.
     const completedAt = new Date();
     await db.$transaction(async (tx) => {
       await tx.monitorRun.update({
@@ -234,15 +235,12 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
         data: {
           status,
           responseTimeMs,
-          // checksRun: record the actual number of findings evaluated
+          // checksRun: record the actual number of de-duplicated findings
           checksRun: findings.length,
           summary: findings.length
             ? `${findings.length} issue(s) detected`
             : "All checks passed — no issues detected",
           completedAt,
-          findings: {
-            create: findings,
-          },
         },
       });
 
@@ -280,6 +278,37 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
         },
       });
     });
+
+    // Upsert findings by (appId, code) — prevents duplicate DB rows on repeated
+    // scans of the same issue. Each upsert updates runId to the current run so
+    // that findings stay linked to the most recent detection, and resets status
+    // to OPEN so that previously-resolved findings are re-surfaced if they recur.
+    // Runs outside the transaction — individual upsert failures are non-fatal.
+    await Promise.all(
+      findings.map((f) =>
+        db.finding.upsert({
+          where: { appId_code: { appId: app.id, code: f.code } },
+          create: {
+            appId: app.id,
+            runId: run.id,
+            code: f.code,
+            title: f.title,
+            description: f.description,
+            severity: f.severity,
+            fixPrompt: f.fixPrompt,
+            status: "OPEN",
+          },
+          update: {
+            runId: run.id,
+            title: f.title,
+            description: f.description,
+            severity: f.severity,
+            fixPrompt: f.fixPrompt,
+            status: "OPEN",
+          },
+        }),
+      ),
+    );
 
     // Auto-triage new findings in parallel (was sequential N+1 loop)
     // Runs outside the transaction — failures are non-fatal (triage is best-effort)

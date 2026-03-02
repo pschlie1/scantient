@@ -3,6 +3,7 @@ import { subDays } from "date-fns";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,23 @@ export async function GET() {
     return NextResponse.json(
       { error: "Executive reports require PRO or ENTERPRISE plan", tier: limits.tier },
       { status: 403 },
+    );
+  }
+
+  // Rate limit: max 5 report generations per minute per org (report generation is expensive)
+  const rl = await checkRateLimit(`report:executive:${session.orgId}`, {
+    maxAttempts: 5,
+    windowMs: 60_000,
+  });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please wait before generating another report." },
+      {
+        status: 429,
+        headers: rl.retryAfterSeconds
+          ? { "Retry-After": String(rl.retryAfterSeconds) }
+          : {},
+      },
     );
   }
 

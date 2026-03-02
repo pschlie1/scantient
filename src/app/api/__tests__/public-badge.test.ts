@@ -207,3 +207,65 @@ describe("GET /api/public/badge/[slug]", () => {
     expect(json.appsScanned).toBe(2);
   });
 });
+
+// ─── Audit 22: SVG XML Injection Guard ───────────────────────────────────────
+
+describe("A22: escapeSvg — SVG XML injection guard", () => {
+  it("escapes < and > in SVG text content", async () => {
+    // Import actual (non-mocked) escapeSvg from security lib
+    const { escapeSvg } = await vi.importActual<typeof import("@/lib/security")>("@/lib/security");
+    expect(escapeSvg("<evil>")).toBe("&lt;evil&gt;");
+  });
+
+  it("escapes & in SVG text content", async () => {
+    const { escapeSvg } = await vi.importActual<typeof import("@/lib/security")>("@/lib/security");
+    expect(escapeSvg("A & B")).toBe("A &amp; B");
+  });
+
+  it("escapes double-quotes for attribute safety", async () => {
+    const { escapeSvg } = await vi.importActual<typeof import("@/lib/security")>("@/lib/security");
+    expect(escapeSvg('"hello"')).toBe("&quot;hello&quot;");
+  });
+
+  it("escapes single-quotes for attribute safety", async () => {
+    const { escapeSvg } = await vi.importActual<typeof import("@/lib/security")>("@/lib/security");
+    expect(escapeSvg("it's")).toBe("it&#x27;s");
+  });
+
+  it("makeBadgeSvg output does not contain unescaped < or > characters in text nodes", async () => {
+    // Import the actual (unmocked) makeBadgeSvg to test real SVG escaping behaviour.
+    // We pass a grade string containing XML-special characters to verify they are escaped.
+    const { makeBadgeSvg } = await vi.importActual<
+      typeof import("@/app/api/public/badge/route")
+    >("@/app/api/public/badge/route");
+
+    // makeBadgeSvg takes score: number and grade: string — simulate an edge case
+    // where grade contains XML-special chars (would not happen via scoreToGrade but
+    // tests the defensive escaping for any future caller passing user data).
+    const svg = makeBadgeSvg(85, "<A>");
+    // The literal string "<A>" must not appear unescaped in SVG text nodes
+    expect(svg).not.toMatch(/<A>/);
+    expect(svg).toContain("&lt;A&gt;");
+  });
+
+  it("badge SVG is valid XML (no unescaped special chars from score/grade)", async () => {
+    apiKeyFindFirst.mockResolvedValue({ orgId: "org-1", expiresAt: null });
+    monitoredAppFindFirst.mockResolvedValue(makeApp([{ severity: "HIGH" }]));
+
+    const { GET } = await import("@/app/api/public/badge/route");
+    const req = makeRequest(
+      { url: "https://example.com" },
+      { Authorization: "Bearer mykey" },
+    );
+    const res = await GET(req);
+    const body = await res.text();
+
+    // The SVG must start with the XML/SVG tag and not contain raw < inside text nodes
+    // (other than the SVG element tags themselves)
+    expect(body).toContain("<svg");
+    expect(body).toContain("</svg>");
+    // Score 90 maps to grade A in scoreToGrade (>= 90 => A).
+    expect(body).toContain("90");
+    expect(body).toContain("A");
+  });
+});

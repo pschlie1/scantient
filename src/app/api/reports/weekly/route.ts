@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function buildReport(apps: Array<{ name: string; ownerEmail: string | null; status: string; lastCheckedAt: Date | null; monitorRuns: Array<{ findings: Array<{ severity: string }> }> }>) {
   return apps.map((app) => {
@@ -65,6 +66,23 @@ export async function GET(req: Request) {
   const limits = await getOrgLimits(session.orgId);
   if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
     return NextResponse.json({ error: "Weekly reports require a Starter plan or higher." }, { status: 403 });
+  }
+
+  // Rate limit: max 5 report generations per minute per org (report generation is expensive)
+  const rl = await checkRateLimit(`report:weekly:${session.orgId}`, {
+    maxAttempts: 5,
+    windowMs: 60_000,
+  });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please wait before generating another report." },
+      {
+        status: 429,
+        headers: rl.retryAfterSeconds
+          ? { "Retry-After": String(rl.retryAfterSeconds) }
+          : {},
+      },
+    );
   }
 
   const apps = await db.monitoredApp.findMany({

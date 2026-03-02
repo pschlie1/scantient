@@ -167,6 +167,7 @@ model MonitoredApp {
   agentLastSeenAt DateTime?
 
   monitorRuns     MonitorRun[]
+  findings        Finding[]
 
   @@unique([orgId, url])
   @@index([orgId, status])
@@ -194,6 +195,8 @@ model MonitorRun {
 
 model Finding {
   id              String           @id @default(cuid())
+  appId           String?
+  app             MonitoredApp?    @relation(fields: [appId], references: [id], onDelete: Cascade)
   runId           String
   run             MonitorRun       @relation(fields: [runId], references: [id], onDelete: Cascade)
   code            String
@@ -206,9 +209,12 @@ model Finding {
   acknowledgedAt  DateTime?
   notes           String?
   createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   assignments     FindingAssignment[]
 
+  @@unique([appId, code])
+  @@index([appId, status])
   @@index([runId, severity])
   @@index([runId, status])
   @@index([status])

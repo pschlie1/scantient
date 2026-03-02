@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { db } from "@/lib/db";
 import { applyCors, corsPreflightResponse, CORS_HEADERS_PUBLIC } from "@/lib/cors";
+import { escapeSvg } from "@/lib/security";
 
 export function OPTIONS() {
   return corsPreflightResponse(CORS_HEADERS_PUBLIC);
@@ -35,6 +36,11 @@ export function scoreToColor(score: number): string {
 export function makeBadgeSvg(score: number, grade: string): string {
   const label = "Scantient";
   const value = `${score} ${grade}`;
+  // Escape user-influenced strings for safe XML/SVG embedding.
+  // grade and value are computed values but we escape defensively so that any
+  // future caller passing user-controlled strings cannot inject XML.
+  const safeLabel = escapeSvg(label);
+  const safeValue = escapeSvg(value);
   const color = scoreToColor(score);
   const labelWidth = label.length * 7 + 10;
   const valueWidth = value.length * 7 + 14;
@@ -54,10 +60,10 @@ export function makeBadgeSvg(score: number, grade: string): string {
     <rect width="${totalWidth}" height="20" fill="url(#s)"/>
   </g>
   <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-    <text x="${labelWidth / 2}" y="15" fill="#010101" fill-opacity=".3">${label}</text>
-    <text x="${labelWidth / 2}" y="14">${label}</text>
-    <text x="${labelWidth + valueWidth / 2}" y="15" fill="#010101" fill-opacity=".3">${value}</text>
-    <text x="${labelWidth + valueWidth / 2}" y="14">${value}</text>
+    <text x="${labelWidth / 2}" y="15" fill="#010101" fill-opacity=".3">${safeLabel}</text>
+    <text x="${labelWidth / 2}" y="14">${safeLabel}</text>
+    <text x="${labelWidth + valueWidth / 2}" y="15" fill="#010101" fill-opacity=".3">${safeValue}</text>
+    <text x="${labelWidth + valueWidth / 2}" y="14">${safeValue}</text>
   </g>
 </svg>`;
 }

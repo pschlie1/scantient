@@ -1476,3 +1476,21 @@ export function checkDependencyVersions(jsPayloads: string[]): SecurityFinding[]
 
   return findings;
 }
+
+// ────────────────────────────────────────────
+// SVG / XML escaping
+// ────────────────────────────────────────────
+
+/**
+ * Escape a string for safe embedding in SVG/XML text content and attribute values.
+ * SVG is XML — user-controlled values must be escaped before interpolation to
+ * prevent XML injection (broken markup or injected elements).
+ */
+export function escapeSvg(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
