@@ -2,6 +2,7 @@ import * as tls from "tls";
 import { buildFixPrompt } from "@/lib/remediation";
 import type { SecurityFinding } from "@/lib/types";
 import { db } from "@/lib/db";
+import { ssrfSafeFetch } from "@/lib/ssrf-guard";
 
 // ────────────────────────────────────────────
 // 1. Exposed API keys in client-side JS
@@ -1232,10 +1233,11 @@ export async function checkExposedEndpoints(baseUrl: string): Promise<SecurityFi
   const results = await Promise.allSettled(
     PROBE_PATHS.map(async (path) => {
       const url = `${origin}${path}`;
-      const res = await fetch(url, {
+      // Use ssrfSafeFetch so every redirect hop is validated against the
+      // SSRF guard — prevents a probe path redirecting to 169.254.169.254.
+      const res = await ssrfSafeFetch(url, {
         method: "GET",
         signal: AbortSignal.timeout(5000),
-        redirect: "follow",
       });
       const body = res.status === 200 ? await res.text() : "";
       return { path, url, status: res.status, body };

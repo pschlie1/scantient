@@ -188,8 +188,8 @@ describe("POST /api/apps — app limit enforcement per tier", () => {
     const res = await POST(postReq(validApp));
     expect(res.status).toBe(403);
     const json = await res.json();
-    expect(json.error.message).toContain("FREE plan allows 2 apps");
-    expect(json.error.message).toContain("Upgrade");
+    expect(json.error).toContain("FREE plan allows 2 apps");
+    expect(json.error).toContain("Upgrade");
   });
 
   it("STARTER: blocks adding app when at limit (5 of 5)", async () => {
@@ -203,7 +203,7 @@ describe("POST /api/apps — app limit enforcement per tier", () => {
     const res = await POST(postReq(validApp));
     expect(res.status).toBe(403);
     const json = await res.json();
-    expect(json.error.message).toContain("STARTER plan allows 5 apps");
+    expect(json.error).toContain("STARTER plan allows 5 apps");
   });
 
   it("PRO: allows adding app when under limit (3 of 15)", async () => {
@@ -227,7 +227,7 @@ describe("POST /api/apps — app limit enforcement per tier", () => {
     const res = await POST(postReq(validApp));
     expect(res.status).toBe(403);
     const json = await res.json();
-    expect(json.error.message).toContain("PRO plan allows 15 apps");
+    expect(json.error).toContain("PRO plan allows 15 apps");
   });
 
   it("EXPIRED: blocks all app creation (0 app limit)", async () => {
@@ -273,7 +273,7 @@ describe("POST /api/apps — app limit enforcement per tier", () => {
     const res = await POST(postReq(validApp));
     expect(res.status).toBe(409);
     const json = await res.json();
-    expect(json.error.message).toContain("already monitored");
+    expect(json.error).toContain("already monitored");
   });
 });
 
@@ -292,7 +292,7 @@ describe("POST /api/apps/bulk — bulk app limit per tier", () => {
     const res = await POST(postReq({ apps: [{ url: "https://new.com" }] }));
     expect(res.status).toBe(403);
     const json = await res.json();
-    expect(json.error.message).toContain("FREE plan allows 2 apps");
+    expect(json.error).toContain("FREE plan allows 2 apps");
   });
 
   it("STARTER: partially creates apps up to slot limit", async () => {

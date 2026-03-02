@@ -97,7 +97,7 @@ export async function POST(req: Request) {
     // Check plan limits
     const { allowed, reason } = await canAddApp(session.orgId);
     if (!allowed) {
-      return NextResponse.json({ error: { message: reason } }, { status: 403 });
+      return NextResponse.json({ error: reason }, { status: 403 });
     }
 
     // SSRF guard: reject private/internal URLs
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
 
     if (existing) {
       return NextResponse.json(
-        { error: { message: `This URL is already monitored as "${existing.name}"` } },
+        { error: `This URL is already monitored as "${existing.name}"` },
         { status: 409 },
       );
     }

@@ -167,5 +167,5 @@ export async function POST(req: Request) {
     console.warn("[team] Failed to send invite email:", err);
   }
 
-  return NextResponse.json({ message: "Invite sent" }, { status: 201 });
+  return NextResponse.json({ ok: true, message: "Invite sent" }, { status: 201 });
 }
