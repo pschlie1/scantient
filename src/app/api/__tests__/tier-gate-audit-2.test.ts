@@ -147,9 +147,9 @@ vi.mock("@/lib/auth-headers", () => ({
 }));
 
 // ─── Crypto util for api-auth ─────────────────────────────────────────────────
-vi.mock("node:crypto", async (importOriginal) => {
 vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
+vi.mock("node:crypto", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:crypto")>();
   return {
     ...actual,

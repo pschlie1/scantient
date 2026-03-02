@@ -99,9 +99,9 @@ vi.mock("@/lib/observability", () => ({
 }));
 
 // ─── Crypto passthrough (node:crypto needed for api-auth hash) ────────────────
-vi.mock("node:crypto", async (importOriginal) => {
 vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
+vi.mock("node:crypto", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:crypto")>();
   return { ...actual, default: actual };
 });

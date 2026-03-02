@@ -1,48 +1,37 @@
 # ACTIVE-TASK.md — Tier 2 + Tier 3 + Deep Audit
 
-## Status: IN PROGRESS — Building Tier 2 and Tier 3 features
+## Status: IN PROGRESS — Deep Audit phase
 
-## What's already built
-- probe-client.ts (T2-B complete)
-- MonitorRun.probeResult + MonitoredApp.probeUrl/probeToken in schema
-- scanner-http.ts has probe wired in (T2-B complete)
-- PATCH /api/apps/[id] handles probeUrl/probeToken with encryption
-- docs/probe-spec.md
-
-## Work Plan
-
-### Tier 2: Subsystem Health Probe
-- [ ] T2-A: `src/app/api/internal/probe/route.ts` (branch: feat/scantient-probe-endpoint)
-- [ ] T2-C: Probe results UI in app detail page (branch: feat/probe-dashboard-ui)
-- [ ] T2-D: App settings edit page with probeUrl/probeToken (branch: feat/probe-settings-ui)
-
-### Tier 3: Infrastructure Connectors
-- [ ] Schema: ConnectorCredential + MonitorRun.connectorResults (branch: feat/connector-schema)
-- [ ] T3-A: Vercel connector (branch: feat/connector-vercel)
-- [ ] T3-B: GitHub connector (branch: feat/connector-github)
-- [ ] T3-C: Stripe connector (branch: feat/connector-stripe)
-- [ ] T3-D: Connector settings UI + scan integration (branch: feat/connector-ui-integration)
-
-### Deep Audit
-- [ ] TypeScript + build health
-- [ ] Test suite
-- [ ] Security self-scan
-- [ ] API endpoint smoke tests
-- [ ] Probe endpoint test
-- [ ] Findings accuracy review
-- [ ] Write audit report
-
-## PRs Created
+## PRs Merged
 | PR | Branch | Description |
 |----|--------|-------------|
-| TBD | feat/scantient-probe-endpoint | Scantient's own probe endpoint |
-| TBD | feat/probe-dashboard-ui | Probe results UI in app detail page |
-| TBD | feat/probe-settings-ui | App settings UI for probe config |
-| TBD | feat/connector-schema | DB schema: ConnectorCredential + connectorResults |
-| TBD | feat/connector-vercel | Vercel infrastructure connector |
-| TBD | feat/connector-github | GitHub infrastructure connector |
-| TBD | feat/connector-stripe | Stripe infrastructure connector |
-| TBD | feat/connector-ui-integration | Connector settings UI + scan integration |
+| #70 | feat/scantient-probe-endpoint | T2-A: Scantient probe endpoint |
+| #71 | feat/probe-dashboard-ui | T2-C/D: Probe dashboard UI + app settings edit page |
+| #72 | feat/connector-schema | T3 schema: ConnectorCredential + connectorResults |
+| #73 | feat/connector-vercel | T3-A: Vercel connector |
+| #74 | feat/connector-github | T3-B: GitHub connector |
+| #75 | feat/connector-stripe | T3-C: Stripe connector |
+| #76 | feat/connector-ui-integration | T3-D: Connector settings UI + scan integration |
 
-## Checkpoints
-(Updated after each PR merges)
+## What was built
+- T2-A: /api/internal/probe — Scantient's own reference probe endpoint
+- T2-B: Already existed — probe wired into scanner-http.ts
+- T2-C: SubsystemHealthCard in app detail page (/apps/[id])
+- T2-D: App settings edit page (/apps/[id]/edit) with probeUrl/probeToken
+- T3-schema: ConnectorCredential model + MonitorRun.connectorResults (migration deployed)
+- T3-A: Vercel connector (deployment, domain, env, build trend checks)
+- T3-B: GitHub connector (Dependabot, CI, stale PRs, branch protection)
+- T3-C: Stripe connector (test mode, webhooks, signing secret, balance)
+- T3-D: /api/connectors/[connector] API + /settings/connectors UI + InfrastructureHealthCard
+- Also: SUBSYSTEM_UNHEALTHY findings now surfaced from T2 probe data
+- Also: connector findings merged into main scan findings
+
+## Deep Audit Status
+- [ ] A. TypeScript + Build Health
+- [ ] B. Test Suite
+- [ ] C. Security Self-Scan
+- [ ] D. API Endpoint Smoke Tests
+- [ ] E. Probe Endpoint Test
+- [ ] F. Findings Accuracy Review
+- [ ] G. Write audit report
+- [ ] H. Final deploy

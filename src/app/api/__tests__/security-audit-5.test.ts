@@ -41,6 +41,7 @@ vi.mock("@/lib/security", () => ({
   checkMetaAndConfig: vi.fn().mockReturnValue([]),
   checkSSLIssues: vi.fn().mockReturnValue([]),
   checkInlineScripts: vi.fn().mockReturnValue([]),
+  checkInlineScriptCount: vi.fn().mockReturnValue([]),
   checkCORSMisconfiguration: vi.fn().mockReturnValue([]),
 }));
 
