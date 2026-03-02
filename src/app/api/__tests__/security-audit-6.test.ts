@@ -12,6 +12,7 @@
 
 process.env.JWT_SECRET = "test-jwt-secret-for-audit-6";
 
+import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Auth mock ────────────────────────────────────────────────────────────────
@@ -114,9 +115,7 @@ function makeStateJwt(overrides?: { domain?: string; orgId?: string }) {
   // Use Node's built-in Buffer-based base64url to avoid importing jsonwebtoken at test level
   const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
   const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const crypto = require("node:crypto");
-  const sig = crypto
-    .createHmac("sha256", "test-jwt-secret-for-audit-6")
+  const sig = createHmac("sha256", "test-jwt-secret-for-audit-6")
     .update(`${header}.${body}`)
     .digest("base64url");
   return `${header}.${body}.${sig}`;

@@ -95,7 +95,8 @@ vi.mock("@/lib/db", () => ({
 
 // ─── Rate limit mock ──────────────────────────────────────────────────────────
 const checkRateLimit = vi.fn();
-vi.mock("@/lib/rate-limit", () => ({ checkRateLimit }));
+const getClientIp = vi.fn().mockReturnValue("1.2.3.4");
+vi.mock("@/lib/rate-limit", () => ({ checkRateLimit, getClientIp }));
 
 // ─── Scanner mock ─────────────────────────────────────────────────────────────
 const runHttpScanForApp = vi.fn();
@@ -189,6 +190,7 @@ function makeReq(method = "POST", body?: unknown): Request {
 describe("C-1: POST /api/stripe/checkout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    checkRateLimit.mockResolvedValue({ allowed: true });
     getSession.mockResolvedValue(proSession());
     organizationFindUnique.mockResolvedValue({
       id: "org_pro",
@@ -286,6 +288,7 @@ describe("C-2: POST /api/integrations/jira/ticket", () => {
 describe("C-3: POST /api/integrations/jira/test", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    checkRateLimit.mockResolvedValue({ allowed: true });
     requireRole.mockResolvedValue(proSession());
     getOrgLimits.mockResolvedValue(proLimits());
     integrationConfigFindUnique.mockResolvedValue({
@@ -328,6 +331,7 @@ describe("C-3: POST /api/integrations/jira/test", () => {
 describe("C-4: POST /api/findings/[id]/github-issue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    checkRateLimit.mockResolvedValue({ allowed: true });
     requireRole.mockResolvedValue(proSession());
     getOrgLimits.mockResolvedValue(proLimits());
     findingFindFirst.mockResolvedValue({
@@ -651,6 +655,9 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    // Audit 18: rate limit is now checked on invite route — allow by default
+    checkRateLimit.mockResolvedValue({ allowed: true });
+    getClientIp.mockReturnValue("1.2.3.4");
     inviteFindUnique.mockResolvedValue({
       token: "valid_token",
       email: "newuser@example.com",
@@ -701,7 +708,7 @@ describe("H-6: POST /api/auth/invite/[token]", () => {
       { params: Promise.resolve({ token: "valid_token" }) },
     );
     expect(canAddUser).toHaveBeenCalledWith("org_pro");
-    expect(canAddUser).toHaveBeenCalledBefore ? void 0 : expect(userCreate).toHaveBeenCalled();
+    expect(userCreate).toHaveBeenCalled();
   });
 
   it("returns 404 for invalid token", async () => {

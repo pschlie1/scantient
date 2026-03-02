@@ -14,12 +14,14 @@ const monitoredAppUpdate = vi.fn();
 const monitoredAppUpdateMany = vi.fn();
 const monitorRunCreate = vi.fn();
 const monitorRunUpdate = vi.fn();
+const dbTransaction = vi.fn();
 const auditLogFindFirst = vi.fn();
 const auditLogCreate = vi.fn();
 const auditLogCreateMany = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
+    $transaction: dbTransaction,
     monitoredApp: {
       findMany: monitoredAppFindMany,
       findUnique: monitoredAppFindUnique,
@@ -73,6 +75,7 @@ vi.mock("@/lib/remediation-lifecycle", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  dbTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => cb({ monitoredApp: { findMany: monitoredAppFindMany, updateMany: monitoredAppUpdateMany } }));
   monitoredAppFindMany.mockResolvedValue([]);
   monitoredAppFindUnique.mockResolvedValue(null);
   monitorRunCreate.mockResolvedValue({ id: "run_1" });

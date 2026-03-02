@@ -56,7 +56,6 @@ function validateEnv() {
       .map((i) => `  • ${i.path.join(".")}: ${i.message}`)
       .join("\n");
 
-    // eslint-disable-next-line no-console
     console.error(
       `\n❌ Invalid environment configuration — server cannot start safely.\n\nMissing or invalid variables:\n${issues}\n\nSet these in your .env file or deployment environment and restart.\n`,
     );

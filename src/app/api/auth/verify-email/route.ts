@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
@@ -14,6 +15,15 @@ interface VerifyTokenPayload {
 }
 
 export async function GET(req: Request) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`verify-email:${ip}`, { maxAttempts: 10, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, {
+      status: 429,
+      headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const token = searchParams.get("token");
 

@@ -3,12 +3,22 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { hashPassword, createSession } from "@/lib/auth";
 import { canAddUser, logAudit } from "@/lib/tenant";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // GET /api/auth/invite/[token] — return invite details
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`invite-token:${ip}`, { maxAttempts: 20, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, {
+      status: 429,
+      headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+    });
+  }
+
   const { token } = await params;
 
   const invite = await db.invite.findUnique({
@@ -41,6 +51,15 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`invite-token:${ip}`, { maxAttempts: 20, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, {
+      status: 429,
+      headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+    });
+  }
+
   const { token } = await params;
 
   const invite = await db.invite.findUnique({

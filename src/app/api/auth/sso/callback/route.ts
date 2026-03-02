@@ -5,17 +5,27 @@ import jwt from "jsonwebtoken";
 import { createSession } from "@/lib/auth";
 import { canAddUser, logAudit } from "@/lib/tenant";
 import * as client from "openid-client";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
-const JWT_SECRET = (() => {
+function getJwtSecret(): string {
   const s = process.env.JWT_SECRET;
+  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+  if (!s && isBuildPhase) return "build-phase-placeholder-secret";
   if (!s) throw new Error("JWT_SECRET environment variable is required");
   return s;
-})();
+}
 const STATE_COOKIE = "scantient_sso_state";
 
 interface StatePayload { codeVerifier: string; state: string; orgId: string; domain: string; }
 
 export async function GET(req: Request) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`sso-callback:${ip}`, { maxAttempts: 10, windowMs: 60_000 });
+  if (!rl.allowed) {
+    const requestUrl = new URL(req.url);
+    return NextResponse.redirect(new URL(`/login?error=too_many_requests`, requestUrl.origin));
+  }
+
   const requestUrl = new URL(req.url);
   try {
     const cookieStore = await cookies();
@@ -24,7 +34,7 @@ export async function GET(req: Request) {
 
     let statePayload: StatePayload;
     try {
-      statePayload = jwt.verify(stateToken, JWT_SECRET) as StatePayload;
+      statePayload = jwt.verify(stateToken, getJwtSecret()) as StatePayload;
     } catch {
       cookieStore.delete(STATE_COOKIE);
       return NextResponse.redirect(new URL("/login?error=sso_failed", requestUrl.origin));

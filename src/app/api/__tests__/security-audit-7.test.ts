@@ -265,7 +265,6 @@ describe("Fix 3: Executive report bounded data query", () => {
     getOrgLimits.mockResolvedValue(makeLimits("PRO"));
 
     // Mock org lookup
-    const orgFindUnique = vi.fn().mockResolvedValue({ name: "Test Org" });
     // Override the db mock for organization.findUnique in this scope
     vi.mocked(organizationFindUnique).mockResolvedValue({ name: "Test Org" });
 

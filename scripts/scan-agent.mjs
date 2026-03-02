@@ -13,8 +13,6 @@
  *   SCANTIENT_API_URL     Optional. Defaults to https://scantient.com
  */
 
-import { createHash } from "node:crypto";
-
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const AGENT_KEY = process.env.SCANTIENT_AGENT_KEY;

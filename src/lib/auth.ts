@@ -4,11 +4,15 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import type { UserRole } from "@prisma/client";
 
-const JWT_SECRET: string = (() => {
+function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
+  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+
+  // Allow Next.js build to import route modules without runtime secrets.
+  if (!secret && isBuildPhase) return "build-phase-placeholder-secret";
   if (!secret) throw new Error("JWT_SECRET environment variable is required");
   return secret;
-})();
+}
 const SESSION_COOKIE = "scantient-session";
 const SESSION_DURATION = 24 * 60 * 60; // 24 hours in seconds
 /** Exported for tests only — frequency at which sessions are re-validated against the DB. */
@@ -33,7 +37,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 }
 
 function signToken(payload: SessionUser): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     algorithm: "HS256",
     expiresIn: SESSION_DURATION,
     issuer: "scantient",
@@ -44,7 +48,7 @@ function signToken(payload: SessionUser): string {
 
 function verifyToken(token: string): SessionUser | null {
   try {
-    return jwt.verify(token, JWT_SECRET, {
+    return jwt.verify(token, getJwtSecret(), {
       algorithms: ["HS256"],
       issuer: "scantient",
       audience: "scantient-app",
