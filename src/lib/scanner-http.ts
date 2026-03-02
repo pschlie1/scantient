@@ -44,12 +44,22 @@ async function fetchJsAssets(baseUrl: string, html: string): Promise<string[]> {
 
   const payloads: string[] = [];
   for (const src of scriptSrcs.slice(0, 15)) {
-    const assetUrl = src.startsWith("http") ? src : new URL(src, baseUrl).toString();
     try {
-      const res = await fetch(assetUrl, {
-        method: "GET",
-        signal: AbortSignal.timeout(10000),
-      });
+      const assetUrl = new URL(src, baseUrl);
+      if (!/^https?:$/.test(assetUrl.protocol)) continue;
+
+      // Treat each JS asset as untrusted input: block private/internal URLs,
+      // and keep redirect-hop SSRF protections enabled for asset fetches too.
+      if (await isPrivateUrl(assetUrl.toString())) continue;
+
+      const res = await ssrfSafeFetch(
+        assetUrl.toString(),
+        {
+          method: "GET",
+          signal: AbortSignal.timeout(10000),
+        },
+        3,
+      );
       if (res.ok) payloads.push(await res.text());
     } catch {
       // ignore asset fetch failures
