@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { trackEvent } from "@/lib/analytics";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { addTimelineEvent } from "@/lib/remediation-lifecycle";
 
 const updateFindingSchema = z.object({
   status: z.enum(["OPEN", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED", "IGNORED"]),
@@ -95,8 +96,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     },
   });
 
-  // Audit log the status change
+  // Audit log the status change + write to REMEDIATION_META timeline
   if (finding.status !== parsed.data.status) {
+    // Write status change event to the canonical remediation timeline so it
+    // appears via GET /api/findings/[id]/timeline (which reads REMEDIATION_META).
+    await addTimelineEvent(updated.id, {
+      timestamp: new Date().toISOString(),
+      actor: session.id ?? "system",
+      action: "status_changed",
+      details: `Status changed: ${finding.status} → ${parsed.data.status}`,
+    });
+
     await db.auditLog.create({
       data: {
         orgId: session.orgId,

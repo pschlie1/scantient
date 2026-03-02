@@ -79,6 +79,7 @@ vi.mock("@/lib/db", () => ({
     },
     finding: {
       findFirst: findingFindFirst,
+      findUnique: vi.fn().mockResolvedValue({ id: "f1", remediationMeta: null }),
       update: findingUpdate,
     },
     auditLog: {
@@ -117,6 +118,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/remediation-lifecycle", () => ({
   parseRemediationMeta: vi.fn().mockReturnValue({ meta: { linkedPRs: [] } }),
   linkPRToFinding: vi.fn().mockResolvedValue({ linkedPRs: [] }),
+  addTimelineEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

@@ -56,7 +56,7 @@ vi.mock("@/lib/db", () => ({
       findMany: alertConfigFindMany,
       findUnique: alertConfigFindUnique,
     },
-    notification: { create: notificationCreate },
+    notification: { create: notificationCreate, findFirst: vi.fn().mockResolvedValue(null) },
     user: {
       findFirst: userFindFirst,
       delete: userDelete,

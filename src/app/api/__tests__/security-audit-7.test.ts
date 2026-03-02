@@ -55,6 +55,7 @@ vi.mock("@/lib/analytics", () => ({ trackEvent: vi.fn() }));
 
 // ─── Observability mock ───────────────────────────────────────────────────────
 vi.mock("@/lib/observability", () => ({ logApiError: vi.fn() }));
+vi.mock("@/lib/remediation-lifecycle", () => ({ addTimelineEvent: vi.fn().mockResolvedValue(undefined) }));
 
 // ─── Types mock (createAppSchema) ─────────────────────────────────────────────
 vi.mock("@/lib/types", async () => {
@@ -101,6 +102,7 @@ vi.mock("@/lib/db", () => ({
     },
     finding: {
       findFirst: findingFindFirst,
+      findUnique: vi.fn().mockResolvedValue({ id: "f1", remediationMeta: null }),
       update: findingUpdate,
     },
     auditLog: {

@@ -189,6 +189,24 @@ export async function sendCriticalFindingsAlert(appId: string, findings: Securit
 
     if (relevant.length === 0) continue;
 
+    // ── Cooldown: skip if a notification was already delivered for this config
+    //    within the last hour to prevent alert storms on repeated scans.
+    const ALERT_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+    const recentNotif = await db.notification.findFirst({
+      where: {
+        alertConfigId: config.id,
+        delivered: true,
+        sentAt: { gte: new Date(Date.now() - ALERT_COOLDOWN_MS) },
+      },
+      orderBy: { sentAt: "desc" },
+    });
+    if (recentNotif) {
+      console.log(
+        `[alerts] Skipping alert config ${config.id} — cooldown active (last sent ${recentNotif.sentAt.toISOString()})`,
+      );
+      continue;
+    }
+
     try {
       switch (config.channel) {
         case "EMAIL": {

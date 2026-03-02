@@ -10,10 +10,24 @@ import { z } from "zod";
 // Primitives
 // ---------------------------------------------------------------------------
 
-/** Standard URL — must be http/https and publicly reachable */
-export const urlSchema = z.string().url().startsWith("http", {
-  message: "URL must start with http:// or https://",
-});
+/**
+ * Strict HTTP/HTTPS URL — rejects file://, ftp://, data:, javascript:, etc.
+ * Use this for any user-supplied URL that will be fetched or rendered.
+ */
+export const urlSchema = z
+  .string()
+  .url({ message: "Must be a valid URL" })
+  .refine(
+    (u) => {
+      try {
+        const { protocol } = new URL(u);
+        return protocol === "http:" || protocol === "https:";
+      } catch {
+        return false;
+      }
+    },
+    { message: "URL must use http:// or https:// protocol" },
+  );
 
 /** Email address */
 export const emailSchema = z.string().email();

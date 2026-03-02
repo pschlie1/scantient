@@ -4,13 +4,14 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { logApiError } from "@/lib/observability";
+import { urlSchema } from "@/lib/validation";
 
 const bulkAppSchema = z.object({
   apps: z
     .array(
       z.object({
-        url: z.string().url("Each URL must be a valid URL"),
-        name: z.string().optional(),
+        url: urlSchema,
+        name: z.string().max(100, "App name must be 100 characters or fewer").optional(),
         ownerEmail: z.string().email().optional(),
         criticality: z.enum(["low", "medium", "high", "critical"]).optional(),
       }),
