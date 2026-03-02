@@ -199,6 +199,10 @@ model MonitorRun {
   completedAt              DateTime?
   findings                 Finding[]
   discoveredEndpointCount  Int?
+  /// Tier 2: structured subsystem health data from the target app's probe endpoint.
+  /// Shape defined by ProbeResult in src/lib/probe-client.ts and docs/probe-spec.md.
+  /// Null if the app has no probeUrl configured or if the probe was skipped/failed.
+  probeResult              Json?
 
   @@index([appId, startedAt])
 }

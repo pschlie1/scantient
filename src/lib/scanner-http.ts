@@ -36,6 +36,7 @@ import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
 import type { SecurityFinding } from "@/lib/types";
 import { trackEvent } from "@/lib/analytics";
+import { runProbe, type ProbeOutcome } from "@/lib/probe-client";
 
 function calcStatus(findings: SecurityFinding[]) {
   if (findings.some((f) => f.severity === "CRITICAL")) return "CRITICAL" as const;
@@ -289,6 +290,27 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     const responseTimeMs = Date.now() - start;
     const status = calcStatus(findings);
 
+    // ── Tier 2: Subsystem Health Probe ──────────────────────────────────────
+    // After the main security scan, if the app has a probeUrl + probeToken
+    // configured, call the target app's /api/scantient-probe endpoint to get
+    // structured subsystem health data (database, auth, payments, email, etc.).
+    // This runs independently of the main scan — failure never blocks the run.
+    // Note: app.probeUrl/probeToken are ALSO used above for the bot-challenge
+    // bypass (HTML fetch). Here we use them for the distinct Tier 2 health probe.
+    let probeOutcome: ProbeOutcome | null = null;
+    if (app.probeUrl && app.probeToken) {
+      try {
+        const decryptedToken = decrypt(app.probeToken);
+        probeOutcome = await runProbe(app.probeUrl, decryptedToken);
+      } catch (probeErr) {
+        console.warn(
+          "[tier2-probe] Probe failed (non-fatal):",
+          probeErr instanceof Error ? probeErr.message : probeErr,
+        );
+      }
+    }
+    // ── End Tier 2 ──────────────────────────────────────────────────────────
+
     // Determine scan interval before the transaction (no DB write needed)
     const orgLimits = await getOrgLimits(app.orgId);
     const scanIntervalHours: Record<string, number> = {
@@ -320,6 +342,8 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
             : "All checks passed — no issues detected",
           completedAt,
           discoveredEndpointCount,
+          // Tier 2: store probe result if one was obtained
+          ...(probeOutcome !== null ? { probeResult: probeOutcome as object } : {}),
         },
       });
 
