@@ -5,12 +5,15 @@ import { getSession } from "@/lib/auth";
 import { logAudit } from "@/lib/tenant";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { encrypt } from "@/lib/crypto-util";
 
 const updateAppSchema = z.object({
   name: z.string().min(1).optional(),
   url: z.string().url().optional(),
   repoUrl: z.string().url().optional().nullable(),
   monitorEnabled: z.boolean().optional(),
+  probeUrl: z.string().url().optional().nullable(),
+  probeToken: z.string().optional().nullable(),
 });
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -72,9 +75,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   });
   if (!app) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  const { probeToken, ...restData } = parsed.data;
   const updated = await db.monitoredApp.update({
     where: { id },
-    data: parsed.data,
+    data: {
+      ...restData,
+      // Encrypt probe token at rest — null clears the token, undefined skips the field
+      ...(probeToken !== undefined
+        ? { probeToken: probeToken ? encrypt(probeToken) : null }
+        : {}),
+    },
   });
 
   await logAudit(session, "app.updated", id, `Updated ${updated.name}`);

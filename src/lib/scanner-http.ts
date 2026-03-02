@@ -1,7 +1,9 @@
 import { addHours } from "date-fns";
 import { db } from "@/lib/db";
 import { isPrivateUrl, ssrfSafeFetch } from "@/lib/ssrf-guard";
+import { detectBotChallenge } from "@/lib/bot-challenge-detector";
 import { getOrgLimits } from "@/lib/tenant";
+import { decrypt } from "@/lib/crypto-util";
 import { decryptAuthHeaders } from "@/lib/auth-headers";
 import {
   checkAPISecurity,
@@ -142,10 +144,62 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       5, // maxRedirects
     );
 
-    const statusCode = response.status;
-    const html = await response.text();
-    const headers = new Headers(response.headers);
-    const jsPayloads = await fetchJsAssets(app.url, html);
+    let statusCode = response.status;
+    let html = await response.text();
+    let headers = new Headers(response.headers);
+    const botChallengeFindings: SecurityFinding[] = [];
+    let collectedJsPayloads: string[] | undefined;
+
+    // Bot challenge detection — if blocked, try probe endpoint or Playwright fallback
+    const botResult = detectBotChallenge(statusCode, headers, html.slice(0, 2000));
+    if (botResult.challenged) {
+      let bypassSucceeded = false;
+
+      // Probe endpoint takes priority: fetch real content server-side via secret token
+      if (app.probeUrl && app.probeToken) {
+        try {
+          const probeRes = await fetch(app.probeUrl, {
+            headers: { "x-scan-token": decrypt(app.probeToken) },
+            signal: AbortSignal.timeout(20000),
+          });
+          if (probeRes.ok) {
+            const probeData = (await probeRes.json()) as {
+              html: string;
+              headers: Record<string, string>;
+              statusCode: number;
+            };
+            html = probeData.html;
+            statusCode = probeData.statusCode;
+            headers = new Headers(probeData.headers);
+            bypassSucceeded = true;
+          }
+        } catch {
+          // Probe fetch failed — fall through to Playwright fallback
+        }
+      }
+
+      // Playwright browser scan fallback
+      if (!bypassSucceeded) {
+        const { runBrowserScan } = await import("@/lib/scanner-browser");
+        const browserData = await runBrowserScan(app.url);
+        html = browserData.html;
+        statusCode = browserData.statusCode;
+        headers = browserData.headers;
+        collectedJsPayloads = browserData.jsPayloads;
+      }
+
+      botChallengeFindings.push({
+        code: "BOT_PROTECTION_DETECTED",
+        title: `Bot protection active${botResult.provider ? ` (${botResult.provider})` : ""} — browser scan used`,
+        description: `This app is protected by ${botResult.provider ?? "a bot challenge system"}, which blocks standard HTTP scanners. Scantient automatically fell back to a browser-based scan to get real results. Some checks (SSL cert expiry, exposed endpoints) are still performed via HTTP.`,
+        severity: "LOW",
+        fixPrompt:
+          "Configure a Scantient probe endpoint on this app for faster, more thorough scans without bot protection interference.",
+      });
+    }
+
+    // Fetch JS assets from HTTP if not already collected by browser scan
+    const jsPayloads = collectedJsPayloads ?? (await fetchJsAssets(app.url, html));
 
     // Content change detection — compare hash to last recorded value
     const contentHash = computeContentHash(html);
@@ -185,6 +239,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     const perfRegressionFindings = await checkPerformanceRegression(app.id, responseTimeMsSnapshot);
 
     const rawFindings: SecurityFinding[] = [
+      ...botChallengeFindings,
       ...checkSecurityHeaders(headers),
       ...scanJavaScriptForKeys(jsPayloads),
       ...checkClientSideAuthBypass(html),

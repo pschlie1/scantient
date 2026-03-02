@@ -8,6 +8,8 @@ type FormState = {
   ownerEmail: string;
   ownerName: string;
   criticality: "low" | "medium" | "high";
+  probeUrl: string;
+  probeToken: string;
 };
 
 const initialState: FormState = {
@@ -16,6 +18,8 @@ const initialState: FormState = {
   ownerEmail: "",
   ownerName: "",
   criticality: "medium",
+  probeUrl: "",
+  probeToken: "",
 };
 
 export function NewAppForm() {
@@ -99,6 +103,32 @@ export function NewAppForm() {
             <option value="high">High: customer-facing or handles sensitive data</option>
           </select>
         </div>
+
+        <details className="rounded-md border border-gray-200 bg-gray-50 p-3">
+          <summary className="cursor-pointer text-xs font-medium text-gray-600 hover:text-gray-900">
+            Advanced: Probe endpoint (optional)
+          </summary>
+          <div className="mt-3 space-y-3">
+            <p className="text-xs text-gray-500">
+              If this app has a{" "}
+              <code className="rounded bg-gray-100 px-1">/api/scantient-probe</code> endpoint,
+              provide its URL and secret token so Scantient can bypass bot protection during scans.
+            </p>
+            <Input
+              label="Probe URL"
+              placeholder="https://app.company.com/api/scantient-probe"
+              type="url"
+              value={data.probeUrl}
+              onChange={(v) => setData({ ...data, probeUrl: v })}
+            />
+            <Input
+              label="Probe Token (X-Scan-Token)"
+              placeholder="Secret token from SCANTIENT_SCAN_TOKEN env var"
+              value={data.probeToken}
+              onChange={(v) => setData({ ...data, probeToken: v })}
+            />
+          </div>
+        </details>
 
         {error && <p className="text-xs text-red-600">{error}</p>}
 

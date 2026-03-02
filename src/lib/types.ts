@@ -7,6 +7,16 @@ export const createAppSchema = z.object({
   ownerEmail: z.string().email(),
   ownerName: z.string().max(100, "Owner name must be 100 characters or fewer").optional(),
   criticality: z.enum(["low", "medium", "high"]).default("medium"),
+  probeUrl: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined))
+    .pipe(z.string().url("Probe URL must be a valid URL").optional()),
+  probeToken: z
+    .string()
+    .max(256, "Probe token must be 256 characters or fewer")
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
 });
 
 export type CreateAppInput = z.infer<typeof createAppSchema>;

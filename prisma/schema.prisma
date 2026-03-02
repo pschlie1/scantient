@@ -174,6 +174,9 @@ model MonitoredApp {
   agentKeyPrefix  String?            // first 10 chars for display
   agentLastSeenAt DateTime?
 
+  probeUrl        String?   // optional: URL of the /api/scantient-probe endpoint for this app
+  probeToken      String?   // optional: secret token for the probe endpoint (X-Scan-Token header)
+
   monitorRuns     MonitorRun[]
   findings        Finding[]
 

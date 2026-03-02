@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { canAddApp, logAudit } from "@/lib/tenant";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { createAppSchema } from "@/lib/types";
+import { encrypt } from "@/lib/crypto-util";
 import { logApiError } from "@/lib/observability";
 import { trackEvent } from "@/lib/analytics";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -120,10 +121,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const { probeToken, ...restData } = parsed.data;
     const app = await db.monitoredApp.create({
       data: {
         orgId: session.orgId,
-        ...parsed.data,
+        ...restData,
+        // Encrypt probe token at rest — decrypted only inside the scanner
+        ...(probeToken ? { probeToken: encrypt(probeToken) } : {}),
         nextCheckAt: new Date(),
       },
     });
