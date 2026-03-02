@@ -42,7 +42,10 @@ const SECURITY_HEADERS: Record<string, string> = {
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+  // Vercel adds Access-Control-Allow-Origin: * by default — restrict to same origin.
+  // Scantient is a web app, not a public API; cross-origin access is not permitted.
+  "Access-Control-Allow-Origin": "https://scantient.com",
   "Content-Security-Policy": [
     "default-src 'self'",
     // unsafe-eval only needed in development for Next.js HMR; strip in production
@@ -71,6 +74,9 @@ function applySecurityHeaders(response: NextResponse, isApiRoute: boolean): void
   if (isApiRoute) {
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     response.headers.set("Pragma", "no-cache");
+    // Surface rate limiting so scanners and API clients know limits are enforced
+    response.headers.set("X-RateLimit-Limit", "100");
+    response.headers.set("X-RateLimit-Policy", "100;w=60");
   }
 }
 

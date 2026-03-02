@@ -230,8 +230,17 @@ export function checkInlineScripts(html: string): SecurityFinding[] {
     findings.push(...inlineKeyFindings);
   }
 
-  // Check for dangerouslySetInnerHTML patterns (React-specific XSS risk)
-  if (/dangerouslySetInnerHTML/i.test(html)) {
+  // Check for dangerouslySetInnerHTML patterns (React-specific XSS risk).
+  // Match only actual JSX attribute usage (dangerouslySetInnerHTML={{ ... }}) or
+  // occurrences inside <script> blocks — not body text that merely mentions the term
+  // (e.g. marketing copy or documentation). This prevents false positives on pages
+  // that describe the check itself.
+  const inlineScriptBodies = Array.from(
+    html.matchAll(/<script(?![^>]*src=)[^>]*>([\s\S]*?)<\/script>/gi),
+  ).map((m) => m[1]);
+  const hasJsxUsage = /dangerouslySetInnerHTML\s*=\s*\{/i.test(html);
+  const hasScriptUsage = inlineScriptBodies.some((s) => /dangerouslySetInnerHTML/i.test(s));
+  if (hasJsxUsage || hasScriptUsage) {
     findings.push({
       code: "DANGEROUS_INNER_HTML",
       title: "dangerouslySetInnerHTML usage detected",
