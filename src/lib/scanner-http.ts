@@ -28,6 +28,8 @@ import {
   scanJavaScriptForKeys,
 } from "@/lib/security";
 import { checkAITools } from "@/lib/ai-policy-scanner";
+import { discoverEndpoints } from "@/lib/endpoint-discovery";
+import { runAuthScan } from "@/lib/scanner-auth";
 import { computeContentHash } from "@/lib/content-hash";
 import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
@@ -264,6 +266,23 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       ...checkAITools(html, headers, jsPayloads),
     ];
 
+    // Tier 1: Discover and scan auth surface
+    // Wrapped in try/catch — auth scan failure never breaks the main scan
+    let discoveredEndpointCount = 0;
+    try {
+      const endpoints = await discoverEndpoints(html, jsPayloads, app.url);
+      discoveredEndpointCount = endpoints.length;
+      if (endpoints.length > 0) {
+        const authFindings = await runAuthScan(endpoints, app.url, html, jsPayloads);
+        rawFindings.push(...authFindings);
+      }
+    } catch (authScanErr) {
+      console.warn(
+        "[auth-scan] Tier 1 auth surface scan failed (non-fatal):",
+        authScanErr instanceof Error ? authScanErr.message : authScanErr,
+      );
+    }
+
     const findings = dedup(rawFindings);
     const responseTimeMs = Date.now() - start;
     const status = calcStatus(findings);
@@ -298,6 +317,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
             ? `${findings.length} issue(s) detected`
             : "All checks passed — no issues detected",
           completedAt,
+          discoveredEndpointCount,
         },
       });
 

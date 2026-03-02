@@ -28,3 +28,13 @@ export type SecurityFinding = {
   severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   fixPrompt: string;
 };
+
+/**
+ * Summary of auth surface endpoints discovered during a Tier 1 auth scan.
+ * Added to scan results and stored in MonitorRun.discoveredEndpointCount.
+ */
+export type DiscoveredEndpointsSummary = {
+  count: number;
+  categories: Record<string, number>; // e.g. { auth: 3, api: 5, admin: 1 }
+  framework?: string;
+};

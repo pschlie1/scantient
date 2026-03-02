@@ -188,16 +188,17 @@ model MonitoredApp {
 // ─── Core: Monitor Runs ─────────────────────────────
 
 model MonitorRun {
-  id               String          @id @default(cuid())
-  appId            String
-  app              MonitoredApp    @relation(fields: [appId], references: [id], onDelete: Cascade)
-  status           AppStatus
-  responseTimeMs   Int?
-  summary          String
-  checksRun        Int             @default(0)
-  startedAt        DateTime        @default(now())
-  completedAt      DateTime?
-  findings         Finding[]
+  id                       String          @id @default(cuid())
+  appId                    String
+  app                      MonitoredApp    @relation(fields: [appId], references: [id], onDelete: Cascade)
+  status                   AppStatus
+  responseTimeMs           Int?
+  summary                  String
+  checksRun                Int             @default(0)
+  startedAt                DateTime        @default(now())
+  completedAt              DateTime?
+  findings                 Finding[]
+  discoveredEndpointCount  Int?
 
   @@index([appId, startedAt])
 }
