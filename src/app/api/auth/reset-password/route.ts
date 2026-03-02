@@ -66,9 +66,11 @@ export async function POST(req: Request) {
 
   const passwordHash = await hashPassword(password);
 
+  // Explicitly set updatedAt so getSession() can detect sessions issued before
+  // this password change and invalidate them (see auth.ts → getSession).
   await db.user.update({
     where: { id: user.id },
-    data: { passwordHash },
+    data: { passwordHash, updatedAt: new Date() },
   });
 
   return NextResponse.json({ ok: true });

@@ -460,20 +460,36 @@ export async function sendChangeDetectedAlert(appId: string, appName: string, ap
   }
 }
 
+/**
+ * Escape HTML special characters to prevent XSS in email templates.
+ * Applied to all user-controlled values (app name, URL, finding titles/descriptions)
+ * before interpolation into HTML template strings.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 function buildAlertHtml(appName: string, appUrl: string, findings: SecurityFinding[]): string {
+  const safeName = escapeHtml(appName);
+  const safeUrl = escapeHtml(appUrl);
   return `
     <div style="font-family: -apple-system, sans-serif; max-width: 600px;">
-      <h2 style="margin-bottom: 4px;">⚠️ Scantient Alert: ${appName}</h2>
+      <h2 style="margin-bottom: 4px;">⚠️ Scantient Alert: ${safeName}</h2>
       <p style="color: #666; margin-top: 0;">
-        <a href="${appUrl}">${appUrl}</a>
+        <a href="${safeUrl}">${safeUrl}</a>
       </p>
       <p>We detected <strong>${findings.length}</strong> security issue(s):</p>
       ${findings
         .map(
           (f) => `
         <div style="border-left: 3px solid ${f.severity === "CRITICAL" ? "#dc2626" : "#f59e0b"}; padding: 8px 12px; margin: 12px 0; background: #f9fafb;">
-          <strong>[${f.severity}] ${f.title}</strong>
-          <p style="margin: 4px 0; font-size: 14px; color: #555;">${f.description}</p>
+          <strong>[${f.severity}] ${escapeHtml(f.title)}</strong>
+          <p style="margin: 4px 0; font-size: 14px; color: #555;">${escapeHtml(f.description)}</p>
         </div>
       `,
         )

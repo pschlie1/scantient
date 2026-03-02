@@ -103,38 +103,49 @@ export async function getSession(): Promise<SessionUser | null> {
   const session = verifyToken(token);
   if (!session) return null;
 
-  // Refresh if token is older than 12 hours
+  // Decode to get iat (issued-at) for session invalidation and refresh checks.
   const decoded = jwt.decode(token) as { iat?: number } | null;
-  if (decoded?.iat) {
-    const age = Math.floor(Date.now() / 1000) - decoded.iat;
-    if (age > REFRESH_THRESHOLD) {
-      // Re-fetch user from DB and issue new token
-      const user = await db.user.findUnique({
-        where: { id: session.id },
-        include: { org: true },
-      });
-      if (!user) return null;
-      const refreshed: SessionUser = {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role as UserRole,
-        orgId: user.orgId,
-        orgName: user.org.name,
-        orgSlug: user.org.slug,
-      };
-      const newToken = signToken(refreshed);
-      const isSecureRefresh =
-        process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
-      cookieStore.set(SESSION_COOKIE, newToken, {
-        httpOnly: true,
-        secure: isSecureRefresh,
-        sameSite: "strict",
-        maxAge: SESSION_DURATION,
-        path: "/",
-      });
-      return refreshed;
+  const tokenIat = decoded?.iat ?? 0;
+  const tokenIssuedAt = new Date(tokenIat * 1000);
+  const age = Math.floor(Date.now() / 1000) - tokenIat;
+
+  if (age > REFRESH_THRESHOLD) {
+    // Re-fetch user from DB and issue new token
+    const user = await db.user.findUnique({
+      where: { id: session.id },
+      include: { org: true },
+    });
+    if (!user) return null;
+
+    // Session invalidation: if the user record was updated (e.g., password changed
+    // via reset) after this token was issued, the session is no longer valid.
+    // This prevents attackers from retaining access after a password reset, and
+    // ensures the legitimate user's old tokens are invalidated immediately on the
+    // next DB-validated request (within REFRESH_THRESHOLD of the password change).
+    if (user.updatedAt > tokenIssuedAt) {
+      return null;
     }
+
+    const refreshed: SessionUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role as UserRole,
+      orgId: user.orgId,
+      orgName: user.org.name,
+      orgSlug: user.org.slug,
+    };
+    const newToken = signToken(refreshed);
+    const isSecureRefresh =
+      process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
+    cookieStore.set(SESSION_COOKIE, newToken, {
+      httpOnly: true,
+      secure: isSecureRefresh,
+      sameSite: "strict",
+      maxAge: SESSION_DURATION,
+      path: "/",
+    });
+    return refreshed;
   }
 
   return session;

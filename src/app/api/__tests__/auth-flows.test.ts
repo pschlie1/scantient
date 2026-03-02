@@ -157,8 +157,9 @@ describe("POST /api/auth/reset-password", () => {
     const { POST } = await import("@/app/api/auth/reset-password/route");
     const res = await POST(makeReq({ token, password: "newpassword123" }));
     expect(res.status).toBe(200);
+    // Use objectContaining for data so the updatedAt field added by Audit-19 doesn't break this assertion
     expect(userUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: "user_1" }, data: { passwordHash: "hashed-password" } }),
+      expect.objectContaining({ where: { id: "user_1" }, data: expect.objectContaining({ passwordHash: "hashed-password" }) }),
     );
   });
 });
