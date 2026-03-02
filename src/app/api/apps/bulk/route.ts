@@ -44,11 +44,7 @@ export async function POST(req: Request) {
 
     if (currentCount >= limits.maxApps) {
       return NextResponse.json(
-        {
-          error: {
-            message: `Your ${limits.tier} plan allows ${limits.maxApps} apps. Upgrade to add more.`,
-          },
-        },
+        { error: `Your ${limits.tier} plan allows ${limits.maxApps} apps. Upgrade to add more.` },
         { status: 403 },
       );
     }

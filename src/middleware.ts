@@ -45,14 +45,21 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   "Content-Security-Policy": [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-inline/eval for HMR and RSC
+    // unsafe-eval only needed in development for Next.js HMR; strip in production
+    process.env.NODE_ENV === "development"
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      : "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https:",
+    // Restrict img-src: own origin + data URIs + Stripe (for hosted payment elements)
+    "img-src 'self' data: blob: https://q.stripe.com",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.resend.com https://api.stripe.com",
+    // connect-src: add Sentry ingest so client-side errors are captured
+    "connect-src 'self' https://api.resend.com https://api.stripe.com https://o*.ingest.sentry.io",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    // Report CSP violations to /api/health (cheap endpoint, no auth required)
+    "report-uri /api/health",
   ].join("; "),
 };
 
