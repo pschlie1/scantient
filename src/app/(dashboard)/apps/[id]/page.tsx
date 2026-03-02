@@ -16,6 +16,7 @@ import { JiraTicketButton } from "@/components/jira-ticket-button";
 import { safeHref } from "@/lib/url";
 import { isAiFinding, parseAiPolicyMeta } from "@/lib/ai-policy-scanner";
 import { AiPolicyBadge } from "@/components/ai-policy-badge";
+import type { ProbeResult } from "@/lib/probe-client";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -51,6 +52,11 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
     orderBy: { createdAt: "asc" },
   });
 
+  // Extract the most recent probe result (if any) from the latest run
+  const latestProbeResult = app.monitorRuns
+    .find((r) => r.probeResult != null)
+    ?.probeResult as ProbeResult | null | undefined;
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <Link className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900" href="/dashboard">
@@ -68,6 +74,12 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
           </a>
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/apps/${app.id}/edit`}
+            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Settings
+          </Link>
           <ScanButton appId={app.id} />
           <DeleteAppButton appId={app.id} appName={app.name} />
         </div>
@@ -84,6 +96,14 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
         <h2 className="mb-4 text-lg font-semibold">Trends</h2>
         <TrendCharts appId={app.id} />
       </div>
+
+      {/* Subsystem Health — only shown if probeUrl is configured */}
+      {app.probeUrl && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold">Subsystem Health</h2>
+          <SubsystemHealthCard probeResult={latestProbeResult ?? null} probeUrl={app.probeUrl} />
+        </div>
+      )}
 
       <h2 className="mb-4 text-lg font-semibold">Scan history</h2>
       <div className="space-y-4">
@@ -152,6 +172,115 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
         )}
       </div>
     </main>
+  );
+}
+
+// ─── Subsystem Health Card ────────────────────────────────────────────────────
+
+const SUBSYSTEMS = ["database", "auth", "payments", "email", "queue", "cache"] as const;
+type SubsystemName = (typeof SUBSYSTEMS)[number];
+
+function SubsystemHealthCard({
+  probeResult,
+  probeUrl,
+}: {
+  probeResult: ProbeResult | null;
+  probeUrl: string;
+}) {
+  if (!probeResult) {
+    return (
+      <div className="rounded-lg border bg-white px-4 py-6 text-center">
+        <p className="text-sm text-gray-500">
+          No probe data yet — trigger a scan to populate subsystem health.
+        </p>
+        <p className="mt-1 text-xs text-gray-400">Probing: {probeUrl}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border bg-white">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-block h-2 w-2 rounded-full ${probeResult.ok ? "bg-green-500" : "bg-red-500"}`}
+          />
+          <span className="text-sm font-medium">
+            {probeResult.ok ? "All systems operational" : "One or more subsystems degraded"}
+          </span>
+        </div>
+        <span className="text-xs text-gray-400">
+          {new Date(probeResult.respondedAt).toLocaleString()} · {probeResult.latencyMs}ms total
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {SUBSYSTEMS.map((name) => {
+          const sub = probeResult.subsystems[name as SubsystemName];
+          return (
+            <SubsystemRow
+              key={name}
+              name={name}
+              data={sub ?? null}
+            />
+          );
+        })}
+      </div>
+
+      {(probeResult.version ?? probeResult.environment) && (
+        <div className="border-t px-4 py-2 text-xs text-gray-400">
+          {probeResult.version && <span>v{probeResult.version}</span>}
+          {probeResult.version && probeResult.environment && <span> · </span>}
+          {probeResult.environment && <span className="capitalize">{probeResult.environment}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SubsystemRow({
+  name,
+  data,
+}: {
+  name: string;
+  data: ProbeResult["subsystems"][SubsystemName] | null;
+}) {
+  const label = name.charAt(0).toUpperCase() + name.slice(1);
+
+  if (data == null) {
+    return (
+      <div className="flex items-center justify-between px-4 py-3">
+        <span className="text-sm capitalize text-gray-500">{label}</span>
+        <span className="text-xs text-gray-400">— not configured</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center gap-2">
+        {data.ok ? (
+          <span className="text-green-500" aria-label="healthy">✓</span>
+        ) : (
+          <span className="text-red-500" aria-label="unhealthy">✗</span>
+        )}
+        <span className="text-sm capitalize text-gray-800">{label}</span>
+        {data.provider && (
+          <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+            {data.provider}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-3 text-xs text-gray-500">
+        {data.latencyMs != null && <span>{data.latencyMs}ms</span>}
+        {"depth" in data && data.depth != null && <span>depth: {data.depth}</span>}
+        {!data.ok && data.error && (
+          <span className="max-w-xs truncate text-red-500" title={data.error}>
+            {data.error}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
