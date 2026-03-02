@@ -134,6 +134,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/api/v1/") || // API key auth handled in route
     pathname.startsWith("/api/public/") || // public scan/badge endpoints
+    pathname.startsWith("/api/internal/") || // internal probe — has own token auth
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/invite/") // invite token pages
