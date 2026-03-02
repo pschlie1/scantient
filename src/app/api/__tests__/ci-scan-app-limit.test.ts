@@ -43,10 +43,10 @@ const getOrgLimits = vi.fn();
 vi.mock("@/lib/tenant", () => ({ getOrgLimits }));
 
 vi.mock("@/lib/scanner-http", () => ({
-vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
-vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
   runHttpScanForApp: vi.fn().mockResolvedValue({ findings: [] }),
 }));
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
