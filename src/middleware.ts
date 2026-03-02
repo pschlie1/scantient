@@ -4,10 +4,13 @@ import { jwtVerify } from "jose";
 
 /**
  * Generate a cryptographically random nonce for CSP.
- * Uses the Web Crypto API (available in Edge Runtime and Node 18+).
+ * Uses the Web Crypto API only — compatible with Edge Runtime (no Buffer/Node APIs).
  */
 function generateNonce(): string {
-  return Buffer.from(crypto.randomUUID()).toString("base64");
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  // btoa + String.fromCharCode is available in both Edge Runtime and Node 18+
+  return btoa(String.fromCharCode(...bytes));
 }
 
 const PUBLIC_PATHS = [
