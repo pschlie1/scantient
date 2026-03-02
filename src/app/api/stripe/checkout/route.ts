@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getStripe, PLANS } from "@/lib/stripe";
 import type { PlanKey } from "@/lib/stripe";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const checkoutSchema = z.object({
   plan: z.enum(["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"]),
@@ -12,6 +13,14 @@ const checkoutSchema = z.object({
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const rl = await checkRateLimit(`stripe-checkout:${session.id}`, { maxAttempts: 5, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, {
+      status: 429,
+      headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+    });
+  }
 
   const body = await req.json();
   const parsed = checkoutSchema.safeParse(body);

@@ -342,23 +342,32 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
 export async function runDueHttpScans(limit = 20) {
   const deadline = Date.now() + 55_000; // 55s total timeout (5s buffer for Vercel 60s limit)
 
-  const dueApps = await db.monitoredApp.findMany({
-    where: {
-      OR: [{ nextCheckAt: null }, { nextCheckAt: { lte: new Date() } }],
-    },
-    take: limit,
-    orderBy: [{ nextCheckAt: "asc" }],
+  // Atomic claim: findMany + updateMany inside a single serializable transaction
+  // prevents the TOCTOU race where two concurrent cron invocations both read
+  // the same due apps before either has bumped nextCheckAt.
+  const dueApps = await db.$transaction(async (tx) => {
+    const apps = await tx.monitoredApp.findMany({
+      where: {
+        OR: [{ nextCheckAt: null }, { nextCheckAt: { lte: new Date() } }],
+      },
+      take: limit,
+      orderBy: [{ nextCheckAt: "asc" }],
+    });
+
+    if (apps.length === 0) return [];
+
+    // Claim the selected apps immediately by bumping nextCheckAt 1 hour into
+    // the future within the same transaction — concurrent invocations will
+    // block on the row locks and see the updated values on retry.
+    await tx.monitoredApp.updateMany({
+      where: { id: { in: apps.map((a) => a.id) } },
+      data: { nextCheckAt: addHours(new Date(), 1) },
+    });
+
+    return apps;
   });
 
   if (dueApps.length === 0) return [];
-
-  // Claim the selected apps immediately by bumping nextCheckAt 1 hour into the
-  // future.  This prevents a concurrent cron invocation from picking up the
-  // same apps and running duplicate scans before the real results write back.
-  await db.monitoredApp.updateMany({
-    where: { id: { in: dueApps.map((a) => a.id) } },
-    data: { nextCheckAt: addHours(new Date(), 1) },
-  });
 
   const results: Array<{ orgId: string; appId: string; status: string; findingsCount?: number; error?: string }> =
     [];

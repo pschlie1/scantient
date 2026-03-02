@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { createSession } from "@/lib/auth";
 import { canAddUser, logAudit } from "@/lib/tenant";
 import * as client from "openid-client";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const JWT_SECRET = (() => {
   const s = process.env.JWT_SECRET;
@@ -16,6 +17,13 @@ const STATE_COOKIE = "scantient_sso_state";
 interface StatePayload { codeVerifier: string; state: string; orgId: string; domain: string; }
 
 export async function GET(req: Request) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`sso-callback:${ip}`, { maxAttempts: 10, windowMs: 60_000 });
+  if (!rl.allowed) {
+    const requestUrl = new URL(req.url);
+    return NextResponse.redirect(new URL(`/login?error=too_many_requests`, requestUrl.origin));
+  }
+
   const requestUrl = new URL(req.url);
   try {
     const cookieStore = await cookies();

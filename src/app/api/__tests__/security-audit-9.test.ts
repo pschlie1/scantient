@@ -29,6 +29,7 @@ const monitoredAppUpdate = vi.fn();
 const monitoredAppUpdateMany = vi.fn();
 const monitorRunCreate = vi.fn();
 const monitorRunUpdate = vi.fn();
+const dbTransaction = vi.fn();
 const findingFindMany = vi.fn();
 const findingUpdate = vi.fn();
 const auditLogFindFirst = vi.fn();
@@ -36,6 +37,7 @@ const auditLogCreate = vi.fn();
 
 vi.mock("@/lib/db", () => ({
   db: {
+    $transaction: dbTransaction,
     monitoredApp: {
       findMany: monitoredAppFindMany,
       findUnique: monitoredAppFindUnique,
@@ -97,6 +99,7 @@ vi.mock("dns/promises", () => ({ lookup: dnsLookup }));
 // ─── Default mock state reset ─────────────────────────────────────────────────
 beforeEach(() => {
   vi.clearAllMocks();
+  dbTransaction.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => cb({ monitoredApp: { findMany: monitoredAppFindMany, updateMany: monitoredAppUpdateMany } }));
   monitoredAppFindMany.mockResolvedValue([]);
   monitoredAppFindUnique.mockResolvedValue(null);
   monitoredAppUpdate.mockResolvedValue({});

@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import { db } from "@/lib/db";
 import { getOrgLimits } from "@/lib/tenant";
 import type { SecurityFinding } from "@/lib/types";
@@ -131,7 +131,13 @@ function deriveWebhookSigningKey(url: string): string {
 }
 
 async function sendWebhook(url: string, payload: Record<string, unknown>) {
-  const body = JSON.stringify(payload);
+  // Add webhookId nonce to the signed body — prevents replay attacks.
+  // Since the HMAC signature covers the entire body string, including the
+  // unique webhookId makes every delivery cryptographically distinct.
+  // Recipients can store seen webhookIds and reject duplicates.
+  const webhookId = randomUUID();
+  const signedPayload = { ...payload, webhookId };
+  const body = JSON.stringify(signedPayload);
   const signingKey = deriveWebhookSigningKey(url);
   const signature = signWebhookPayload(body, signingKey);
   await fetch(url, {
@@ -140,6 +146,7 @@ async function sendWebhook(url: string, payload: Record<string, unknown>) {
       "Content-Type": "application/json",
       "X-Scantient-Signature": signature,
       "X-Scantient-Timestamp": new Date().toISOString(),
+      "X-Scantient-Webhook-Id": webhookId,
     },
     body,
   });

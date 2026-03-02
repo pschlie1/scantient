@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import * as client from "openid-client";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const JWT_SECRET = (() => {
   const s = process.env.JWT_SECRET;
@@ -14,6 +15,15 @@ const CALLBACK_URL = "https://scantient.com/api/auth/sso/callback";
 const STATE_COOKIE = "scantient_sso_state";
 
 export async function GET(req: Request) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`sso-init:${ip}`, { maxAttempts: 10, windowMs: 60_000 });
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests" }, {
+      status: 429,
+      headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const domain = searchParams.get("domain")?.toLowerCase();
   if (!domain) return NextResponse.json({ error: "domain parameter is required" }, { status: 400 });

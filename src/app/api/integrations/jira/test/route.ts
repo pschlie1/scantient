@@ -4,10 +4,18 @@ import { db } from "@/lib/db";
 import { deobfuscate } from "@/lib/crypto-util";
 import { getOrgLimits } from "@/lib/tenant";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
+    const rl = await checkRateLimit(`jira-test:${session.orgId}`, { maxAttempts: 5, windowMs: 60_000 });
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, {
+        status: 429,
+        headers: { "Retry-After": String(rl.retryAfterSeconds ?? 60) },
+      });
+    }
     const limits = await getOrgLimits(session.orgId);
     if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
       return NextResponse.json({ error: "Jira integration requires a Pro plan or higher." }, { status: 403 });
