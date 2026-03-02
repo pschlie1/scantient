@@ -51,6 +51,12 @@ export const COMPLIANCE_MAPPING: Record<
     iso27001: ["A.14.2.5"],
   },
   X_POWERED_BY: { soc2: ["CC6.1"], nist: ["CM-7"], iso27001: ["A.14.2.5"] },
+  // AI tool governance
+  AI_TOOL_DETECTED: {
+    soc2: ["CC6.1", "CC6.7", "CC9.2"],
+    nist: ["SA-9", "SR-3", "PM-9"],
+    iso27001: ["A.15.1.1", "A.15.2.1", "A.6.1.1"],
+  },
   // Availability
   UPTIME_ERROR: {
     soc2: ["A1.1", "A1.2"],

@@ -72,6 +72,12 @@ model Organization {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
+  // MSP multi-tenancy: an MSP org can manage multiple client orgs.
+  // parentOrgId is set on CLIENT orgs pointing to their managing MSP org.
+  parentOrgId       String?
+  parentOrg         Organization?      @relation("MspClients", fields: [parentOrgId], references: [id], onDelete: SetNull)
+  clientOrgs        Organization[]     @relation("MspClients")
+
   subscription      Subscription?
   users             User[]
   apps              MonitoredApp[]
@@ -81,6 +87,8 @@ model Organization {
   auditLogs         AuditLog[]
   integrations      IntegrationConfig[]
   ssoConfig         SSOConfig?
+
+  @@index([parentOrgId])
 }
 
 // ─── Auth: User ─────────────────────────────────────

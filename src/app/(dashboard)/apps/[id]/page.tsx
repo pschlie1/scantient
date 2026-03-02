@@ -14,6 +14,8 @@ import { FindingTimeline } from "@/components/finding-timeline";
 import { TrendCharts } from "@/components/trend-chart-dynamic";
 import { JiraTicketButton } from "@/components/jira-ticket-button";
 import { safeHref } from "@/lib/url";
+import { isAiFinding, parseAiPolicyMeta } from "@/lib/ai-policy-scanner";
+import { AiPolicyBadge } from "@/components/ai-policy-badge";
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -107,9 +109,15 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
                 <div className="divide-y border-t">
                   {run.findings.map((f) => (
                     <div key={f.id} className="px-4 py-3">
-                      <div className="mb-1 flex items-center gap-2">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
                         <SeverityBadge severity={f.severity} />
                         <span className="flex-1 text-sm font-medium">{f.title}</span>
+                        {isAiFinding(f.code) && (() => {
+                          const aiMeta = parseAiPolicyMeta(f.description);
+                          return aiMeta ? (
+                            <AiPolicyBadge findingId={f.id} meta={aiMeta} />
+                          ) : null;
+                        })()}
                         <JiraTicketButton findingId={f.id} />
                         <FindingAssignment
                           findingId={f.id}
@@ -118,7 +126,14 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
                         />
                         <FindingActions findingId={f.id} currentStatus={f.status} />
                       </div>
-                      <p className="mb-2 text-sm text-gray-600">{f.description}</p>
+                      <p className="mb-2 text-sm text-gray-600">
+                        {isAiFinding(f.code)
+                          ? (() => {
+                              const aiMeta = parseAiPolicyMeta(f.description);
+                              return aiMeta ? aiMeta.recommendation : f.description;
+                            })()
+                          : f.description}
+                      </p>
                       <details className="group">
                         <summary className="cursor-pointer text-xs font-medium text-blue-600 hover:underline">
                           Show AI fix prompt

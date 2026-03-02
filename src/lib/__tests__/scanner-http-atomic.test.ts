@@ -79,6 +79,7 @@ vi.mock("@/lib/remediation-lifecycle", () => ({
 }));
 vi.mock("@/lib/auth-headers", () => ({ decryptAuthHeaders: vi.fn().mockReturnValue({}) }));
 vi.mock("@/lib/observability", () => ({ logOperationalWarning: vi.fn() }));
+vi.mock("@/lib/ai-policy-scanner", () => ({ checkAITools: vi.fn().mockReturnValue([]) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -92,6 +92,7 @@ vi.mock("@/lib/remediation-lifecycle", () => ({
   autoTriageFinding: vi.fn().mockResolvedValue(undefined),
   verifyResolvedFindings: vi.fn().mockResolvedValue(undefined),
 }));
+vi.mock("@/lib/ai-policy-scanner", () => ({ checkAITools: vi.fn().mockReturnValue([]) }));
 
 const APP = {
   id: "app_dedup",

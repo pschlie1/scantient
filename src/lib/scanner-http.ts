@@ -25,6 +25,7 @@ import {
   checkUptimeStatus,
   scanJavaScriptForKeys,
 } from "@/lib/security";
+import { checkAITools } from "@/lib/ai-policy-scanner";
 import { computeContentHash } from "@/lib/content-hash";
 import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
@@ -205,6 +206,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       ...perfRegressionFindings,
       ...checkUptimeStatus(statusCode, responseTimeMsSnapshot),
       ...contentHashFindings,
+      ...checkAITools(html, headers, jsPayloads),
     ];
 
     const findings = dedup(rawFindings);

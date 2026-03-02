@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { SessionUser } from "@/lib/auth";
 
-const navItems = [
+const baseNavItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/reports", label: "Reports" },
@@ -18,12 +18,29 @@ export function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [showMsp, setShowMsp] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => data && setUser(data.user));
   }, []);
+
+  useEffect(() => {
+    // Check if this org manages any client orgs (MSP mode)
+    fetch("/api/msp/client-count")
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((data: { count: number }) => setShowMsp(data.count > 0))
+      .catch(() => setShowMsp(false));
+  }, []);
+
+  const navItems = showMsp
+    ? [
+        ...baseNavItems.slice(0, 1),
+        { href: "/dashboard/msp", label: "MSP View" },
+        ...baseNavItems.slice(1),
+      ]
+    : baseNavItems;
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
