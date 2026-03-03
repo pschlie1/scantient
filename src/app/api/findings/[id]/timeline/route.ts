@@ -3,13 +3,14 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { parseRemediationMeta } from "@/lib/remediation-lifecycle";
 import { getOrgLimits } from "@/lib/tenant";
+import { atLeast } from "@/lib/tier-capabilities";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "Remediation timeline requires a Pro plan or higher." }, { status: 403 });
   }
 

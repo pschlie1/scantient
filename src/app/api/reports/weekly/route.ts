@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 // audit-24: The previous version of this route contained a "cron path" that
 // returned data from ALL organizations when an Authorization header matching
@@ -44,7 +45,7 @@ export async function GET(_req?: Request) {
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "STARTER")) {
     return NextResponse.json({ error: "Weekly reports require a Starter plan or higher." }, { status: 403 });
   }
 

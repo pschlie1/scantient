@@ -5,8 +5,8 @@ import { requireRole } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate, deobfuscate } from "@/lib/crypto-util";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { hasFeature } from "@/lib/tier-capabilities";
 
-const GITHUB_TIERS = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
 
 const githubConfigSchema = z.object({
   owner: z.string().min(1, "GitHub owner/org name is required."),
@@ -23,7 +23,7 @@ export async function GET() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!GITHUB_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "githubIntegration")) {
       return NextResponse.json(
         { error: "GitHub Issues integration is available on Pro and Enterprise plans." },
         { status: 403 },
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!GITHUB_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "githubIntegration")) {
       return NextResponse.json(
         { error: "GitHub Issues integration is available on Pro and Enterprise plans." },
         { status: 403 },
@@ -90,7 +90,7 @@ export async function DELETE() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!GITHUB_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "githubIntegration")) {
       return NextResponse.json(
         { error: "GitHub Issues integration is available on Pro and Enterprise plans." },
         { status: 403 },

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 const assignSchema = z.object({
   userId: z.string().nullable(),
@@ -29,7 +30,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "STARTER")) {
     return NextResponse.json({ error: "Finding assignment requires a Starter plan or higher." }, { status: 403 });
   }
 

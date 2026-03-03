@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { parseRemediationMeta, linkPRToFinding } from "@/lib/remediation-lifecycle";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 const linkSchema = z.object({
   url: z.string().url().refine(
@@ -34,7 +35,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "PR linking requires a Pro plan or higher." }, { status: 403 });
   }
 
@@ -75,7 +76,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "PR linking requires a Pro plan or higher." }, { status: 403 });
   }
 

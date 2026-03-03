@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { generateComplianceReport } from "@/lib/pdf-report";
 import { getOrgLimits } from "@/lib/tenant";
+import { atLeast } from "@/lib/tier-capabilities";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json(
       { error: "PDF reports are available on Pro and Enterprise plans" },
       { status: 403 },

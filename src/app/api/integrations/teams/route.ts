@@ -6,8 +6,8 @@ import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate } from "@/lib/crypto-util";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { hasFeature } from "@/lib/tier-capabilities";
 
-const TEAMS_TIERS = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
 
 const TEAMS_URL_PATTERN = /https:\/\/.+(webhook|office|teams|logic)/i;
 
@@ -34,7 +34,7 @@ export async function GET() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!TEAMS_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "teamsIntegration")) {
       return NextResponse.json(
         { error: "Microsoft Teams alerts are available on Pro and Enterprise plans." },
         { status: 403 },
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!TEAMS_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "teamsIntegration")) {
       return NextResponse.json(
         { error: "Microsoft Teams alerts are available on Pro and Enterprise plans." },
         { status: 403 },
@@ -104,7 +104,7 @@ export async function DELETE() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!TEAMS_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "teamsIntegration")) {
       return NextResponse.json(
         { error: "Microsoft Teams alerts are available on Pro and Enterprise plans." },
         { status: 403 },

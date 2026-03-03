@@ -5,6 +5,7 @@ import { deobfuscate } from "@/lib/crypto-util";
 import { getOrgLimits } from "@/lib/tenant";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 export async function POST() {
   try {
@@ -17,7 +18,7 @@ export async function POST() {
       });
     }
     const limits = await getOrgLimits(session.orgId);
-    if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    if (!atLeast(limits.tier, "PRO")) {
       return NextResponse.json({ error: "Jira integration requires a Pro plan or higher." }, { status: 403 });
     }
     const integration = await db.integrationConfig.findUnique({

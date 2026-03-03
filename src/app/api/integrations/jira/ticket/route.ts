@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { deobfuscate } from "@/lib/crypto-util";
 import { getOrgLimits } from "@/lib/tenant";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
+import { atLeast } from "@/lib/tier-capabilities";
 
 const bodySchema = z.object({ findingId: z.string().min(1) });
 
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER", "MEMBER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    if (!atLeast(limits.tier, "PRO")) {
       return NextResponse.json({ error: "Jira integration requires a Pro plan or higher." }, { status: 403 });
     }
     const body = await req.json();

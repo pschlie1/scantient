@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
+import { atLeast } from "@/lib/tier-capabilities";
 
 function sha256(input: string): string {
   return createHash("sha256").update(input).digest("hex");
@@ -18,7 +19,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "Scan agent keys require a Pro plan or higher." }, { status: 403 });
   }
 

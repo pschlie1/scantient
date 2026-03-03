@@ -5,6 +5,7 @@ import { deobfuscate } from "@/lib/crypto-util";
 import { createGitHubIssue } from "@/lib/github-issues";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 export async function POST(
   _req: Request,
@@ -20,7 +21,7 @@ export async function POST(
       });
     }
     const limits = await getOrgLimits(session.orgId);
-    if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+    if (!atLeast(limits.tier, "PRO")) {
       return NextResponse.json({ error: "GitHub integration requires a Pro plan or higher." }, { status: 403 });
     }
     const { id } = await params;

@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { encryptAuthHeaders, decryptAuthHeaders, maskAuthHeaders } from "@/lib/auth-headers";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 const authHeaderSchema = z.object({
   name: z.string().min(1),
@@ -25,7 +26,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "Authenticated scanning requires a Pro plan or higher." }, { status: 403 });
   }
 
@@ -51,7 +52,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json({ error: "Authenticated scanning requires a Pro plan or higher." }, { status: 403 });
   }
 

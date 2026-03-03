@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { logAudit, getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 function generateApiKey(): { plain: string; hash: string; prefix: string } {
   const raw = crypto.randomBytes(32).toString("base64url");
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json(
       { error: "API key access is available on Pro and Enterprise plans. Please upgrade to continue." },
       { status: 403 },

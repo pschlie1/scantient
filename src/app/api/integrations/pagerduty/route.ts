@@ -5,8 +5,8 @@ import { requireRole } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate, deobfuscate } from "@/lib/crypto-util";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { hasFeature } from "@/lib/tier-capabilities";
 
-const PAGERDUTY_TIERS = ["ENTERPRISE", "ENTERPRISE_PLUS"];
 
 const pagerdutyConfigSchema = z.object({
   routingKey: z.string().min(20, "Routing key must be at least 20 characters."),
@@ -22,7 +22,7 @@ export async function GET() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!PAGERDUTY_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "pagerdutyIntegration")) {
       return NextResponse.json(
         { error: "PagerDuty integration is available on Enterprise plans." },
         { status: 403 },
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!PAGERDUTY_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "pagerdutyIntegration")) {
       return NextResponse.json(
         { error: "PagerDuty integration is available on Enterprise plans." },
         { status: 403 },
@@ -91,7 +91,7 @@ export async function DELETE() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!PAGERDUTY_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "pagerdutyIntegration")) {
       return NextResponse.json(
         { error: "PagerDuty integration is available on Enterprise plans." },
         { status: 403 },

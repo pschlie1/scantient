@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { atLeast } from "@/lib/tier-capabilities";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +15,7 @@ export async function GET() {
   }
 
   const limits = await getOrgLimits(session.orgId);
-  const allowedTiers = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
-  if (!allowedTiers.includes(limits.tier)) {
+  if (!atLeast(limits.tier, "PRO")) {
     return NextResponse.json(
       { error: "Executive reports require PRO or ENTERPRISE plan", tier: limits.tier },
       { status: 403 },
