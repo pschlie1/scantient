@@ -6,8 +6,7 @@ import { getOrgLimits } from "@/lib/tenant";
 import { obfuscate, deobfuscate } from "@/lib/crypto-util";
 import { isPrivateUrl } from "@/lib/ssrf-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
-
-const JIRA_TIERS = ["PRO", "ENTERPRISE", "ENTERPRISE_PLUS"];
+import { hasFeature } from "@/lib/tier-capabilities";
 
 const jiraConfigSchema = z.object({
   url: z.string().url(),
@@ -21,7 +20,7 @@ export async function GET() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!JIRA_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "jira")) {
       return NextResponse.json(
         { error: "Jira integration is available on Pro and Enterprise plans. Upgrade to connect your Jira workspace." },
         { status: 403 },
@@ -43,7 +42,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!JIRA_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "jira")) {
       return NextResponse.json(
         { error: "Jira integration is available on Pro and Enterprise plans. Upgrade to connect your Jira workspace." },
         { status: 403 },
@@ -83,7 +82,7 @@ export async function DELETE() {
   try {
     const session = await requireRole(["ADMIN", "OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!JIRA_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "jira")) {
       return NextResponse.json(
         { error: "Jira integration is available on Pro and Enterprise plans. Upgrade to connect your Jira workspace." },
         { status: 403 },

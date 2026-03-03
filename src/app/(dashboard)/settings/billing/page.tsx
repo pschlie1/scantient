@@ -12,10 +12,10 @@ type OrgData = {
 };
 
 const plans = [
+  { key: "FREE", name: "Builder", price: "$49/mo", apps: 1, users: 1, talkToSales: false },
   { key: "STARTER", name: "Starter", price: "$199/mo", apps: 5, users: 2, talkToSales: false },
   { key: "PRO", name: "Pro", price: "$399/mo", apps: 15, users: 10, talkToSales: false },
-  { key: "ENTERPRISE", name: "Enterprise", price: "$1,500/mo", apps: 100, users: 50, talkToSales: false },
-  { key: "ENTERPRISE_PLUS", name: "Enterprise Plus", price: "$2,500/mo", apps: 999, users: 999, talkToSales: true },
+  { key: "ENTERPRISE", name: "Enterprise", price: "$1,500/mo", apps: 100, users: 50, talkToSales: true },
 ];
 
 export default function BillingPage() {

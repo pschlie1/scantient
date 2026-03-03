@@ -11,6 +11,7 @@ import type { SubscriptionTier } from "@prisma/client";
  */
 function toDbTier(planKey: PlanKey): SubscriptionTier {
   const map: Record<PlanKey, SubscriptionTier> = {
+    FREE: "FREE",
     STARTER: "STARTER",
     PRO: "PRO",
     ENTERPRISE: "ENTERPRISE",
@@ -141,7 +142,7 @@ export async function POST(req: Request) {
         data: {
           tier: "FREE",
           status: "CANCELED",
-          maxApps: 2,
+          maxApps: 1,
           maxUsers: 1,
           stripeSubscriptionId: null,
           stripePriceId: null,

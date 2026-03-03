@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { hasFeature } from "@/lib/tier-capabilities";
 
 type UiProvider = "okta" | "azure" | "google" | "custom";
 
@@ -50,7 +51,7 @@ export default function SSOPage() {
 
   if (tier === null) return <div className="p-8 text-center text-gray-500">Loading…</div>;
 
-  const isEnterprise = tier === "ENTERPRISE" || tier === "ENTERPRISE_PLUS";
+  const isEnterprise = tier ? hasFeature(tier, "sso") : false;
   if (!isEnterprise) {
     return (
       <div>

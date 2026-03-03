@@ -10,7 +10,7 @@ export async function getOrgLimits(orgId: string) {
   const sub = await db.subscription.findUnique({ where: { orgId } });
 
   const defaults: Record<string, { maxApps: number; maxUsers: number }> = {
-    FREE: { maxApps: 2, maxUsers: 1 },
+    FREE: { maxApps: 1, maxUsers: 1 },
     STARTER: { maxApps: 5, maxUsers: 2 },
     PRO: { maxApps: 15, maxUsers: 10 },
     ENTERPRISE: { maxApps: 100, maxUsers: 50 },

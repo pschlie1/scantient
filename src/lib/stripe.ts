@@ -14,6 +14,13 @@ export function getStripe(): Stripe {
 }
 
 export const PLANS = {
+  FREE: {
+    name: "Builder",
+    priceId: process.env.STRIPE_BUILDER_PRICE_ID ?? "",
+    maxApps: 1,
+    maxUsers: 1,
+    price: 49,
+  },
   STARTER: {
     name: "Starter",
     priceId: process.env.STRIPE_STARTER_PRICE_ID ?? "",

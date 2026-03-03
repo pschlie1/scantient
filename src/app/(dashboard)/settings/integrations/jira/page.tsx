@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { hasFeature } from "@/lib/tier-capabilities";
 
 interface JiraConfig {
   url: string;
@@ -37,7 +38,7 @@ export default function JiraIntegrationPage() {
 
   if (tier === null) return <div className="p-8 text-center text-gray-500">Loading…</div>;
 
-  const isPro = tier === "PRO" || tier === "ENTERPRISE" || tier === "ENTERPRISE_PLUS";
+  const isPro = tier ? hasFeature(tier, "jira") : false;
   if (!isPro) {
     return (
       <div>

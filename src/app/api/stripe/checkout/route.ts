@@ -7,7 +7,7 @@ import type { PlanKey } from "@/lib/stripe";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 const checkoutSchema = z.object({
-  plan: z.enum(["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"]),
+  plan: z.enum(["FREE", "STARTER", "PRO", "ENTERPRISE"]),
 });
 
 export async function POST(req: Request) {

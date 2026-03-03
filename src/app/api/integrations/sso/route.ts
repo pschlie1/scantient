@@ -5,8 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { getOrgLimits, logAudit } from "@/lib/tenant";
 import { obfuscate } from "@/lib/crypto-util";
 import { checkRateLimit } from "@/lib/rate-limit";
-
-const SSO_TIERS = ["ENTERPRISE", "ENTERPRISE_PLUS"];
+import { hasFeature } from "@/lib/tier-capabilities";
 
 const ssoSchema = z.object({
   provider: z.enum(["oidc", "saml"]),
@@ -22,7 +21,7 @@ export async function GET() {
   try {
     const session = await requireRole(["OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!SSO_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "sso")) {
       return NextResponse.json(
         { error: "SSO is available on Enterprise plans only. Upgrade to configure single sign-on." },
         { status: 403 },
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
   try {
     const session = await requireRole(["OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!SSO_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "sso")) {
       return NextResponse.json(
         { error: "SSO is available on Enterprise plans only. Upgrade to configure single sign-on." },
         { status: 403 },
@@ -82,7 +81,7 @@ export async function DELETE() {
   try {
     const session = await requireRole(["OWNER"]);
     const limits = await getOrgLimits(session.orgId);
-    if (!SSO_TIERS.includes(limits.tier)) {
+    if (!hasFeature(limits.tier, "sso")) {
       return NextResponse.json(
         { error: "SSO is available on Enterprise plans only. Upgrade to configure single sign-on." },
         { status: 403 },
