@@ -94,9 +94,6 @@ export async function POST(req: Request) {
   }
   const passwordHash = await hashPassword(password);
 
-  const trialEnd = new Date();
-  trialEnd.setDate(trialEnd.getDate() + 14); // 14-day trial
-
   const org = await db.organization.create({
     data: {
       name: orgName,
@@ -113,10 +110,9 @@ export async function POST(req: Request) {
       subscription: {
         create: {
           tier: "FREE",
-          status: "TRIALING",
+          status: "ACTIVE",
           maxApps: 2,
           maxUsers: 1,
-          trialEndsAt: trialEnd,
         },
       },
     },
@@ -147,7 +143,7 @@ export async function POST(req: Request) {
     event: "signup_completed",
     orgId: org.id,
     userId: user.id,
-    properties: { planTier: "FREE", trialDays: 14 },
+    properties: { planTier: "FREE" },
   });
 
   // Fire-and-forget: onboarding welcome email

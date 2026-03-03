@@ -16,6 +16,7 @@ import { JiraTicketButton } from "@/components/jira-ticket-button";
 import { safeHref } from "@/lib/url";
 import { isAiFinding, parseAiPolicyMeta } from "@/lib/ai-policy-scanner";
 import { AiPolicyBadge } from "@/components/ai-policy-badge";
+import { ShareScoreButton } from "@/components/share-score-button";
 import type { ProbeResult } from "@/lib/probe-client";
 import type { ConnectorResult } from "@/lib/connectors/types";
 
@@ -53,6 +54,23 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
     orderBy: { createdAt: "asc" },
   });
 
+  // ─── Scan diff: compare latest 2 runs to surface progress ────────────────
+  let resolvedSinceLastScan = 0;
+  let newSinceLastScan = 0;
+  if (app.monitorRuns.length >= 2) {
+    const [latestRun, prevRun] = app.monitorRuns;
+    const latestCodes = new Set(latestRun.findings.map((f) => f.code));
+    const prevCodes = new Set(prevRun.findings.map((f) => f.code));
+    // Resolved: appeared in prev but NOT in latest
+    for (const code of prevCodes) {
+      if (!latestCodes.has(code)) resolvedSinceLastScan++;
+    }
+    // New: appeared in latest but NOT in prev
+    for (const code of latestCodes) {
+      if (!prevCodes.has(code)) newSinceLastScan++;
+    }
+  }
+
   // Extract the most recent probe result (if any) from the latest run
   const latestProbeResult = app.monitorRuns
     .find((r) => r.probeResult != null)
@@ -80,6 +98,7 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
           </a>
         </div>
         <div className="flex items-center gap-2">
+          <ShareScoreButton domain={new URL(app.url.startsWith("http") ? app.url : `https://${app.url}`).hostname.replace(/^www\./, "")} />
           <Link
             href={`/apps/${app.id}/edit`}
             className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -119,6 +138,23 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
         </div>
       )}
 
+      {/* Scan diff banner — shown when we have at least 2 runs */}
+      {app.monitorRuns.length >= 2 && (resolvedSinceLastScan > 0 || newSinceLastScan > 0) && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Since last scan:</span>
+          {resolvedSinceLastScan > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
+              ✅ {resolvedSinceLastScan} issue{resolvedSinceLastScan !== 1 ? "s" : ""} resolved
+            </span>
+          )}
+          {newSinceLastScan > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
+              🔴 {newSinceLastScan} new issue{newSinceLastScan !== 1 ? "s" : ""} found
+            </span>
+          )}
+        </div>
+      )}
+
       <h2 className="mb-4 text-lg font-semibold">Scan history</h2>
       <div className="space-y-4">
         {app.monitorRuns.length === 0 ? (
@@ -141,44 +177,61 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
 
               {run.findings.length > 0 && (
                 <div className="divide-y border-t">
-                  {run.findings.map((f) => (
-                    <div key={f.id} className="px-4 py-3">
-                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                        <SeverityBadge severity={f.severity} />
-                        <span className="flex-1 text-sm font-medium">{f.title}</span>
-                        {isAiFinding(f.code) && (() => {
-                          const aiMeta = parseAiPolicyMeta(f.description);
-                          return aiMeta ? (
-                            <AiPolicyBadge findingId={f.id} meta={aiMeta} />
-                          ) : null;
-                        })()}
-                        <JiraTicketButton findingId={f.id} />
-                        <FindingAssignment
-                          findingId={f.id}
-                          currentAssigneeId={f.assignments[0]?.userId ?? null}
-                          teamMembers={teamMembers}
-                        />
-                        <FindingActions findingId={f.id} currentStatus={f.status} />
+                  {run.findings.map((f) => {
+                    const isResolved = f.status === "RESOLVED" || f.status === "IGNORED";
+                    return (
+                      <div
+                        key={f.id}
+                        className={`px-4 py-3 transition-opacity ${isResolved ? "opacity-50" : ""}`}
+                      >
+                        <div className="mb-1 flex flex-wrap items-center gap-2">
+                          <SeverityBadge severity={f.severity} />
+                          <span className={`flex-1 text-sm font-medium ${isResolved ? "line-through text-gray-400" : ""}`}>
+                            {f.title}
+                          </span>
+                          {isResolved && (
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${f.status === "RESOLVED" ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                              {f.status === "RESOLVED" ? "✓ Resolved" : "Ignored"}
+                            </span>
+                          )}
+                          {isAiFinding(f.code) && (() => {
+                            const aiMeta = parseAiPolicyMeta(f.description);
+                            return aiMeta ? (
+                              <AiPolicyBadge findingId={f.id} meta={aiMeta} />
+                            ) : null;
+                          })()}
+                          <JiraTicketButton findingId={f.id} />
+                          <FindingAssignment
+                            findingId={f.id}
+                            currentAssigneeId={f.assignments[0]?.userId ?? null}
+                            teamMembers={teamMembers}
+                          />
+                          <FindingActions findingId={f.id} currentStatus={f.status} />
+                        </div>
+                        {!isResolved && (
+                          <p className="mb-2 text-sm text-gray-600">
+                            {isAiFinding(f.code)
+                              ? (() => {
+                                  const aiMeta = parseAiPolicyMeta(f.description);
+                                  return aiMeta ? aiMeta.recommendation : f.description;
+                                })()
+                              : f.description}
+                          </p>
+                        )}
+                        {!isResolved && (
+                          <details className="group">
+                            <summary className="cursor-pointer text-xs font-medium text-blue-600 hover:underline">
+                              Show AI fix prompt
+                            </summary>
+                            <pre className="mt-2 overflow-x-auto rounded-md bg-gray-900 p-3 text-xs leading-relaxed text-green-400">
+                              {f.fixPrompt}
+                            </pre>
+                          </details>
+                        )}
+                        <FindingTimeline findingId={f.id} />
                       </div>
-                      <p className="mb-2 text-sm text-gray-600">
-                        {isAiFinding(f.code)
-                          ? (() => {
-                              const aiMeta = parseAiPolicyMeta(f.description);
-                              return aiMeta ? aiMeta.recommendation : f.description;
-                            })()
-                          : f.description}
-                      </p>
-                      <details className="group">
-                        <summary className="cursor-pointer text-xs font-medium text-blue-600 hover:underline">
-                          Show AI fix prompt
-                        </summary>
-                        <pre className="mt-2 overflow-x-auto rounded-md bg-gray-900 p-3 text-xs leading-relaxed text-green-400">
-                          {f.fixPrompt}
-                        </pre>
-                      </details>
-                      <FindingTimeline findingId={f.id} />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

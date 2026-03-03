@@ -15,7 +15,7 @@ export default function MarketingNav() {
         <Link href="/score" className="hidden text-sm font-medium text-gray-700 hover:text-black transition-colors sm:block">Free Score</Link>
         <Link href="/login" className="text-sm text-gray-500 hover:text-black transition-colors">Sign in</Link>
         <Link href="/signup" className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
-          Start free trial
+          Get started
         </Link>
       </div>
     </nav>

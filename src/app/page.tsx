@@ -35,7 +35,7 @@ const tiers = [
       "Security score dashboard",
       "Weekly governance report",
     ],
-    cta: "Start free trial",
+    cta: "Get started",
     ctaHref: "/signup",
     highlighted: false,
   },
@@ -58,7 +58,7 @@ const tiers = [
       "Compliance evidence packs",
       "API access",
     ],
-    cta: "Start free trial",
+    cta: "Get started",
     ctaHref: "/signup",
     highlighted: false,
   },
@@ -80,7 +80,7 @@ const tiers = [
       "All alert channels",
       "API access",
     ],
-    cta: "Start free trial",
+    cta: "Get started",
     ctaHref: "/signup",
     highlighted: true,
   },
@@ -106,30 +106,27 @@ const tiers = [
   },
 ];
 
-const testimonials = [
+const socialProof = [
   {
-    quote: "We had 23 AI-built internal tools with zero security oversight. Scantient found exposed API keys in three of them within the first scan. That alone justified the entire annual cost.",
-    name: "Sarah Chen",
-    initials: "SC",
-    avatarBg: "bg-prussian-blue-600",
-    title: "CISO",
-    company: "Meridian Financial Group",
+    icon: "🛡️",
+    stat: "96 / A",
+    label: "Scantient's own security score",
+    detail: "We scan ourselves on every deploy. Zero critical findings. See our live score →",
+    href: "/score/scantient.com",
   },
   {
-    quote: "My team was spending 20 hours a week manually auditing vibe-coded apps. Scantient automated 90% of that work. Now we actually have time for strategic security initiatives.",
-    name: "Marcus Rivera",
-    initials: "MR",
-    avatarBg: "bg-ink-black-700",
-    title: "VP of Information Security",
-    company: "Caliber Health Systems",
+    icon: "⚡",
+    stat: "2 min",
+    label: "From signup to first scan",
+    detail: "Paste a URL. We scan it. No SDK, no code changes, no developer ticket required.",
+    href: "/score",
   },
   {
-    quote: "The board asked me how we govern AI-generated applications. Before Scantient, I didn't have an answer. Now I send them a weekly compliance report automatically.",
-    name: "Jennifer Okafor",
-    initials: "JO",
-    avatarBg: "bg-dusty-denim-600",
-    title: "IT Director",
-    company: "Apex Manufacturing",
+    icon: "🔍",
+    stat: "20+",
+    label: "Security checks every scan",
+    detail: "API key leaks, missing headers, auth bypass patterns, exposed endpoints and more — automatically.",
+    href: "#features",
   },
 ];
 
@@ -183,8 +180,8 @@ const faqs = [
     a: "Yes. Scantient checks your SSL certificate on every scan and alerts you at 30, 14, and 7 days before expiry. A lapsed certificate takes your site offline for every user.",
   },
   {
-    q: "Can I try Scantient before committing?",
-    a: "Yes. Every plan starts with a 14-day free trial. No credit card required. Scan your first app in under 2 minutes.",
+    q: "How quickly can I get started?",
+    a: "Under 2 minutes. Choose a plan, add your app URL, and Scantient starts scanning immediately. No SDK integration, no configuration files, no developer tickets.",
   },
 ];
 
@@ -245,7 +242,7 @@ export default function LandingPage() {
               href="/signup"
               className="rounded-full bg-prussian-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-prussian-blue-700"
             >
-              Start free trial
+              Get started
             </Link>
           </div>
         </div>
@@ -255,19 +252,19 @@ export default function LandingPage() {
       <section className="relative overflow-hidden px-6 pb-24 pt-24 sm:pb-32 sm:pt-32" style={{ background: "radial-gradient(ellipse at 50% 0%, #ebf2f9 0%, #f3f3f1 70%)" }}>
         <div className="mx-auto max-w-[1200px] text-center">
           <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink-black-950 sm:text-6xl lg:text-[3.75rem]">
-            Your teams ship AI-built apps.
+            You ship fast.
             <br />
-            <span className="text-prussian-blue-600">You see nothing.</span>
+            <span className="text-prussian-blue-600">Security can&apos;t be what breaks you.</span>
           </h1>
           <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700">
-            Legal built a client portal. Sales built a data tool. Ops built an onboarding app. None of them asked IT. Scantient scans every AI-built app in your portfolio. No code changes. No SDK. No developer involvement required.
+            Whether you built it with Cursor, Bolt, or your own team — Scantient finds security issues before your customers or attackers do. No code changes. No SDK. Works on any web app.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
             <Link
               href="/signup"
               className="rounded-lg bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-prussian-blue-600/25 transition-all hover:bg-prussian-blue-700 hover:shadow-xl hover:shadow-prussian-blue-700/25"
             >
-              Start 14-day free trial
+              Get started
             </Link>
             <Link
               href="#pricing"
@@ -276,7 +273,7 @@ export default function LandingPage() {
               View pricing
             </Link>
           </div>
-          <p className="mt-5 text-xs text-dusty-denim-600">No credit card required · Setup in 2 minutes · SOC 2 aligned</p>
+          <p className="mt-5 text-xs text-dusty-denim-600">Setup in 2 minutes · SOC 2 aligned</p>
         </div>
 
         {/* Dashboard mockup frame */}
@@ -487,28 +484,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Social Proof — radical transparency */}
       <section className="border-y border-alabaster-grey-200 bg-white px-6 py-24 sm:py-32">
         <div className="mx-auto max-w-[1200px]">
-          <h2 className="mb-16 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">What security leaders say</h2>
+          <h2 className="mb-4 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Built by people who ship fast</h2>
+          <p className="mb-16 text-center text-dusty-denim-600">We run Scantient on Scantient. Here&apos;s what the data actually says.</p>
           <div className="grid gap-8 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.name} className="relative rounded-2xl border border-alabaster-grey-200 bg-white p-8 overflow-hidden" style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}>
-                {/* Decorative quote mark */}
-                <span className="absolute top-4 left-4 text-[80px] leading-none font-serif text-alabaster-grey-200 select-none z-0" aria-hidden="true">&ldquo;</span>
-                <div className="relative z-10">
-                  <p className="text-sm leading-relaxed text-dusty-denim-600 mt-8">&ldquo;{t.quote}&rdquo;</p>
-                  <div className="mt-8 flex items-center gap-3">
-                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold text-white text-sm ${t.avatarBg}`}>
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-ink-black-900">{t.name}</p>
-                      <p className="text-xs text-dusty-denim-600">{t.title}, {t.company}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {socialProof.map((item) => (
+              <a
+                key={item.stat}
+                href={item.href}
+                className="group relative rounded-2xl border border-alabaster-grey-200 bg-white p-8 transition-all hover:shadow-lg hover:-translate-y-0.5"
+                style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}
+              >
+                <div className="mb-4 text-3xl">{item.icon}</div>
+                <p className="text-4xl font-extrabold tracking-tight text-ink-black-950">{item.stat}</p>
+                <p className="mt-1 text-sm font-semibold text-prussian-blue-600">{item.label}</p>
+                <p className="mt-3 text-sm leading-relaxed text-dusty-denim-600">{item.detail}</p>
+              </a>
             ))}
           </div>
         </div>
@@ -591,7 +584,7 @@ export default function LandingPage() {
           href="/signup"
           className="mt-10 inline-block rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-ink-black-950 transition-colors hover:bg-alabaster-grey-100"
         >
-          Start your free trial
+          Get started
         </Link>
       </section>
 

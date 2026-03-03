@@ -65,8 +65,8 @@ export default function SignupPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-black">
             <span className="text-xl font-bold text-white">V</span>
           </div>
-          <h1 className="text-2xl font-bold">Start your free trial</h1>
-          <p className="mt-1 text-sm text-gray-500">14 days free. No credit card required.</p>
+          <h1 className="text-2xl font-bold">Get started with Scantient</h1>
+          <p className="mt-1 text-sm text-gray-500">Setup in 2 minutes. SOC 2 aligned.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">
@@ -120,7 +120,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
           >
-            {loading ? "Creating account…" : "Start free trial"}
+            {loading ? "Creating account…" : "Get started"}
           </button>
 
           <p className="text-center text-xs text-gray-400">

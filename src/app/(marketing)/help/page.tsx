@@ -51,8 +51,8 @@ const faqs = [
     section: "Billing & account",
     items: [
       {
-        q: "How does the 14-day free trial work?",
-        a: "You get full access to all features for 14 days, no credit card required. At the end of the trial you can choose a plan or your account will revert to a read-only view of your scan history.",
+        q: "How do I get started with Scantient?",
+        a: "Sign up, choose a plan, and add your first app URL. Scantient starts scanning in under 2 minutes. No code changes, no SDK, no developer involvement required.",
       },
       {
         q: "Can I change plans at any time?",

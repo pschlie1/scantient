@@ -282,7 +282,7 @@ function ScorePage() {
                   href="/signup"
                   className="rounded-lg bg-black px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
                 >
-                  Start free trial →
+                  Get started →
                 </Link>
                 <Link
                   href="/#features"

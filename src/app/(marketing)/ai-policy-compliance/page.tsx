@@ -368,7 +368,7 @@ export default function AIPolicyCompliancePage() {
               Talk to Sales
             </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-400">No credit card required · Results in minutes · SOC 2 compliant</p>
+          <p className="mt-4 text-xs text-gray-400">Setup in 2 minutes · SOC 2 compliant</p>
         </div>
       </section>
 

@@ -116,13 +116,13 @@ export default function SecurityChecklistPage() {
         <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
           <h2 className="text-2xl font-bold">Automate this entire checklist</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
-            Scantient runs these checks continuously on every AI-generated app in your organization. No SDK required. Start your free trial and scan your first app in under 2 minutes.
+            Scantient runs these checks continuously on every AI-generated app in your organization. No SDK required. Scan your first app in under 2 minutes.
           </p>
           <Link
             href="/signup"
             className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
           >
-            Start 14-day free trial
+            Get started
           </Link>
         </div>
 
