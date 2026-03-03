@@ -117,6 +117,14 @@ function applySecurityHeaders(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api/");
+
+  // Canonical host redirect: always use apex domain in production.
+  // This prevents session drift between www and apex and avoids login loops.
+  if (request.nextUrl.hostname === "www.scantient.com") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.hostname = "scantient.com";
+    return NextResponse.redirect(redirectUrl, 308);
+  }
   // Public API routes (badges, public scores) should remain cacheable —
   // exclude them from the no-store / private Cache-Control header.
   const isPublicApiRoute = pathname.startsWith("/api/public/");
