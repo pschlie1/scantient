@@ -128,6 +128,12 @@ export function classifyUrl(url: string): UrlContext {
     return "homepage"; // Unparseable URL — treat as homepage
   }
 
+  // Health / monitoring endpoints — checked FIRST so /api/health is a health endpoint
+  // (not a generic API endpoint that would trigger unnecessary auth probing)
+  if (/\/(health|ping|status|ready|live)(\/|$)/.test(pathname)) {
+    return "health-endpoint";
+  }
+
   // API endpoints: /api/*, /v1/*, /v2/*, /graphql, /rpc, etc.
   if (
     /^\/api(\/|$)/.test(pathname) ||
@@ -135,11 +141,6 @@ export function classifyUrl(url: string): UrlContext {
     /^\/(graphql|rpc)(\/|$)/.test(pathname)
   ) {
     return "api-endpoint";
-  }
-
-  // Health / monitoring endpoints
-  if (/^\/(health|ping|status|ready|live)(\/|$)/.test(pathname)) {
-    return "health-endpoint";
   }
 
   // Login / authentication pages
@@ -335,7 +336,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       ...checkDependencyExposure(html),
       ...checkOpenRedirects(html),
       ...checkThirdPartyScripts(html, app.url),
-      ...checkFormSecurity(html),
+      ...checkFormSecurity(html, app.url),
       ...checkDependencyVersions(jsPayloads),
       ...sslCertFindings,
       ...brokenLinkFindings,

@@ -109,7 +109,7 @@ export async function runBrowserScanFindings(
     ...checkAPISecurity(html, headers, url),
     ...checkOpenRedirects(html),
     ...checkThirdPartyScripts(html, url),
-    ...checkFormSecurity(html),
+    ...checkFormSecurity(html, url),
   ];
 
   const seen = new Set<string>();
