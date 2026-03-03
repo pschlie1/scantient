@@ -66,4 +66,6 @@ Execute Phase 3 for Scantient pricing + GTM rollout:
 - Step 3 complete: outreach artifact added with 20 builder communities + 20 IT/security buyer channels + short pitch templates.
 - Step 4 complete: conversion instrumentation added for Builder→Starter, Starter→Pro, and churn via Stripe webhook + reporting updates + docs.
 - Verification complete: `npx tsc --noEmit` passed (0 errors), targeted webhook/tier regression test passed (`tier-gate-audit-3.test.ts`).
-- Next: commit, push, open PR.
+- Changes committed on feature branch and pushed.
+- PR opened: https://github.com/pschlie1/scantient/pull/85
+- Status: COMPLETE.
