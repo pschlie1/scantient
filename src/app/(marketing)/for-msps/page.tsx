@@ -214,7 +214,7 @@ export default function ForMSPsPage() {
                 href="/signup"
                 className="rounded-lg bg-black px-8 py-3.5 text-center text-sm font-medium text-white hover:bg-gray-800 transition-colors"
               >
-                Start Free Trial
+                Get started
               </Link>
               <Link
                 href="/contact"
@@ -350,7 +350,7 @@ export default function ForMSPsPage() {
         <div className="rounded-2xl bg-gray-50 p-12 text-center">
           <h2 className="text-3xl font-bold">Ready to scale compliance across your client portfolio?</h2>
           <p className="mx-auto mt-4 max-w-xl text-gray-500">
-            Start with a free trial on your first client organization. Our MSP partnerships team is
+            Ready to get started? Our MSP partnerships team is
             available to discuss volume pricing, white-label options, and onboarding support.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -358,7 +358,7 @@ export default function ForMSPsPage() {
               href="/signup"
               className="rounded-lg bg-black px-8 py-3.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
             >
-              Start Free Trial
+              Get started
             </Link>
             <Link
               href="/contact"

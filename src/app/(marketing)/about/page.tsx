@@ -97,7 +97,7 @@ export default function AboutPage() {
             href="/signup"
             className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
           >
-            Start 14-day free trial
+            Get started
           </Link>
         </div>
       </article>

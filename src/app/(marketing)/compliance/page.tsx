@@ -109,13 +109,13 @@ export default function CompliancePage() {
         <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
           <h2 className="text-2xl font-bold">Be audit-ready, always</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
-            Scantient provides the continuous monitoring and documentation your auditors require, automatically. Start your free trial and generate your first compliance report in minutes.
+            Scantient provides the continuous monitoring and documentation your auditors require, automatically. Generate your first compliance report in minutes.
           </p>
           <Link
             href="/signup"
             className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
           >
-            Start 14-day free trial
+            Get started
           </Link>
         </div>
 
