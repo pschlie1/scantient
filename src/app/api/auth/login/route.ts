@@ -13,7 +13,6 @@ const loginSchema = z.object({
 export async function POST(req: Request) {
   try {
     const ip = getClientIp(req);
-    console.log("[login] step: rate-limit ip", ip);
     const limit = await checkRateLimit(`login:${ip}`, {
       maxAttempts: 5,
       windowMs: 15 * 60 * 1000,
@@ -26,7 +25,6 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("[login] step: parse body");
     const body = await req.json();
     const parsed = loginSchema.safeParse(body);
 
@@ -36,7 +34,7 @@ export async function POST(req: Request) {
 
     const { email, password } = parsed.data;
 
-    console.log("[login] step: rate-limit email", email);
+    // Per-email rate limit: 10 attempts/hour — stops brute-force via IP rotation
     const emailLimit = await checkRateLimit(`login-email:${email.toLowerCase()}`, {
       maxAttempts: 10,
       windowMs: 60 * 60 * 1000,
@@ -49,43 +47,32 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("[login] step: db lookup");
     const user = await db.user.findFirst({
       where: { email },
       include: { org: true },
     });
 
     if (!user || !user.passwordHash) {
-      console.log("[login] user not found or no password");
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     if (!user.emailVerified) {
-      console.log("[login] email not verified");
       return NextResponse.json(
         { error: "Please verify your email before logging in" },
         { status: 403 },
       );
     }
 
-    console.log("[login] step: verify password");
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
-      console.log("[login] invalid password");
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    console.log("[login] step: create session");
     const session = await createSession(user.id);
-    console.log("[login] step: audit log");
+    // Audit log: user.login (fire-and-forget — never block the auth response)
     logAudit(session, "user.login", "auth").catch(() => { /* non-fatal */ });
-    console.log("[login] step: return response");
     return NextResponse.json({ user: session });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    console.error("[login] UNHANDLED ERROR:", message);
-    if (stack) console.error("[login] STACK:", stack);
-    return NextResponse.json({ error: "Internal server error", detail: message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

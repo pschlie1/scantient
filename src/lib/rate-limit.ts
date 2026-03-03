@@ -46,8 +46,23 @@ function getRedisClient(): Redis | null {
     return redisClient;
   }
 
-  redisClient = new Redis({ url, token });
-  return redisClient;
+  // Guard against placeholder / malformed values in hosted envs.
+  if (!url.startsWith("https://")) {
+    logOperationalWarning("rate_limit_invalid_redis_url", { urlPreview: url.slice(0, 32) });
+    redisClient = null;
+    return redisClient;
+  }
+
+  try {
+    redisClient = new Redis({ url, token });
+    return redisClient;
+  } catch (error) {
+    logOperationalWarning("rate_limit_redis_init_failed", {
+      message: error instanceof Error ? error.message : String(error),
+    });
+    redisClient = null;
+    return redisClient;
+  }
 }
 
 function memoryRateLimit(key: string, config: RateLimitConfig): RateLimitResult {
