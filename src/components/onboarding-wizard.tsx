@@ -50,7 +50,11 @@ export function OnboardingWizard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error?.message || data.error || "Failed to add app");
+        const err = data?.error;
+        const message = typeof err === "string"
+          ? err
+          : err?.message || (err?.fieldErrors ? "Please fix validation errors." : "Failed to add app");
+        setError(message);
         return;
       }
       setStep(2);

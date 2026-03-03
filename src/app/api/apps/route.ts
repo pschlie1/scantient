@@ -88,8 +88,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json();
-    const parsed = createAppSchema.safeParse(body);
+    const body = await req.json() as Record<string, unknown>;
+    // Backward compatibility: onboarding wizard may omit ownerEmail.
+    // Default to the authenticated user's email when missing.
+    const normalizedBody = {
+      ...body,
+      ownerEmail: typeof body.ownerEmail === "string" && body.ownerEmail.length > 0
+        ? body.ownerEmail
+        : session.email,
+    };
+    const parsed = createAppSchema.safeParse(normalizedBody);
 
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
