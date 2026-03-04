@@ -150,6 +150,8 @@ vi.mock("@/lib/auth-headers", () => ({
 vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
 vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 vi.mock("node:crypto", async (importOriginal) => {
+vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
   const actual = await importOriginal<typeof import("node:crypto")>();
   return {
     ...actual,
