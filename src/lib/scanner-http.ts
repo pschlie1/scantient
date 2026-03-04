@@ -16,7 +16,6 @@ import {
   checkExposedEndpoints,
   checkFormSecurity,
   checkInformationDisclosure,
-  checkInlineScriptCount,
   checkInlineScripts,
   checkMetaAndConfig,
   checkOpenRedirects,
@@ -36,9 +35,6 @@ import { sendCriticalFindingsAlert } from "@/lib/alerts";
 import { autoTriageFinding, verifyResolvedFindings } from "@/lib/remediation-lifecycle";
 import type { SecurityFinding } from "@/lib/types";
 import { trackEvent } from "@/lib/analytics";
-import { runProbe, type ProbeOutcome } from "@/lib/probe-client";
-import { runConnectors } from "@/lib/connectors/runner";
-import type { ConnectorResult } from "@/lib/connectors/types";
 
 function calcStatus(findings: SecurityFinding[]) {
   if (findings.some((f) => f.severity === "CRITICAL")) return "CRITICAL" as const;
@@ -87,76 +83,6 @@ function dedup(findings: SecurityFinding[]): SecurityFinding[] {
     seen.add(key);
     return true;
   });
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// URL Context Classifier
-//
-// Different URL types warrant different security checks. Running all checks
-// blindly against every URL produces false positives (e.g. rate-limit headers
-// expected on homepages) and noise. The classifier determines which checks are
-// relevant so the scanner is smarter and more accurate for any target site.
-// ────────────────────────────────────────────────────────────────────────────
-
-/**
- * The type of URL being scanned, used to route security checks.
- *
- * - homepage: root / index page (most common target)
- * - api-endpoint: /api/* routes; API-specific checks apply
- * - login-page: authentication pages; auth-header checks apply
- * - admin-page: admin/management areas; admin-specific hardening checks apply
- * - health-endpoint: /health, /ping, /status routes (monitoring endpoints)
- */
-export type UrlContext =
-  | "homepage"
-  | "api-endpoint"
-  | "login-page"
-  | "admin-page"
-  | "health-endpoint";
-
-/**
- * Classify a URL to determine which security checks are applicable.
- *
- * Classification is path-based and generic — no hardcoded domains.
- * Paths are matched case-insensitively.
- */
-export function classifyUrl(url: string): UrlContext {
-  let pathname: string;
-  try {
-    pathname = new URL(url).pathname.toLowerCase();
-  } catch {
-    return "homepage"; // Unparseable URL — treat as homepage
-  }
-
-  // Health / monitoring endpoints — checked FIRST so /api/health is a health endpoint
-  // (not a generic API endpoint that would trigger unnecessary auth probing)
-  if (/\/(health|ping|status|ready|live)(\/|$)/.test(pathname)) {
-    return "health-endpoint";
-  }
-
-  // API endpoints: /api/*, /v1/*, /v2/*, /graphql, /rpc, etc.
-  if (
-    /^\/api(\/|$)/.test(pathname) ||
-    /^\/v\d+(\/|$)/.test(pathname) ||
-    /^\/(graphql|rpc)(\/|$)/.test(pathname)
-  ) {
-    return "api-endpoint";
-  }
-
-  // Login / authentication pages
-  if (
-    /\/(login|signin|sign-in|log-in|auth\/login|authenticate)(\/|$)/.test(pathname)
-  ) {
-    return "login-page";
-  }
-
-  // Admin / management pages
-  if (/\/(admin|management|back-?office|staff)(\/|$)/.test(pathname)) {
-    return "admin-page";
-  }
-
-  // Default: homepage or general marketing/app page
-  return "homepage";
 }
 
 interface ScanContext {
@@ -314,40 +240,25 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     const responseTimeMsSnapshot = Date.now() - start;
     const perfRegressionFindings = await checkPerformanceRegression(app.id, responseTimeMsSnapshot);
 
-    // Classify the target URL so we can route checks intelligently.
-    // Checks that only make sense for specific URL types are gated here.
-    // This prevents false positives (e.g. rate-limit headers on homepages)
-    // and noise from running irrelevant checks against every URL.
-    const urlContext = classifyUrl(app.url);
-
     const rawFindings: SecurityFinding[] = [
       ...botChallengeFindings,
-      // ── Checks applicable to ALL URL types ──────────────────────────────
       ...checkSecurityHeaders(headers),
       ...scanJavaScriptForKeys(jsPayloads),
       ...checkClientSideAuthBypass(html),
       ...checkInlineScripts(html),
-      ...checkInlineScriptCount(html, headers),
       ...checkMetaAndConfig(html, headers),
       ...checkCookieSecurity(headers),
       ...checkCORSMisconfiguration(headers),
       ...checkInformationDisclosure(html, headers),
       ...checkSSLIssues(html, headers, app.url),
       ...checkDependencyExposure(html),
+      ...checkAPISecurity(html, headers, app.url),
       ...checkOpenRedirects(html),
       ...checkThirdPartyScripts(html, app.url),
-      ...checkFormSecurity(html, app.url),
+      ...checkFormSecurity(html),
       ...checkDependencyVersions(jsPayloads),
       ...sslCertFindings,
       ...brokenLinkFindings,
-      // ── API-endpoint-only checks ─────────────────────────────────────────
-      // Rate-limit headers, GraphQL introspection, API docs exposure, etc.
-      // Only meaningful on /api/*, /v1/*, /graphql routes.
-      ...(urlContext === "api-endpoint" ? checkAPISecurity(html, headers, app.url) : []),
-      // ── Future: login-page-only checks ──────────────────────────────────
-      // checkAuthHeaders() — when implemented, only run for login-page context
-      // ── Future: admin-page-only checks ──────────────────────────────────
-      // checkAdminSecurity() — when implemented, only run for admin-page context
       ...exposedEndpointFindings,
       ...perfRegressionFindings,
       ...checkUptimeStatus(statusCode, responseTimeMsSnapshot),
@@ -372,69 +283,8 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       );
     }
 
-    const securityFindings = dedup(rawFindings);
+    const findings = dedup(rawFindings);
     const responseTimeMs = Date.now() - start;
-
-    // ── Tier 2: Subsystem Health Probe ──────────────────────────────────────
-    // After the main security scan, if the app has a probeUrl + probeToken
-    // configured, call the target app's /api/scantient-probe endpoint to get
-    // structured subsystem health data (database, auth, payments, email, etc.).
-    // This runs independently of the main scan — failure never blocks the run.
-    // Note: app.probeUrl/probeToken are ALSO used above for the bot-challenge
-    // bypass (HTML fetch). Here we use them for the distinct Tier 2 health probe.
-    let probeOutcome: ProbeOutcome | null = null;
-    if (app.probeUrl && app.probeToken) {
-      try {
-        const decryptedToken = decrypt(app.probeToken);
-        probeOutcome = await runProbe(app.probeUrl, decryptedToken);
-      } catch (probeErr) {
-        console.warn(
-          "[tier2-probe] Probe failed (non-fatal):",
-          probeErr instanceof Error ? probeErr.message : probeErr,
-        );
-      }
-    }
-
-    // Probe subsystem unhealthy findings: if any subsystem reports ok=false,
-    // surface it as a MEDIUM finding so it shows up in the security findings list.
-    const probeFindings: SecurityFinding[] = [];
-    if (probeOutcome && probeOutcome.ok === true) {
-      const subsystems = probeOutcome.subsystems;
-      for (const [name, sub] of Object.entries(subsystems)) {
-        if (sub && !sub.ok) {
-          probeFindings.push({
-            code: `SUBSYSTEM_UNHEALTHY_${name.toUpperCase()}`,
-            title: `Subsystem unhealthy: ${name}`,
-            description: `The ${name} subsystem reported an unhealthy status${sub.error ? `: ${sub.error}` : ""}. This was detected by the Scantient probe endpoint.`,
-            severity: "MEDIUM",
-            fixPrompt: `Investigate the ${name} subsystem. Check service availability, configuration, and error logs. Resolve the underlying issue and confirm recovery by triggering a new scan.`,
-          });
-        }
-      }
-    }
-    // ── End Tier 2 ──────────────────────────────────────────────────────────
-
-    // ── Tier 3: Infrastructure Connectors ───────────────────────────────────
-    // Run all configured infrastructure connectors (Vercel, GitHub, Stripe).
-    // Connector findings are merged into the final findings list.
-    // Connector results are stored in MonitorRun.connectorResults for display.
-    // Wrapped in try/catch — connector failures never block the main scan.
-    let connectorResults: Record<string, ConnectorResult> = {};
-    const connectorFindings: SecurityFinding[] = [];
-    try {
-      const connResult = await runConnectors(app.orgId);
-      connectorResults = connResult.connectorResults;
-      connectorFindings.push(...connResult.allFindings);
-    } catch (connErr) {
-      console.warn(
-        "[tier3-connectors] Connector run failed (non-fatal):",
-        connErr instanceof Error ? connErr.message : connErr,
-      );
-    }
-    // ── End Tier 3 ──────────────────────────────────────────────────────────
-
-    // Combine all findings: security + probe subsystem + connector
-    const findings = dedup([...securityFindings, ...probeFindings, ...connectorFindings]);
     const status = calcStatus(findings);
 
     // Determine scan interval before the transaction (no DB write needed)
@@ -468,12 +318,6 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
             : "All checks passed — no issues detected",
           completedAt,
           discoveredEndpointCount,
-          // Tier 2: store probe result if one was obtained
-          ...(probeOutcome !== null ? { probeResult: probeOutcome as object } : {}),
-          // Tier 3: store connector results if any connectors ran
-          ...(Object.keys(connectorResults).length > 0
-            ? { connectorResults: connectorResults as object }
-            : {}),
         },
       });
 

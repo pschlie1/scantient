@@ -693,12 +693,16 @@ export function checkDependencyExposure(html: string): SecurityFinding[] {
 // 12. API Security
 // ────────────────────────────────────────────
 
-export function checkAPISecurity(html: string, headers: Headers): SecurityFinding[] {
+export function checkAPISecurity(html: string, headers: Headers, url?: string): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
 
+  // Rate-limit headers only make sense on /api/* routes.
+  // Skip this check for non-API URLs to avoid false positives on homepages/marketing pages.
+  const pathname = url ? new URL(url).pathname : "";
+  const isApiPath = pathname.startsWith("/api/");
   const rateLimitHeaders = ["x-ratelimit-limit", "x-rate-limit-limit", "ratelimit-limit", "retry-after"];
   const hasRateLimit = rateLimitHeaders.some((h) => headers.get(h));
-  if (!hasRateLimit) {
+  if (isApiPath && !hasRateLimit) {
     findings.push({
       code: "NO_RATE_LIMITING",
       title: "No rate limiting headers detected",
