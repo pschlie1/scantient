@@ -1026,7 +1026,7 @@ const CSRF_TOKEN_NAMES = [
 
 const API_ENDPOINT_PATTERN = /^\/?api[/\\]/i;
 
-export function checkFormSecurity(html: string): SecurityFinding[] {
+export function checkFormSecurity(html: string, baseUrl?: string): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
 
   const formMatches = Array.from(html.matchAll(/<form([^>]*)>([\s\S]*?)<\/form>/gi));
@@ -1085,6 +1085,17 @@ export function checkFormSecurity(html: string): SecurityFinding[] {
         actionDomain = new URL(action).hostname;
       } catch {
         continue;
+      }
+
+      // If the action URL is on the same host as the scanned page, it is NOT external.
+      // Absolute URLs on the same domain are common in CMSes and SPAs.
+      if (baseUrl) {
+        try {
+          const baseHostname = new URL(baseUrl).hostname;
+          if (actionDomain === baseHostname) continue;
+        } catch {
+          // baseUrl parse failed — fall through to flag as external
+        }
       }
 
       findings.push({
@@ -1312,7 +1323,7 @@ const PROBE_PATHS = [
   "/graphql",
   "/.git/HEAD",
   "/robots.txt",
-].slice(0, 15);
+]; // probe all paths (18 total — each with 5s timeout, run in parallel)
 
 function looksLikeJson(body: string): boolean {
   const trimmed = body.trim();
@@ -1342,19 +1353,27 @@ export async function checkExposedEndpoints(baseUrl: string): Promise<SecurityFi
         method: "GET",
         signal: AbortSignal.timeout(5000),
       });
+      const contentType = res.headers.get("content-type") ?? "";
       const body = res.status === 200 ? await res.text() : "";
-      return { path, url, status: res.status, body };
+      return { path, url, status: res.status, body, contentType };
     }),
   );
 
   for (const settled of results) {
     if (settled.status !== "fulfilled") continue;
-    const { path, url, status, body } = settled.value;
+    const { path, url, status, body, contentType } = settled.value;
 
     if (status !== 200) continue;
 
+    // Skip HTML responses for sensitive file checks — SPAs return 200 HTML for
+    // all paths (catch-all routing), which would produce mass false positives.
+    const isHtmlResponse = contentType.includes("text/html") || body.trimStart().startsWith("<!") || body.trimStart().startsWith("<html");
+
     // Sensitive file publicly accessible
     if (SENSITIVE_FILE_PATHS.includes(path)) {
+      // Only flag if the response looks like the actual file, not an HTML page.
+      // A real .env file starts with KEY=value lines; .git/HEAD starts with "ref: ".
+      if (isHtmlResponse) continue;
       findings.push({
         code: "SENSITIVE_FILE_EXPOSED",
         title: `Sensitive file publicly accessible: ${path}`,
@@ -1407,7 +1426,9 @@ export async function checkExposedEndpoints(baseUrl: string): Promise<SecurityFi
     }
 
     // Sensitive data in response body
-    if (containsSensitiveData(body)) {
+    // Skip HTML pages — words like "secret" or "api_key" appear in marketing
+    // copy, documentation, and navigation menus on many legitimate sites.
+    if (!isHtmlResponse && containsSensitiveData(body)) {
       findings.push({
         code: "SENSITIVE_DATA_EXPOSED",
         title: `Sensitive data exposed at ${path}`,
