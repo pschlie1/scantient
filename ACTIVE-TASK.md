@@ -1,71 +1,86 @@
-# ACTIVE-TASK.md — Phase 3 Pricing/GTM Rollout
+# ACTIVE-TASK.md
 
-## Status: IN PROGRESS
+## Status: COMPLETE — All 4 PRs Created
 
-## Task
-Execute Phase 3 for Scantient pricing + GTM rollout:
-1) Final pricing/copy alignment for 4-tier customer-facing model (Builder, Starter, Pro, Enterprise) while preserving backend `ENTERPRISE_PLUS` compatibility.
-2) Outreach execution artifact for dual motion (20 builder communities + 20 IT/security buyer channels + short pitch templates).
-3) Conversion instrumentation for Builder→Starter, Starter→Pro, and churn events, wired into existing analytics.
+## PRs Created
+| PR | Branch | Description |
+|----|--------|-------------|
+| #65 | fix/scanner-accuracy | DANGEROUS_INNER_HTML false positive fix |
+| #66 | fix/csp-inline-scripts | Nonce-based CSP + INLINE_SCRIPTS scanner check |
+| #67 | feat/tier2-subsystem-probe | Tier 2 probe client + MonitorRun.probeResult |
+| #68 | feat/url-context-classifier | URL context classifier (checkAPISecurity → api-endpoint only) |
 
-## Concrete Plan (approved to execute)
+---
 
-### Step 1 — Baseline + branch
-- Create feature branch from `main`.
-- Inspect customer-facing copy and plan-gating logic.
-- Risks: accidental edits to backend enum handling.
-- Validation: `git diff` limited to intended files.
+## Final Scan Analysis (scantient.com — live production)
 
-### Step 2 — Pricing/copy alignment sweep
-- Update customer-facing copy that mentions "Enterprise Plus" where 4-tier messaging should be shown.
-- Keep backend enum + Stripe/DB mappings untouched.
-- Prefer centralized tier capability checks for any touched gating logic.
-- Target files (likely):
-  - `src/app/(dashboard)/reports/executive/page.tsx`
-  - any marketing/docs pages with inconsistent customer-facing tier copy
-- Risks: creating mismatch between UI copy and real entitlement behavior.
-- Validation: spot-check with grep for "Enterprise Plus" in customer-facing surfaces.
+**Cannot trigger live scan** — production CRON_SECRET differs from .env.local; endpoint returned 500.
 
-### Step 3 — Outreach execution artifact
-- Add a GTM-ready artifact doc with:
-  - 20 builder communities/channels
-  - 20 IT/security buyer channels
-  - short outreach pitch templates for both segments
-- Target file:
-  - `docs/outreach/phase-3-dual-motion-outreach.md`
-- Risks: low quality/non-actionable channel list.
-- Validation: ensure practical format with link/why it matters/CTA notes.
+**Current score (before PRs):** 86/B — 2 open MEDIUM findings.
 
-### Step 4 — Conversion instrumentation
-- Extend analytics event schema with plan-conversion + churn events.
-- Wire events in Stripe webhook transitions:
-  - Builder(FREE) → Starter
-  - Starter → Pro
-  - churn (paid tier to FREE on subscription delete)
-- Keep events privacy-safe and non-blocking.
-- Target files:
-  - `src/lib/analytics.ts`
-  - `src/app/api/stripe/webhook/route.ts`
-  - `src/lib/wave3-reporting.ts`
-  - optionally readiness UI if needed
-- Risks: duplicate events from webhook retries, broken TypeScript unions.
-- Mitigation: only emit on real tier transitions by comparing previous and new tier.
-- Validation: TypeScript build + targeted tests.
+### DANGEROUS_INNER_HTML Analysis
 
-### Step 5 — Verify + ship
-- Run `npx tsc --noEmit` (must be zero errors).
-- Run relevant tests around webhook/reporting if available.
-- Commit on feature branch, push, open PR.
-- Capture env/config changes explicitly (if none, say none).
+Fetched live homepage HTML and inspected inline scripts. Finding root cause confirmed:
 
-## Current checkpoint
-- Plan written.
-- Repo baseline checked.
-- Feature branch created: `feat/phase3-pricing-gtm-rollout`.
-- Step 2 complete: customer-facing copy aligned (removed Enterprise Plus wording from executive report paywall copy) and gating now uses centralized tier capability map (`hasFeature`).
-- Step 3 complete: outreach artifact added with 20 builder communities + 20 IT/security buyer channels + short pitch templates.
-- Step 4 complete: conversion instrumentation added for Builder→Starter, Starter→Pro, and churn via Stripe webhook + reporting updates + docs.
-- Verification complete: `npx tsc --noEmit` passed (0 errors), targeted webhook/tier regression test passed (`tier-gate-audit-3.test.ts`).
-- Changes committed on feature branch and pushed.
-- PR opened: https://github.com/pschlie1/scantient/pull/85
-- Status: COMPLETE.
+1. Next.js RSC payload ships inline `<script>self.__next_f.push(...)` tags
+2. The RSC JSON contains the React component tree, which encodes `dangerouslySetInnerHTML` as a JSON key: `\"dangerouslySetInnerHTML\":{\"__html\":...}` (escaped within a JS string literal)
+3. **Old scanner code** (`/dangerouslySetInnerHTML/i` bare string): MATCHES the escaped string → false positive fires
+4. **New scanner code** (`/dangerouslySetInnerHTML\s*[:=]\s*\{/i` requiring assignment context): Does NOT match — the `\"` (backslash-quote) between `InnerHTML` and `:` breaks the pattern
+5. **Expected after PR #65 deploys:** DANGEROUS_INNER_HTML finding clears ✓
+
+The marketing text "...dangerouslySetInnerHTML usage..." in page.tsx also contributed — appears in RSC/JSON without assignment context → also correctly excluded by fix ✓
+
+### NO_RATE_LIMITING Analysis
+
+Path guard in security.ts is correct (`isApiPath` check). `checkAPISecurity(html, headers, "https://scantient.com")` → pathname is `/` → `isApiPath = false` → finding does not fire. Issue was timing: PR #64 merged ~1 min before scan ran. No code change needed.
+
+**Expected after fresh scan:** NO_RATE_LIMITING clears ✓
+
+### INLINE_SCRIPTS Analysis
+
+Live homepage has 10+ inline `<script>` blocks (Next.js RSC hydration). Current CSP uses `unsafe-inline` (no nonce). After PR #66:
+- Scanner check added: would fire as LOW (CSP exists but uses unsafe-inline)
+- BUT: middleware now generates per-request nonce CSP with `'nonce-{nonce}' 'strict-dynamic'`
+- Scanner checks for `'nonce-'` in CSP → suppresses finding
+- **Expected after PR #66 deploys:** INLINE_SCRIPTS finding suppressed ✓
+
+### Expected Score After PRs Merge
+
+| Finding | Before PRs | After PR #65 | After PR #66 |
+|---------|------------|--------------|--------------|
+| DANGEROUS_INNER_HTML (MEDIUM) | OPEN | CLEARED | CLEARED |
+| NO_RATE_LIMITING (MEDIUM) | OPEN | CLEARED | CLEARED |
+| INLINE_SCRIPTS (LOW/MEDIUM) | N/A | N/A | SUPPRESSED |
+
+**Projected score:** 86/B → **~92-94/A** (removing 2 MEDIUM findings)
+
+---
+
+## Part 1 ✅ — fix/scanner-accuracy (PR #65)
+- Fixed DANGEROUS_INNER_HTML: changed `hasScriptUsage` from bare string match to assignment context `/dangerouslySetInnerHTML\s*[:=]\s*\{/i`
+- Added 2 new tests (false positive prevention + compiled JS true positive)
+- TypeScript: PASSES
+
+## Part 2 ✅ — fix/csp-inline-scripts (PR #66)
+- Added `checkInlineScriptCount(html, headers)` to security.ts
+  - MEDIUM if no CSP; LOW if unsafe-inline; suppressed if nonce/hash/strict-dynamic
+  - Integrated into scanner-http.ts
+- Updated middleware.ts: per-request nonce CSP (`'nonce-{nonce}' 'strict-dynamic' 'unsafe-inline'`)
+- Updated layout.tsx: reads `x-nonce` from `next/headers`, applies to JSON-LD `<script>`
+- Added 5 new tests for checkInlineScriptCount
+- TypeScript: PASSES
+
+## Part 3 ✅ — feat/tier2-subsystem-probe (PR #67)
+- Created `src/lib/probe-client.ts` with Zod validation (ProbeResultSchema)
+- Added `probeResult Json?` to MonitorRun Prisma schema
+- Migration: `20260302050000_add_probe_result_to_monitor_run` — applied to production
+- Integrated probe into scanner-http.ts (after main scan, non-fatal)
+- Created `docs/probe-spec.md` (full spec + Next.js + Express examples)
+- TypeScript: PASSES
+
+## Part 4 ✅ — feat/url-context-classifier (PR #68)
+- Added `UrlContext` type: homepage | api-endpoint | login-page | admin-page | health-endpoint
+- Added `classifyUrl(url)`: path-based, generic, no hardcoded domains
+- Applied routing: `checkAPISecurity()` → api-endpoint only
+- 24 passing tests in `url-classifier.test.ts`
+- TypeScript: PASSES

@@ -85,6 +85,75 @@ function dedup(findings: SecurityFinding[]): SecurityFinding[] {
   });
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// URL Context Classifier
+//
+// Different URL types warrant different security checks. Running all checks
+// blindly against every URL produces false positives (e.g. rate-limit headers
+// expected on homepages) and noise. The classifier determines which checks are
+// relevant so the scanner is smarter and more accurate for any target site.
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The type of URL being scanned, used to route security checks.
+ *
+ * - homepage: root / index page (most common target)
+ * - api-endpoint: /api/* routes; API-specific checks apply
+ * - login-page: authentication pages; auth-header checks apply
+ * - admin-page: admin/management areas; admin-specific hardening checks apply
+ * - health-endpoint: /health, /ping, /status routes (monitoring endpoints)
+ */
+export type UrlContext =
+  | "homepage"
+  | "api-endpoint"
+  | "login-page"
+  | "admin-page"
+  | "health-endpoint";
+
+/**
+ * Classify a URL to determine which security checks are applicable.
+ *
+ * Classification is path-based and generic — no hardcoded domains.
+ * Paths are matched case-insensitively.
+ */
+export function classifyUrl(url: string): UrlContext {
+  let pathname: string;
+  try {
+    pathname = new URL(url).pathname.toLowerCase();
+  } catch {
+    return "homepage"; // Unparseable URL — treat as homepage
+  }
+
+  // API endpoints: /api/*, /v1/*, /v2/*, /graphql, /rpc, etc.
+  if (
+    /^\/api(\/|$)/.test(pathname) ||
+    /^\/v\d+(\/|$)/.test(pathname) ||
+    /^\/(graphql|rpc)(\/|$)/.test(pathname)
+  ) {
+    return "api-endpoint";
+  }
+
+  // Health / monitoring endpoints
+  if (/^\/(health|ping|status|ready|live)(\/|$)/.test(pathname)) {
+    return "health-endpoint";
+  }
+
+  // Login / authentication pages
+  if (
+    /\/(login|signin|sign-in|log-in|auth\/login|authenticate)(\/|$)/.test(pathname)
+  ) {
+    return "login-page";
+  }
+
+  // Admin / management pages
+  if (/\/(admin|management|back-?office|staff)(\/|$)/.test(pathname)) {
+    return "admin-page";
+  }
+
+  // Default: homepage or general marketing/app page
+  return "homepage";
+}
+
 interface ScanContext {
   source?: "manual" | "cron" | "api";
   userId?: string;
@@ -240,8 +309,15 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
     const responseTimeMsSnapshot = Date.now() - start;
     const perfRegressionFindings = await checkPerformanceRegression(app.id, responseTimeMsSnapshot);
 
+    // Classify the target URL so we can route checks intelligently.
+    // Checks that only make sense for specific URL types are gated here.
+    // This prevents false positives (e.g. rate-limit headers on homepages)
+    // and noise from running irrelevant checks against every URL.
+    const urlContext = classifyUrl(app.url);
+
     const rawFindings: SecurityFinding[] = [
       ...botChallengeFindings,
+      // ── Checks applicable to ALL URL types ──────────────────────────────
       ...checkSecurityHeaders(headers),
       ...scanJavaScriptForKeys(jsPayloads),
       ...checkClientSideAuthBypass(html),
@@ -252,13 +328,20 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
       ...checkInformationDisclosure(html, headers),
       ...checkSSLIssues(html, headers, app.url),
       ...checkDependencyExposure(html),
-      ...checkAPISecurity(html, headers, app.url),
       ...checkOpenRedirects(html),
       ...checkThirdPartyScripts(html, app.url),
       ...checkFormSecurity(html),
       ...checkDependencyVersions(jsPayloads),
       ...sslCertFindings,
       ...brokenLinkFindings,
+      // ── API-endpoint-only checks ─────────────────────────────────────────
+      // Rate-limit headers, GraphQL introspection, API docs exposure, etc.
+      // Only meaningful on /api/*, /v1/*, /graphql routes.
+      ...(urlContext === "api-endpoint" ? checkAPISecurity(html, headers, app.url) : []),
+      // ── Future: login-page-only checks ──────────────────────────────────
+      // checkAuthHeaders() — when implemented, only run for login-page context
+      // ── Future: admin-page-only checks ──────────────────────────────────
+      // checkAdminSecurity() — when implemented, only run for admin-page context
       ...exposedEndpointFindings,
       ...perfRegressionFindings,
       ...checkUptimeStatus(statusCode, responseTimeMsSnapshot),
