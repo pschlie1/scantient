@@ -1,21 +1,22 @@
 import { subDays } from "date-fns";
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { getOrgLimits } from "@/lib/tenant";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { atLeast } from "@/lib/tier-capabilities";
 
-// audit-24: The previous version of this route contained a "cron path" that
-// returned data from ALL organizations when an Authorization header matching
-// CRON_SECRET was supplied.  Because the middleware requires a valid JWT
-// session cookie before reaching this handler, any logged-in user who also
-// knew the CRON_SECRET could bypass per-org scoping and read every org's
-// weekly report (cross-tenant data leakage).  Additionally the comparison
-// used the non-constant-time `===` operator rather than a timing-safe
-// comparison.  The cron path was dead code for unauthenticated callers
-// (middleware blocks them) so it has been removed entirely.  The route now
-// only returns data for the authenticated user's own organization.
+/**
+ * audit-23: Timing-safe string comparison for CRON_SECRET.
+ * The previous `auth === \`Bearer ${cronSecret}\`` used a JS equality check whose
+ * execution time leaks the length/prefix of the secret via timing side-channel.
+ * Uses the same approach as cron/run/route.ts (audit-14).
+ */
+function timingSafeStringEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a.padEnd(512));
+  const bufB = Buffer.from(b.padEnd(512));
+  return timingSafeEqual(bufA, bufB) && a.length === b.length;
+}
 
 function buildReport(apps: Array<{ name: string; ownerEmail: string | null; status: string; lastCheckedAt: Date | null; monitorRuns: Array<{ findings: Array<{ severity: string }> }> }>) {
   return apps.map((app) => {
@@ -32,20 +33,54 @@ function buildReport(apps: Array<{ name: string; ownerEmail: string | null; stat
   });
 }
 
-// _req is accepted for Next.js route-handler compatibility and test
-// call-sites but is intentionally unused — the cron path that previously
-// read the Authorization header from it has been removed entirely.
-export async function GET(_req?: Request) {
+export async function GET(req: Request) {
   const since = subDays(new Date(), 7);
 
-  // Authenticated user path: always scope by session orgId
+  // Cron path: iterate per-org
+  const auth = req.headers.get("authorization") ?? "";
+  const cronSecret = process.env.CRON_SECRET;
+  // audit-23: Use timing-safe comparison to prevent timing-oracle attacks on the secret.
+  // A plain `===` leaks how many prefix bytes matched, which allows brute-force recovery.
+  const isCron = cronSecret && timingSafeStringEqual(auth, `Bearer ${cronSecret}`);
+
+  if (isCron) {
+    // Intentionally unbounded: this is a cron batch job that must process all orgs.
+    // Per-org queries below are capped with take: 100 to prevent per-org OOM.
+    const orgs = await db.organization.findMany({ select: { id: true, name: true } });
+    const reports = [];
+
+    for (const org of orgs) {
+      const apps = await db.monitoredApp.findMany({
+        where: { orgId: org.id },
+        take: 100,
+        include: {
+          monitorRuns: {
+            where: { startedAt: { gte: since } },
+            take: 10,
+            orderBy: { startedAt: "desc" },
+            include: {
+              findings: {
+                select: { severity: true },
+                take: 200,
+              },
+            },
+          },
+        },
+      });
+      reports.push({ orgId: org.id, orgName: org.name, report: buildReport(apps) });
+    }
+
+    return NextResponse.json({ generatedAt: new Date(), reports });
+  }
+
+  // Authenticated user path: scope by session orgId
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const limits = await getOrgLimits(session.orgId);
-  if (!atLeast(limits.tier, "STARTER")) {
+  if (!["STARTER", "PRO", "ENTERPRISE", "ENTERPRISE_PLUS"].includes(limits.tier)) {
     return NextResponse.json({ error: "Weekly reports require a Starter plan or higher." }, { status: 403 });
   }
 

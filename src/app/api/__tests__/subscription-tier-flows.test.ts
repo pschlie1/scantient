@@ -92,6 +92,15 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
+// ─── Rate limit mock ──────────────────────────────────────────────────────────
+// Must be stubbed here — the bulk-add route (audit-23) calls checkRateLimit.
+// Without this stub the in-memory rate-limit store fills up across tests,
+// causing unrelated bulk-add tests to receive 429 instead of the expected response.
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: vi.fn().mockResolvedValue({ allowed: true, retryAfterSeconds: null }),
+  getClientIp: vi.fn().mockReturnValue("1.2.3.4"),
+}));
+
 // ─── SSRF guard mock ─────────────────────────────────────────────────────────
 vi.mock("@/lib/ssrf-guard", () => ({
   isPrivateUrl: vi.fn().mockResolvedValue(false),

@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { getOrgLimits } from "@/lib/tenant";
+import { getOrgLimits, logAudit } from "@/lib/tenant";
 import { logApiError } from "@/lib/observability";
 import { urlSchema } from "@/lib/validation";
+import { isPrivateUrl } from "@/lib/ssrf-guard";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const bulkAppSchema = z.object({
   apps: z
@@ -26,6 +28,23 @@ export async function POST(req: Request) {
 
   if (["VIEWER", "MEMBER"].includes(session.role)) {
     return NextResponse.json({ error: "Viewers have read-only access" }, { status: 403 });
+  }
+
+  // audit-23: Rate limit bulk add — 5 requests per hour per org (each can add up to 50 apps).
+  // Without this limit the endpoint could be used to exhaust storage or create thousands of
+  // scan jobs in rapid succession by bypassing the per-request app-count checks.
+  const rl = await checkRateLimit(`apps-bulk:${session.orgId}`, {
+    maxAttempts: 5,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many bulk-add requests. Please try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rl.retryAfterSeconds ?? 3600) },
+      },
+    );
   }
 
   try {
@@ -79,6 +98,24 @@ export async function POST(req: Request) {
         continue;
       }
 
+      // audit-23: SSRF guard — reject private/internal URLs per-entry.
+      // The single-app POST /api/apps correctly blocks these, but the bulk endpoint
+      // previously skipped this check, letting attackers register internal addresses
+      // (e.g. 169.254.169.254, 10.x.x.x) that would then be fetched by the scanner.
+      let blocked = false;
+      try {
+        blocked = await isPrivateUrl(appInput.url);
+      } catch {
+        blocked = true;
+      }
+      if (blocked) {
+        errors.push({
+          url: appInput.url,
+          reason: "App URL must be a public address. Private and internal URLs are not allowed.",
+        });
+        continue;
+      }
+
       try {
         const hostname = new URL(appInput.url).hostname;
         const name = appInput.name ?? hostname;
@@ -104,6 +141,17 @@ export async function POST(req: Request) {
           reason: err instanceof Error ? err.message : "Failed to create app",
         });
       }
+    }
+
+    // audit-23: Audit log for bulk add operations — ensures compliance trail matches
+    // single-app create behaviour (which always calls logAudit).
+    if (created > 0) {
+      await logAudit(
+        session,
+        "app.bulk_created",
+        "bulk",
+        `Bulk registered ${created} app(s); skipped ${skipped}; errors ${errors.length}`,
+      );
     }
 
     return NextResponse.json({ created, skipped, errors });
