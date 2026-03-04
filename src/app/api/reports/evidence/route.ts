@@ -67,7 +67,14 @@ export async function GET(req: NextRequest) {
       to,
     );
 
-    const filename = `scantient-evidence-${frameworkStr}-${fromStr}-to-${toStr}.pdf`;
+    // audit-23: Build the filename from the parsed (and therefore safe) Date objects
+    // rather than the raw user-supplied query strings.  Using fromStr/toStr directly
+    // could allow header injection via characters that Date parsing happens to accept
+    // (e.g. spaces, quotes, semicolons in some runtimes).  ISO 8601 date strings
+    // contain only digits and hyphens, which are safe in Content-Disposition filenames.
+    const fromSafe = from.toISOString().slice(0, 10); // YYYY-MM-DD
+    const toSafe = to.toISOString().slice(0, 10);     // YYYY-MM-DD
+    const filename = `scantient-evidence-${frameworkStr}-${fromSafe}-to-${toSafe}.pdf`;
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",

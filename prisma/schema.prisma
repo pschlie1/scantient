@@ -87,7 +87,6 @@ model Organization {
   auditLogs         AuditLog[]
   integrations      IntegrationConfig[]
   ssoConfig         SSOConfig?
-  connectorCredentials ConnectorCredential[]
 
   @@index([parentOrgId])
 }
@@ -204,28 +203,8 @@ model MonitorRun {
   /// Shape defined by ProbeResult in src/lib/probe-client.ts and docs/probe-spec.md.
   /// Null if the app has no probeUrl configured or if the probe was skipped/failed.
   probeResult              Json?
-  /// Tier 3: results from infrastructure connectors (Vercel, GitHub, Stripe, etc.)
-  /// Shape: Record<connector, ConnectorResult> — see src/lib/connectors/*.ts
-  connectorResults         Json?
 
   @@index([appId, startedAt])
-}
-
-// ─── Tier 3: Infrastructure Connector Credentials ───
-
-/// Stores encrypted credentials for infrastructure connectors (Vercel, GitHub, Stripe).
-/// One row per org per connector. Credentials are AES-256-GCM encrypted JSON blobs.
-model ConnectorCredential {
-  id        String       @id @default(cuid())
-  orgId     String
-  connector String       // "vercel" | "github" | "stripe"
-  encrypted String       // AES-256-GCM encrypted JSON blob of credentials
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@unique([orgId, connector])
-  @@index([orgId])
 }
 
 // ─── Core: Findings with Remediation Workflow ───────

@@ -20,6 +20,18 @@ const APP_URL = process.env.SCANTIENT_APP_URL;
 const API_URL = process.env.SCANTIENT_API_URL ?? "https://scantient.com";
 const FETCH_TIMEOUT_MS = 30_000;
 
+/**
+ * VERCEL_BYPASS_SECRET — optional.
+ *
+ * When set, the agent sends `x-vercel-protection-bypass: <value>` on every
+ * request.  This bypasses Vercel's bot-protection challenge (Attack Challenge
+ * Mode) for projects that have VERCEL_AUTOMATION_BYPASS_SECRET configured.
+ *
+ * Set this to the value you stored in the target project's
+ * VERCEL_AUTOMATION_BYPASS_SECRET Vercel environment variable.
+ */
+const VERCEL_BYPASS_SECRET = process.env.VERCEL_BYPASS_SECRET ?? null;
+
 if (!AGENT_KEY || !AGENT_KEY.startsWith("sa_")) {
   console.error("[scantient-agent] ERROR: SCANTIENT_AGENT_KEY is missing or invalid (must start with sa_)");
   process.exit(1);
@@ -374,19 +386,27 @@ async function scan() {
   console.log(`[scantient-agent] Starting scan of ${APP_URL}`);
   const start = Date.now();
 
+  const fetchHeaders = {
+    "User-Agent": "Scantient-Agent/1.0 (Security Scanner; https://scantient.com)",
+    Accept: "text/html,application/xhtml+xml,*/*",
+    ...(VERCEL_BYPASS_SECRET ? { "x-vercel-protection-bypass": VERCEL_BYPASS_SECRET } : {}),
+  };
+
   let response;
   try {
     response = await fetch(APP_URL, {
       method: "GET",
-      headers: {
-        "User-Agent": "Scantient-Agent/1.0 (Security Scanner; https://scantient.com)",
-        Accept: "text/html,application/xhtml+xml,*/*",
-      },
+      headers: fetchHeaders,
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       redirect: "follow",
     });
   } catch (err) {
     console.error(`[scantient-agent] ERROR: Failed to fetch ${APP_URL}: ${err.message}`);
+    process.exit(1);
+  }
+
+  if (response.status === 403 && response.headers.get("x-vercel-mitigated")) {
+    console.error(`[scantient-agent] ERROR: Vercel bot protection challenge received (HTTP 403). Set VERCEL_BYPASS_SECRET env var to bypass.`);
     process.exit(1);
   }
 

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   checkClientSideAuthBypass,
-  checkInlineScriptCount,
   checkInlineScripts,
   checkMetaAndConfig,
   checkSecurityHeaders,
@@ -180,56 +179,6 @@ describe("checkInlineScripts", () => {
     const html = `<script>var r=React.createElement("div",{dangerouslySetInnerHTML:{__html:e}})</script>`;
     const findings = checkInlineScripts(html);
     expect(findings.some((f) => f.code === "DANGEROUS_INNER_HTML")).toBe(true);
-  });
-});
-
-// Helper to build HTML with N non-empty inline scripts
-function makeInlineScripts(count: number): string {
-  return Array.from({ length: count }, (_, i) => `<script>var x${i}=1;</script>`).join("\n");
-}
-
-describe("checkInlineScriptCount", () => {
-  it("does NOT flag when count <= 5 (below threshold)", () => {
-    const html = makeInlineScripts(5);
-    const findings = checkInlineScriptCount(html, new Headers());
-    expect(findings.some((f) => f.code === "INLINE_SCRIPTS")).toBe(false);
-  });
-
-  it("flags as MEDIUM when count > 5 and no CSP header", () => {
-    const html = makeInlineScripts(6);
-    const findings = checkInlineScriptCount(html, new Headers());
-    const finding = findings.find((f) => f.code === "INLINE_SCRIPTS");
-    expect(finding).toBeDefined();
-    expect(finding?.severity).toBe("MEDIUM");
-  });
-
-  it("flags as LOW when count > 5 and CSP uses unsafe-inline", () => {
-    const html = makeInlineScripts(6);
-    const headers = new Headers({
-      "content-security-policy": "script-src 'self' 'unsafe-inline'",
-    });
-    const finding = checkInlineScriptCount(html, headers).find(
-      (f) => f.code === "INLINE_SCRIPTS",
-    );
-    expect(finding?.severity).toBe("LOW");
-  });
-
-  it("does NOT flag when CSP uses nonce-based protection", () => {
-    const html = makeInlineScripts(20);
-    const headers = new Headers({
-      "content-security-policy": "script-src 'nonce-abc123' 'strict-dynamic' 'unsafe-inline'",
-    });
-    const findings = checkInlineScriptCount(html, headers);
-    expect(findings.some((f) => f.code === "INLINE_SCRIPTS")).toBe(false);
-  });
-
-  it("does NOT flag when CSP uses hash-based protection", () => {
-    const html = makeInlineScripts(10);
-    const headers = new Headers({
-      "content-security-policy": "script-src 'self' 'sha256-abc123=='",
-    });
-    const findings = checkInlineScriptCount(html, headers);
-    expect(findings.some((f) => f.code === "INLINE_SCRIPTS")).toBe(false);
   });
 });
 
