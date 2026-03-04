@@ -52,7 +52,6 @@ vi.mock("@/lib/security", () => ({
   checkFormSecurity: vi.fn().mockReturnValue([]),
   checkInformationDisclosure: vi.fn().mockReturnValue([]),
   checkInlineScripts: vi.fn().mockReturnValue([]),
-  checkInlineScriptCount: vi.fn().mockReturnValue([]),
   checkMetaAndConfig: vi.fn().mockReturnValue([]),
   checkOpenRedirects: vi.fn().mockReturnValue([]),
   checkPerformanceRegression: vi.fn().mockResolvedValue([]),
@@ -72,9 +71,6 @@ vi.mock("@/lib/remediation-lifecycle", () => ({
   autoTriageFinding: vi.fn().mockResolvedValue(undefined),
   verifyResolvedFindings: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("@/lib/ai-policy-scanner", () => ({ checkAITools: vi.fn().mockReturnValue([]) }));
-vi.mock("@/lib/endpoint-discovery", () => ({ discoverEndpoints: vi.fn().mockResolvedValue([]) }));
-vi.mock("@/lib/scanner-auth", () => ({ runAuthScan: vi.fn().mockResolvedValue([]) }));
 
 beforeEach(() => {
   vi.clearAllMocks();
