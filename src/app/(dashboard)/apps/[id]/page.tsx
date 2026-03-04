@@ -18,7 +18,7 @@ import { isAiFinding, parseAiPolicyMeta } from "@/lib/ai-policy-scanner";
 import { AiPolicyBadge } from "@/components/ai-policy-badge";
 import { ShareScoreButton } from "@/components/share-score-button";
 import type { ProbeResult } from "@/lib/probe-client";
-import type { ConnectorResult } from "@/lib/connectors/types";
+// import type { ConnectorResult } from "@/lib/connectors/types"; // TODO: disabled incomplete feature
 
 export default async function AppDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -76,10 +76,11 @@ export default async function AppDetailsPage({ params }: { params: Promise<{ id:
     .find((r) => r.probeResult != null)
     ?.probeResult as ProbeResult | null | undefined;
 
-  // Extract the most recent connector results (if any) from the latest run
-  const latestConnectorResults = app.monitorRuns
-    .find((r) => r.connectorResults != null)
-    ?.connectorResults as Record<string, ConnectorResult> | null | undefined;
+  // TODO: connectorResults field not yet added to MonitorRun schema (incomplete merge)
+  // const latestConnectorResults = app.monitorRuns
+  //   .find((r) => r.connectorResults != null)
+  //   ?.connectorResults as Record<string, any> | null | undefined;
+  const latestConnectorResults: Record<string, any> | null = null;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -362,7 +363,7 @@ const CONNECTOR_LABELS: Record<string, string> = {
 function InfrastructureHealthCard({
   connectorResults,
 }: {
-  connectorResults: Record<string, ConnectorResult>;
+  connectorResults: Record<string, any>;
 }) {
   const entries = Object.entries(connectorResults);
 
