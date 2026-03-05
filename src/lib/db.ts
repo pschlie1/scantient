@@ -36,3 +36,6 @@ export const db =
 // Always persist to globalThis — covers both development hot-reloads AND
 // production warm Lambda invocations.
 global.prisma = db;
+
+// Default export for convenience (used by analytics routes)
+export default db;

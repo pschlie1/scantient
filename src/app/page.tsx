@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/footer";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type Tier = {
   name: string;
@@ -34,24 +35,27 @@ const checks = [
 
 const tiers = [
   {
-    name: "Builder",
-    price: "Free",
-    period: "",
-    annualPrice: "Free",
-    annualSavings: "",
-    desc: "Start monitoring, first 60 seconds are free",
+    name: "Lifetime Deal",
+    price: "$79",
+    period: "one-time",
+    annualPrice: "$79",
+    annualSavings: "Early bird (21 days)",
+    desc: "Limited-time lifetime deal. Only 100 units available.",
     features: [
-      "1 monitored app",
-      "1 team member",
-      "Daily scans",
-      "12 essential security checks",
+      "Unlimited apps (lifetime)",
+      "Unlimited team members",
+      "Unlimited scans (lifetime)",
+      "All 12 security checks",
       "Email alerts",
-      "Security score dashboard",
-      "API key leak detection",
+      "Slack integration (coming soon)",
+      "PDF compliance reports",
+      "API access",
+      "Priority support (1 year)",
+      "Free updates forever",
     ],
-    cta: "Start free scan",
-    ctaHref: "/signup",
-    highlighted: false,
+    cta: "Claim your deal",
+    ctaHref: "/signup?plan=ltd",
+    highlighted: true,
   },
   {
     name: "Pro",
@@ -73,9 +77,9 @@ const tiers = [
       "API access",
       "Slack bot for quick checks",
     ],
-    cta: "Start free trial",
-    ctaHref: "/signup",
-    highlighted: true,
+    cta: "Start subscription",
+    ctaHref: "/signup?plan=pro",
+    highlighted: false,
   },
   {
     name: "Enterprise",
@@ -215,73 +219,66 @@ function PricingSection({ tiers }: { tiers: Tier[] }) {
 
   return (
     <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
-      <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Simple pricing for any size</h2>
-      <p className="mb-8 text-center text-dusty-denim-600">
-        Find security leaks in 60 seconds. Most teams prevent their first $1M+ breach in the first month.
+      <div className="mb-8 flex items-center justify-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+          <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+          LIMITED TIME OFFER
+        </span>
+      </div>
+      <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 dark:text-alabaster-grey-50 sm:text-4xl transition-colors">Lifetime deal closes in 21 days</h2>
+      <p className="mb-8 text-center text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">
+        Lock in lifetime access for just $79. One-time payment, unlimited apps & scans forever.
       </p>
 
-      {/* Monthly/Annual Toggle */}
-      <div className="mb-12 flex items-center justify-center gap-4">
-        <span className={`text-sm font-medium ${!isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Monthly</span>
-        <button
-          onClick={() => setIsAnnual(!isAnnual)}
-          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-            isAnnual ? "bg-prussian-blue-600" : "bg-alabaster-grey-200"
-          }`}
-        >
-          <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-              isAnnual ? "translate-x-7" : "translate-x-1"
-            }`}
-          />
-        </button>
-        <span className={`text-sm font-medium ${isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Annual</span>
-        {isAnnual && <span className="ml-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Save up to 20%</span>}
-      </div>
+      {/* Note: No Monthly/Annual Toggle for LTD model */}
+      {/* The pricing is simplified to show all tiers at once */}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {tiers.map((tier) => (
           <div
             key={tier.name}
-            className={`rounded-2xl p-6 sm:p-8 transition-transform duration-200 hover:-translate-y-1 ${
+            className={`rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 active:scale-95 ${
               tier.highlighted
-                ? "bg-ink-black-950 text-white shadow-2xl"
-                : "border border-alabaster-grey-200 bg-white"
+                ? "bg-gradient-to-br from-prussian-blue-700 to-ink-black-950 dark:from-prussian-blue-600 dark:to-prussian-blue-900 text-white shadow-2xl hover:shadow-2xl relative overflow-hidden"
+                : "border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 hover:shadow-lg"
             }`}
             style={!tier.highlighted ? { boxShadow: "0 1px 3px rgba(12,25,39,0.05)" } : undefined}
           >
             {tier.highlighted && (
-              <span className="mb-4 inline-block rounded-full bg-prussian-blue-600 px-3 py-1 text-xs font-semibold text-white">
-                Most popular
-              </span>
+              <>
+                <span className="mb-4 inline-block rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-bold text-yellow-200 border border-yellow-400/40">
+                  🎁 LIMITED OFFER
+                </span>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-prussian-blue-600/20 rounded-full blur-2xl -mr-20 -mt-20" />
+              </>
             )}
-            <h3 className={`text-lg font-bold ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>{tier.name}</h3>
+            <h3 className={`text-lg font-bold relative z-10 ${tier.highlighted ? "text-white" : "text-ink-black-950 dark:text-alabaster-grey-50"}`}>{tier.name}</h3>
             <div className="mt-3">
-              <span className={`text-4xl font-extrabold tracking-tight ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>
-                {isAnnual ? tier.annualPrice : tier.price}
+              <span className={`text-4xl font-extrabold tracking-tight relative z-10 ${tier.highlighted ? "text-white" : "text-ink-black-950 dark:text-alabaster-grey-50"}`}>
+                {tier.price}
               </span>
-              {!isAnnual && <span className={tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}>/month</span>}
-              {isAnnual && tier.annualSavings && (
-                <div className={`text-xs font-semibold ${tier.highlighted ? "text-emerald-300" : "text-emerald-600"}`}>
+              <span className={`text-sm relative z-10 ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>{tier.period}</span>
+              {tier.annualSavings && (
+                <div className={`text-xs font-bold relative z-10 mt-1 ${tier.highlighted ? "text-yellow-300" : "text-emerald-600"}`}>
                   {tier.annualSavings}
                 </div>
               )}
             </div>
-            <p className={`mt-3 text-sm ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>{tier.desc}</p>
+            <p className={`mt-3 text-sm relative z-10 ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>{tier.desc}</p>
             <Link
               href={tier.ctaHref}
-              className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
+              className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-all active:scale-95 relative z-10 ${
                 tier.highlighted
-                  ? "bg-prussian-blue-600 text-white hover:bg-prussian-blue-700"
-                  : "border border-alabaster-grey-200 text-dusty-denim-700 hover:bg-alabaster-grey-50"
+                  ? "bg-white text-prussian-blue-700 hover:bg-alabaster-grey-100 font-bold shadow-lg hover:shadow-xl"
+                  : "border border-alabaster-grey-200 dark:border-ink-black-700 text-dusty-denim-700 dark:text-dusty-denim-100 hover:bg-alabaster-grey-50 dark:hover:bg-ink-black-800 transition-colors"
               }`}
             >
               {tier.cta}
             </Link>
-            <ul className="mt-8 space-y-3">
+            <ul className="mt-8 space-y-3 relative z-10">
               {tier.features.map((f) => (
-                <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlighted ? "text-alabaster-grey-100" : "text-dusty-denim-600"}`}>
-                  <span className={`mt-0.5 ${tier.highlighted ? "text-prussian-blue-300" : "text-prussian-blue-600"}`}>✓</span>
+                <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlighted ? "text-alabaster-grey-100" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>
+                  <span className={`mt-0.5 shrink-0 ${tier.highlighted ? "text-yellow-300" : "text-prussian-blue-600 dark:text-prussian-blue-400"}`}>✓</span>
                   {f}
                 </li>
               ))}
@@ -304,23 +301,31 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-    <div className="bg-alabaster-grey-50">
+    <div className="bg-alabaster-grey-50 dark:bg-ink-black-950 transition-colors">
       {/* Nav - Frosted glass sticky header */}
-      <nav className="sticky top-0 z-50 border-b border-alabaster-grey-200/60" style={{ background: "rgba(243,243,241,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+      <nav className="sticky top-0 z-50 border-b border-alabaster-grey-200/60 dark:border-ink-black-800/60 transition-colors" style={{ background: "rgba(243,243,241,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+        <style>{`
+          @media (prefers-color-scheme: dark) {
+            nav {
+              background: rgba(8,18,27,0.85) !important;
+            }
+          }
+        `}</style>
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900 dark:bg-prussian-blue-600 transition-colors">
               <span className="text-sm font-bold text-white">V</span>
             </div>
-            <span className="font-bold tracking-tight text-ink-black-900">Scantient</span>
+            <span className="font-bold tracking-tight text-ink-black-900 dark:text-alabaster-grey-50 transition-colors">Scantient</span>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Resources</Link>
-            <Link href="/#pricing" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Pricing</Link>
-            <Link href="/login" className="text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950">Sign in</Link>
+            <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100 sm:block">Resources</Link>
+            <Link href="/#pricing" className="hidden text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100 sm:block">Pricing</Link>
+            <Link href="/login" className="text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100">Sign in</Link>
+            <ThemeToggle />
             <Link
               href="/signup"
-              className="rounded-full bg-prussian-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-prussian-blue-700"
+              className="rounded-full bg-prussian-blue-600 dark:bg-prussian-blue-500 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-prussian-blue-700 dark:hover:bg-prussian-blue-600 hover:shadow-lg active:scale-95"
             >
               Get started
             </Link>
@@ -331,23 +336,32 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-24 pt-24 sm:pb-32 sm:pt-32" style={{ background: "radial-gradient(ellipse at 50% 0%, #ebf2f9 0%, #f3f3f1 70%)" }}>
         <div className="mx-auto max-w-[1200px] text-center">
-          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink-black-950 sm:text-6xl lg:text-[3.75rem]">
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 border border-red-300">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              LIFETIME DEAL — $79 ONLY
+            </span>
+          </div>
+          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink-black-950 dark:text-alabaster-grey-50 sm:text-6xl lg:text-[3.75rem] transition-colors">
             Sleep tonight knowing your <br />
-            <span className="text-prussian-blue-600">API keys aren't leaked.</span>
+            <span className="text-prussian-blue-600 dark:text-prussian-blue-400 transition-colors">API keys aren't leaked.</span>
           </h1>
-          <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700">
+          <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors">
             Scantient finds your leaked API keys, exposed admin panels, and broken auth in under 60 seconds. No code changes, no SDK, no developers needed.
+          </p>
+          <p className="mx-auto mt-2 max-w-[600px] text-sm font-semibold text-red-700 dark:text-red-400">
+            Limited-time offer: Lifetime access for $79 (closes in 21 days, only 100 units available)
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/signup"
-              className="rounded-lg bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-prussian-blue-600/25 transition-all hover:bg-prussian-blue-700 hover:shadow-xl hover:shadow-prussian-blue-700/25"
+              className="rounded-lg bg-prussian-blue-600 dark:bg-prussian-blue-500 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-prussian-blue-600/25 dark:shadow-prussian-blue-500/20 transition-all hover:bg-prussian-blue-700 dark:hover:bg-prussian-blue-600 hover:shadow-xl hover:shadow-prussian-blue-700/40 dark:hover:shadow-prussian-blue-600/40 active:scale-95"
             >
               Start free scan
             </Link>
             <Link
               href="#pricing"
-              className="rounded-lg border border-alabaster-grey-200 bg-white px-8 py-3.5 text-sm font-semibold text-dusty-denim-700 transition-colors hover:border-alabaster-grey-200 hover:bg-alabaster-grey-50"
+              className="rounded-lg border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 px-8 py-3.5 text-sm font-semibold text-dusty-denim-700 dark:text-dusty-denim-100 transition-all hover:border-alabaster-grey-300 dark:hover:border-ink-black-700 hover:bg-alabaster-grey-50 dark:hover:bg-ink-black-800 active:scale-95"
             >
               See pricing plans
             </Link>
@@ -434,13 +448,17 @@ export default function LandingPage() {
           12 essential security checks. Every scan. Zero setup. No developer required.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {checks.map((check) => (
-            <div key={check.title} className="rounded-2xl border border-alabaster-grey-200 bg-white p-8 transition-all hover:shadow-lg" style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-black-50">
+          {checks.map((check, idx) => (
+            <div 
+              key={check.title} 
+              className="rounded-2xl border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 p-8 transition-all hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-prussian-blue-600/20 hover:-translate-y-1 active:scale-95" 
+              style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-black-50 dark:bg-prussian-blue-600/20 transition-colors">
                 <span className="text-xl">{check.icon}</span>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-ink-black-900">{check.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dusty-denim-600">{check.desc}</p>
+              <h3 className="mt-5 text-lg font-bold text-ink-black-900 dark:text-alabaster-grey-50 transition-colors">{check.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">{check.desc}</p>
             </div>
           ))}
         </div>
@@ -573,13 +591,13 @@ export default function LandingPage() {
               <a
                 key={item.stat}
                 href={item.href}
-                className="group relative rounded-2xl border border-alabaster-grey-200 bg-white p-8 transition-all hover:shadow-lg hover:-translate-y-0.5"
+                className="group relative rounded-2xl border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 p-8 transition-all hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-prussian-blue-600/20 hover:-translate-y-0.5 active:scale-95"
                 style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}
               >
                 <div className="mb-4 text-3xl">{item.icon}</div>
-                <p className="text-4xl font-extrabold tracking-tight text-ink-black-950">{item.stat}</p>
-                <p className="mt-1 text-sm font-semibold text-prussian-blue-600">{item.label}</p>
-                <p className="mt-3 text-sm leading-relaxed text-dusty-denim-600">{item.detail}</p>
+                <p className="text-4xl font-extrabold tracking-tight text-ink-black-950 dark:text-alabaster-grey-50 transition-colors">{item.stat}</p>
+                <p className="mt-1 text-sm font-semibold text-prussian-blue-600 dark:text-prussian-blue-400 transition-colors">{item.label}</p>
+                <p className="mt-3 text-sm leading-relaxed text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">{item.detail}</p>
               </a>
             ))}
           </div>
@@ -606,14 +624,14 @@ export default function LandingPage() {
       </section>
 
       {/* Footer CTA */}
-      <section className="bg-ink-black-950 px-6 py-24 text-center sm:py-32">
+      <section className="bg-ink-black-950 dark:bg-ink-black-900 px-6 py-24 text-center sm:py-32 transition-colors">
         <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-white sm:text-4xl">Stop finding out about breaches<br />from your CEO.</h2>
-        <p className="mx-auto mt-6 max-w-xl text-alabaster-grey-200">
+        <p className="mx-auto mt-6 max-w-xl text-alabaster-grey-200 dark:text-dusty-denim-500 transition-colors">
           Add your first app URL. We start scanning in 60 seconds.
         </p>
         <Link
           href="/signup"
-          className="mt-10 inline-block rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-ink-black-950 transition-colors hover:bg-alabaster-grey-100"
+          className="mt-10 inline-block rounded-lg bg-white dark:bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-ink-black-950 dark:text-white transition-all hover:bg-alabaster-grey-100 dark:hover:bg-prussian-blue-700 hover:shadow-lg active:scale-95"
         >
           Get started
         </Link>

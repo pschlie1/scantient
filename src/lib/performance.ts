@@ -44,7 +44,6 @@ function sendMetricToSentry(metric: PerformanceMetric) {
 
   // Set metric as custom measurement (viewable in Sentry dashboard)
   Sentry.setContext('performance', {
-    ...Sentry.getCurrentScope().getContext('performance'),
     [metric.name]: metric.value.toFixed(0),
   });
 
@@ -182,11 +181,18 @@ export function initPerformanceMonitoring() {
 function monitorAPITiming() {
   const originalFetch = window.fetch;
 
-  window.fetch = function (...args) {
+  window.fetch = function (this: typeof window, ...args) {
     const startTime = performance.now();
-    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url;
+    let url: string | undefined;
+    if (typeof args[0] === 'string') {
+      url = args[0];
+    } else if (args[0] instanceof URL) {
+      url = args[0].toString();
+    } else if (args[0] && typeof args[0] === 'object' && 'url' in args[0]) {
+      url = (args[0] as Request).url;
+    }
 
-    return originalFetch.apply(this, args).then((response) => {
+    return originalFetch.apply(this, args as Parameters<typeof window.fetch>).then((response) => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 

@@ -27,7 +27,7 @@ import prisma from '@/lib/db';
 // Schema validation for incoming events
 const EventSchema = z.object({
   name: z.string().min(1).max(100),
-  properties: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
   timestamp: z.number().positive(),
   sessionId: z.string(),
   userId: z.string().nullable().optional(),
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         prisma.analyticsEvent.create({
           data: {
             name: event.name,
-            properties: event.properties || {},
+            properties: (event.properties || {}) as any,
             sessionId: event.sessionId,
             userId: event.userId || null,
             utmSource: event.utm?.source || null,
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Invalid request schema',
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 }
       );
