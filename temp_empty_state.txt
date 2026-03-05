@@ -1,0 +1,22 @@
+          {apps.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="mb-4 text-4xl">🚀</div>
+              <h3 className="mb-2 text-lg font-semibold text-ink-black-950">Ready to secure your apps?</h3>
+              <p className="mb-6 max-w-sm mx-auto text-sm text-dusty-denim-600">
+                Add your first app to start monitoring. You'll get your first security scan in under 60 seconds — no setup required.
+              </p>
+              <div className="flex flex-col gap-3 items-center justify-center sm:flex-row">
+                <Link
+                  href="/apps/bulk-add"
+                  className="rounded-lg bg-prussian-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-prussian-blue-700"
+                >
+                  Add apps
+                </Link>
+                <Link
+                  href="/#features"
+                  className="rounded-lg border border-alabaster-grey-200 px-4 py-2.5 text-sm font-medium text-dusty-denim-700 transition hover:bg-alabaster-grey-50"
+                >
+                  See what we check
+                </Link>
+              </div>
+            </div>
