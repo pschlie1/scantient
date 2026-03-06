@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/footer";
@@ -9,21 +8,6 @@ type Check = {
   title: string;
   outcome?: string;
   desc: string;
-};
-
-type Tier = {
-  name: string;
-  price: string;
-  period?: string;
-  annualPrice?: string;
-  annualSavings?: string;
-  desc: string;
-  outcomeHeading?: string;
-  outcomeSubheading?: string;
-  features: string[];
-  cta: string;
-  ctaHref: string;
-  highlighted: boolean;
 };
 
 const checks: Check[] = [
@@ -47,83 +31,6 @@ const checks: Check[] = [
   { icon: "🎯", title: "Pixel Tracking & Privacy Violations", outcome: "Your outcome: Track all third-party pixels and analytics tools.", desc: "Know which tracking tools are on your site, ensure GDPR/privacy compliance." },
   { icon: "🔧", title: "Infrastructure Misconfiguration", outcome: "Your outcome: S3 buckets, databases, storage not open to the internet.", desc: "We detect public S3 buckets, exposed database ports, and cloud storage misconfigurations." },
   { icon: "📱", title: "Mobile & Responsive Security", outcome: "Your outcome: Your app is secure on mobile, tablet, and desktop.", desc: "We scan security across all device breakpoints." },
-];
-
-const tiers: Tier[] = [
-  {
-    name: "Lifetime Deal",
-    price: "$79",
-    period: "",
-    annualPrice: "$79",
-    annualSavings: "one-time",
-    desc: "Ship before your users find your security holes",
-    outcomeHeading: "Ship Before Your Users Find Your Security Holes",
-    outcomeSubheading: "One scan. 30 seconds. 'Safe to deploy' or 'fix these 3 things.'",
-    features: [
-      "Unlimited apps (lifetime)",
-      "Unlimited team members",
-      "Unlimited scans",
-      "All 20 security checks",
-      "Pre-deploy scanning (CLI / GitHub Action)",
-      "Slack/email alerts",
-      "Perfect for indie hackers & founders",
-    ],
-    cta: "Claim your $79 deal",
-    ctaHref: "/signup?plan=ltd",
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "$399",
-    period: "/month",
-    annualPrice: "$4,188",
-    annualSavings: "save $588/year",
-    desc: "Compliance on autopilot",
-    outcomeHeading: "Compliance On Autopilot",
-    outcomeSubheading: "Continuous verification + monthly audit reports. Your auditors will love you.",
-    features: [
-      "15 monitored apps",
-      "5 team members",
-      "Hourly automated scans",
-      "All 20 security checks",
-      "Jira integration (auto-creates tickets)",
-      "Slack & email alerts",
-      "Monthly PDF compliance reports",
-      "Auto-suppress known-safe items",
-      "Team collaboration & visibility",
-      "Audit log of every scan",
-    ],
-    cta: "Start Pro subscription",
-    ctaHref: "/signup?plan=pro",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    annualPrice: "Custom",
-    annualSavings: "",
-    desc: "Security compliance that scales",
-    outcomeHeading: "Security Compliance That Scales",
-    outcomeSubheading: "Custom rules. Board-ready dashboards. Prove security to auditors, board, and customers.",
-    features: [
-      "Unlimited apps",
-      "Unlimited team members",
-      "Hourly scans + custom schedules",
-      "All 20 security checks + custom rules",
-      "Custom rule engine for compliance",
-      "Automated incident escalation",
-      "Board-ready quarterly reports",
-      "Full audit logs & decision tracking",
-      "Guaranteed response SLA",
-      "White-glove support & strategy reviews",
-      "Custom integrations (Splunk, Datadog, Okta)",
-      "SSO / SAML / LDAP",
-    ],
-    cta: "Contact sales",
-    ctaHref: "mailto:sales@scantient.com",
-    highlighted: false,
-  },
 ];
 
 const socialProof = [
@@ -233,99 +140,6 @@ const faqSchema = {
   })),
 };
 
-function PricingSection({ tiers }: { tiers: Tier[] }) {
-  const [isAnnual, setIsAnnual] = useState(false);
-
-  return (
-    <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
-      <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Choose your security outcome</h2>
-      <p className="mb-8 text-center text-dusty-denim-600">
-        Every plan includes all 20 security checks. Choose based on your scale, compliance needs, and team size.
-      </p>
-
-      {/* Monthly/Annual Toggle */}
-      <div className="mb-12 flex items-center justify-center gap-4">
-        <span className={`text-sm font-medium ${!isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Monthly</span>
-        <button
-          onClick={() => setIsAnnual(!isAnnual)}
-          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-            isAnnual ? "bg-prussian-blue-600" : "bg-alabaster-grey-200"
-          }`}
-        >
-          <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-              isAnnual ? "translate-x-7" : "translate-x-1"
-            }`}
-          />
-        </button>
-        <span className={`text-sm font-medium ${isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Annual</span>
-        {isAnnual && <span className="ml-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Save up to 20%</span>}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {tiers.map((tier) => (
-          <div
-            key={tier.name}
-            className={`rounded-2xl p-6 sm:p-8 transition-transform duration-200 hover:-translate-y-1 ${
-              tier.highlighted
-                ? "bg-ink-black-950 text-white shadow-2xl"
-                : "border border-alabaster-grey-200 bg-white"
-            }`}
-            style={!tier.highlighted ? { boxShadow: "0 1px 3px rgba(12,25,39,0.05)" } : undefined}
-          >
-            {tier.highlighted && (
-              <span className="mb-4 inline-block rounded-full bg-prussian-blue-600 px-3 py-1 text-xs font-semibold text-white">
-                Most popular
-              </span>
-            )}
-            {tier.outcomeHeading && (
-              <h2 className={`mb-3 text-base font-bold ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>
-                {tier.outcomeHeading}
-              </h2>
-            )}
-            {tier.outcomeSubheading && (
-              <p className={`mb-4 text-xs ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>
-                {tier.outcomeSubheading}
-              </p>
-            )}
-            <h3 className={`text-lg font-bold ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>{tier.name}</h3>
-            <div className="mt-3">
-              <span className={`text-4xl font-extrabold tracking-tight ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>
-                {isAnnual ? tier.annualPrice : tier.price}
-              </span>
-              {!isAnnual && <span className={tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}>/month</span>}
-              {isAnnual && tier.annualSavings && (
-                <div className={`text-xs font-semibold ${tier.highlighted ? "text-emerald-300" : "text-emerald-600"}`}>
-                  {tier.annualSavings}
-                </div>
-              )}
-            </div>
-            <p className={`mt-3 text-sm ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>{tier.desc}</p>
-            <Link
-              href={tier.ctaHref}
-              className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
-                tier.highlighted
-                  ? "bg-prussian-blue-600 text-white hover:bg-prussian-blue-700"
-                  : "border border-alabaster-grey-200 text-dusty-denim-700 hover:bg-alabaster-grey-50"
-              }`}
-            >
-              {tier.cta}
-            </Link>
-            <ul className="mt-8 space-y-3">
-              {tier.features.map((f) => (
-                <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlighted ? "text-alabaster-grey-100" : "text-dusty-denim-600"}`}>
-                  <span className={`mt-0.5 ${tier.highlighted ? "text-prussian-blue-300" : "text-prussian-blue-600"}`}>✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export default function LandingPage() {
   return (
     <>
@@ -349,7 +163,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-6">
             <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Resources</Link>
-            <Link href="/#pricing" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Pricing</Link>
+            <Link href="/pricing" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Pricing</Link>
             <Link href="/login" className="text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950">Sign in</Link>
             <Link
               href="/signup"
@@ -622,9 +436,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <PricingSection tiers={tiers} />
-      
+      {/* Ready to get started CTA */}
+      <section className="mx-auto max-w-[1200px] px-6 py-24 text-center sm:py-32">
+        <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Ready to get started?</h2>
+        <p className="mx-auto mt-4 max-w-xl text-dusty-denim-600">
+          See all three pricing tiers and find the right fit for your team.
+        </p>
+        <Link
+          href="/pricing"
+          className="mt-8 inline-block rounded-lg bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-prussian-blue-700"
+        >
+          View pricing
+        </Link>
+      </section>
 
       {/* FAQ */}
       <section className="border-t border-alabaster-grey-200 bg-white px-6 py-24 sm:py-32">
