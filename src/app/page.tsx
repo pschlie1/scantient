@@ -3,7 +3,13 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/footer";
-import { ThemeToggle } from "@/components/theme-toggle";
+
+type Check = {
+  icon: string;
+  title: string;
+  outcome?: string;
+  desc: string;
+};
 
 type Tier = {
   name: string;
@@ -12,56 +18,59 @@ type Tier = {
   annualPrice?: string;
   annualSavings?: string;
   desc: string;
+  outcomeHeading?: string;
+  outcomeSubheading?: string;
   features: string[];
   cta: string;
   ctaHref: string;
   highlighted: boolean;
 };
 
-const checks = [
-  { icon: "🔑", title: "Exposed API Keys", desc: "Your outcome: No stolen credentials in the wild. Scantient detected $50K in stolen Stripe keys in 30 seconds. We check OpenAI, Stripe, Supabase, Twilio, SendGrid, AWS keys, and 20+ other services." },
-  { icon: "🛡️", title: "Missing Security Headers", desc: "Your outcome: Users protected from XSS, clickjacking, injection attacks. One missing header = your data exposed. We verify CSP, HSTS, X-Frame-Options, X-Content-Type, Referrer-Policy." },
-  { icon: "🔓", title: "Auth Bypass Vulnerabilities", desc: "Your outcome: No $500K breach from a 'check role on frontend' mistake. We detect hardcoded admin checks, fake auth gates, and role checks visible in client code." },
-  { icon: "📦", title: "Hardcoded Secrets in JavaScript", desc: "Your outcome: Database passwords not in your JavaScript bundle. Scantient finds secrets hardcoded in JS chunks, config files, git history, and comments. (Curse you, Cursor auto-generation.)" },
-  { icon: "⚙️", title: "Exposed Debug Endpoints", desc: "Your outcome: Attackers don't find .env, .git/HEAD, /api/admin, phpinfo. Attackers check for debug endpoints within 2 minutes of finding your site. We check first." },
-  { icon: "🚀", title: "Performance & Uptime Alerts", desc: "Your outcome: Know about outages before your CEO calls. We baseline your response time and alert if it suddenly takes 8 seconds to load. Get notified of 500 errors within hours." },
-  { icon: "🔗", title: "Malicious External Scripts", desc: "Your outcome: No backdoors from compromised CDNs. Every third-party script is a potential breach. We detect unencrypted loads, suspicious data URIs, and supply chain compromises." },
-  { icon: "📋", title: "Form & API Security Flaws", desc: "Your outcome: Forms submit to YOUR domain, not attacker's. We catch forms submitting to wrong domains, missing CSRF tokens, unencrypted API calls — the stuff compliance auditors find." },
-  { icon: "🌐", title: "CORS & API Exposure Issues", desc: "Your outcome: Competitors can't read your customer data via API. One misconfigured CORS header = your API exposed. We detect overpermissive access." },
-  { icon: "🔐", title: "SSL Certificate Expiry", desc: "Your outcome: Your site never goes dark due to expired SSL. A lapsed certificate = 100% downtime. We alert 30, 14, and 7 days before expiry." },
-  { icon: "📡", title: "Subdomain Takeover Risks", desc: "Your outcome: Forgotten DNS records aren't free subdomains for attackers. We detect DNS misconfigurations, dangling CNAME records, and abandoned subdomains." },
-  { icon: "⏱️", title: "Load Time Regression Detection", desc: "Your outcome: Catch performance degradation before users bounce. Baseline your app's speed. If it suddenly takes 8 seconds to load, you know before your users do." },
-  { icon: "🍪", title: "Cookie Security Issues", desc: "Your outcome: Session cookies protected from theft and XSS. We verify HttpOnly, Secure, SameSite flags on all cookies." },
-  { icon: "🔄", title: "Content Change Detection", desc: "Your outcome: Know when your site's HTML changed unexpectedly. Baseline your app. If an attacker injects content or modifiers change things, we alert you." },
-  { icon: "🛡️", title: "Dependency Vulnerability Scanning", desc: "Your outcome: No known vulnerable libraries in your app. We scan package.json, npm/yarn lock files for outdated / vulnerable dependencies." },
-  { icon: "📊", title: "Unencrypted Data Transmission", desc: "Your outcome: All data in transit is encrypted (HTTPS). We verify no HTTP resources are mixed with HTTPS." },
-  { icon: "🤖", title: "Bot Detection & Abuse Protection", desc: "Your outcome: Know if your APIs are being scraped or abused. We detect unusual request patterns that indicate bot activity." },
-  { icon: "🎯", title: "Pixel Tracking & Privacy Violations", desc: "Your outcome: Track all third-party pixels and analytics tools. Know which tracking tools are on your site, ensure GDPR/privacy compliance." },
-  { icon: "🔧", title: "Infrastructure Misconfiguration", desc: "Your outcome: S3 buckets, databases, storage not open to the internet. We detect public S3 buckets, exposed database ports, and cloud storage misconfigurations." },
-  { icon: "📱", title: "Mobile & Responsive Security", desc: "Your outcome: Your app is secure on mobile, tablet, and desktop. We scan security across all device breakpoints." },
+const checks: Check[] = [
+  { icon: "🔑", title: "Exposed API Keys", outcome: "Your outcome: No stolen credentials in the wild.", desc: "Scantient detected $50K in stolen Stripe keys in 30 seconds. We check OpenAI, Stripe, Supabase, Twilio, SendGrid, AWS keys, and 20+ other services." },
+  { icon: "🛡️", title: "Missing Security Headers", outcome: "Your outcome: Users protected from XSS, clickjacking, injection attacks.", desc: "One missing header = your data exposed. We verify CSP, HSTS, X-Frame-Options, X-Content-Type, Referrer-Policy." },
+  { icon: "🔓", title: "Auth Bypass Vulnerabilities", outcome: "Your outcome: No $500K breach from a 'check role on frontend' mistake.", desc: "We detect hardcoded admin checks, fake auth gates, and role checks visible in client code." },
+  { icon: "📦", title: "Hardcoded Secrets in JavaScript", outcome: "Your outcome: Database passwords not in your JavaScript bundle.", desc: "Scantient finds secrets hardcoded in JS chunks, config files, git history, and comments. (Curse you, Cursor auto-generation.)" },
+  { icon: "⚙️", title: "Exposed Debug Endpoints", outcome: "Your outcome: Attackers don't find .env, .git/HEAD, /api/admin, phpinfo.", desc: "Attackers check for debug endpoints within 2 minutes of finding your site. We check first." },
+  { icon: "🚀", title: "Performance & Uptime Alerts", outcome: "Your outcome: Know about outages before your CEO calls.", desc: "We baseline your response time and alert if it suddenly takes 8 seconds to load. Get notified of 500 errors within hours, not after customers complain." },
+  { icon: "🔗", title: "Malicious External Scripts", outcome: "Your outcome: No backdoors from compromised CDNs.", desc: "Every third-party script is a potential breach. We detect unencrypted loads, suspicious data URIs, and supply chain compromises." },
+  { icon: "📋", title: "Form & API Security Flaws", outcome: "Your outcome: Forms submit to YOUR domain, not attacker's.", desc: "We catch forms submitting to wrong domains, missing CSRF tokens, unencrypted API calls — the stuff compliance auditors find." },
+  { icon: "🌐", title: "CORS & API Exposure Issues", outcome: "Your outcome: Competitors can't read your customer data via API.", desc: "One misconfigured CORS header = your API exposed. We detect overpermissive access." },
+  { icon: "🔐", title: "SSL Certificate Expiry", outcome: "Your outcome: Your site never goes dark due to expired SSL.", desc: "A lapsed certificate = 100% downtime. We alert 30, 14, and 7 days before expiry." },
+  { icon: "📡", title: "Subdomain Takeover Risks", outcome: "Your outcome: Forgotten DNS records aren't free subdomains for attackers.", desc: "We detect DNS misconfigurations, dangling CNAME records, and abandoned subdomains." },
+  { icon: "⏱️", title: "Load Time Regression Detection", outcome: "Your outcome: Catch performance degradation before users bounce.", desc: "Baseline your app's speed. If it suddenly takes 8 seconds to load, you know before your users do." },
+  { icon: "🍪", title: "Cookie Security Issues", outcome: "Your outcome: Session cookies protected from theft and XSS.", desc: "We verify HttpOnly, Secure, SameSite flags on all cookies." },
+  { icon: "🔄", title: "Content Change Detection", outcome: "Your outcome: Know when your site's HTML changed unexpectedly.", desc: "Baseline your app. If an attacker injects content or modifiers change things, we alert you." },
+  { icon: "🛡️", title: "Dependency Vulnerability Scanning", outcome: "Your outcome: No known vulnerable libraries in your app.", desc: "We scan package.json, npm/yarn lock files for outdated / vulnerable dependencies." },
+  { icon: "📊", title: "Unencrypted Data Transmission", outcome: "Your outcome: All data in transit is encrypted (HTTPS).", desc: "We verify no HTTP resources are mixed with HTTPS." },
+  { icon: "🤖", title: "Bot Detection & Abuse Protection", outcome: "Your outcome: Know if your APIs are being scraped or abused.", desc: "We detect unusual request patterns that indicate bot activity." },
+  { icon: "🎯", title: "Pixel Tracking & Privacy Violations", outcome: "Your outcome: Track all third-party pixels and analytics tools.", desc: "Know which tracking tools are on your site, ensure GDPR/privacy compliance." },
+  { icon: "🔧", title: "Infrastructure Misconfiguration", outcome: "Your outcome: S3 buckets, databases, storage not open to the internet.", desc: "We detect public S3 buckets, exposed database ports, and cloud storage misconfigurations." },
+  { icon: "📱", title: "Mobile & Responsive Security", outcome: "Your outcome: Your app is secure on mobile, tablet, and desktop.", desc: "We scan security across all device breakpoints." },
 ];
 
-const tiers = [
+const tiers: Tier[] = [
   {
     name: "Lifetime Deal",
     price: "$79",
-    period: "one-time",
+    period: "",
     annualPrice: "$79",
-    annualSavings: "Early bird (21 days)",
+    annualSavings: "one-time",
     desc: "Ship before your users find your security holes",
+    outcomeHeading: "Ship Before Your Users Find Your Security Holes",
+    outcomeSubheading: "One scan. 30 seconds. 'Safe to deploy' or 'fix these 3 things.'",
     features: [
-      "Pre-deploy scanning (CLI / GitHub Action)",
-      "Slack/email alerts ('API key found at line 247')",
-      "Lifetime access, unlimited scans",
+      "Unlimited apps (lifetime)",
+      "Unlimited team members",
+      "Unlimited scans",
       "All 20 security checks",
-      "One scan. 30 seconds. 'Safe to deploy' or 'fix these 3 things.'",
+      "Pre-deploy scanning (CLI / GitHub Action)",
+      "Slack/email alerts",
       "Perfect for indie hackers & founders",
-      "Solo devs shipping fast",
-      "Anyone who wants zero-friction security checks",
     ],
     cta: "Claim your $79 deal",
     ctaHref: "/signup?plan=ltd",
-    highlighted: true,
+    highlighted: false,
   },
   {
     name: "Pro",
@@ -70,19 +79,23 @@ const tiers = [
     annualPrice: "$4,188",
     annualSavings: "save $588/year",
     desc: "Compliance on autopilot",
+    outcomeHeading: "Compliance On Autopilot",
+    outcomeSubheading: "Continuous verification + monthly audit reports. Your auditors will love you.",
     features: [
-      "Hourly automated scans (no setup, runs in background)",
-      "Auto-creates Jira tickets for new findings",
-      "Auto-suppresses known-safe items (mark once, never alert again)",
-      "Monthly PDF: 'Zero critical findings this month'",
-      "Team collaboration (5 members, unlimited visibility)",
-      "Audit log of every scan + suppression",
-      "Perfect for CTOs at SMBs (50-500 people)",
-      "Teams with 2-3 production apps",
+      "15 monitored apps",
+      "5 team members",
+      "Hourly automated scans",
+      "All 20 security checks",
+      "Jira integration (auto-creates tickets)",
+      "Slack & email alerts",
+      "Monthly PDF compliance reports",
+      "Auto-suppress known-safe items",
+      "Team collaboration & visibility",
+      "Audit log of every scan",
     ],
     cta: "Start Pro subscription",
     ctaHref: "/signup?plan=pro",
-    highlighted: false,
+    highlighted: true,
   },
   {
     name: "Enterprise",
@@ -91,15 +104,21 @@ const tiers = [
     annualPrice: "Custom",
     annualSavings: "",
     desc: "Security compliance that scales",
+    outcomeHeading: "Security Compliance That Scales",
+    outcomeSubheading: "Custom rules. Board-ready dashboards. Prove security to auditors, board, and customers.",
     features: [
-      "Custom rule engine (scan for YOUR compliance requirements)",
-      "Automated incident escalation (Slack, PagerDuty, email to CISO)",
-      "Board-ready quarterly reports ('100% security compliance')",
-      "Full audit logs (every scan, every decision, every fix)",
+      "Unlimited apps",
+      "Unlimited team members",
+      "Hourly scans + custom schedules",
+      "All 20 security checks + custom rules",
+      "Custom rule engine for compliance",
+      "Automated incident escalation",
+      "Board-ready quarterly reports",
+      "Full audit logs & decision tracking",
       "Guaranteed response SLA",
-      "White-glove support + quarterly strategy reviews",
-      "Custom integrations (Splunk, Datadog, Okta, etc.)",
-      "Perfect for regulated industries & mid-market companies",
+      "White-glove support & strategy reviews",
+      "Custom integrations (Splunk, Datadog, Okta)",
+      "SSO / SAML / LDAP",
     ],
     cta: "Contact sales",
     ctaHref: "mailto:sales@scantient.com",
@@ -126,7 +145,7 @@ const socialProof = [
     icon: "🔐",
     stat: "20",
     label: "Security checks every scan",
-    detail: "API keys, exposed admin panels, broken auth, SSL certs, performance, infrastructure, and more. Every single time. Automated.",
+    detail: "API keys, exposed admin panels, broken auth, SSL certs, performance, bot detection, and more. Every single time. Automated.",
     href: "#features",
   },
 ];
@@ -219,66 +238,83 @@ function PricingSection({ tiers }: { tiers: Tier[] }) {
 
   return (
     <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
-      <div className="mb-8 flex items-center justify-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
-          <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-          LIMITED TIME OFFER
-        </span>
-      </div>
-      <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 dark:text-alabaster-grey-50 sm:text-4xl transition-colors">Lifetime deal closes in 21 days</h2>
-      <p className="mb-8 text-center text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">
-        Lock in lifetime access for just $79. One-time payment, unlimited apps & scans forever.
+      <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">Choose your security outcome</h2>
+      <p className="mb-8 text-center text-dusty-denim-600">
+        Every plan includes all 20 security checks. Choose based on your scale, compliance needs, and team size.
       </p>
 
-      {/* Note: No Monthly/Annual Toggle for LTD model */}
-      {/* The pricing is simplified to show all tiers at once */}
+      {/* Monthly/Annual Toggle */}
+      <div className="mb-12 flex items-center justify-center gap-4">
+        <span className={`text-sm font-medium ${!isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Monthly</span>
+        <button
+          onClick={() => setIsAnnual(!isAnnual)}
+          className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+            isAnnual ? "bg-prussian-blue-600" : "bg-alabaster-grey-200"
+          }`}
+        >
+          <span
+            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+              isAnnual ? "translate-x-7" : "translate-x-1"
+            }`}
+          />
+        </button>
+        <span className={`text-sm font-medium ${isAnnual ? "text-ink-black-950" : "text-dusty-denim-600"}`}>Annual</span>
+        {isAnnual && <span className="ml-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Save up to 20%</span>}
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {tiers.map((tier) => (
           <div
             key={tier.name}
-            className={`rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 active:scale-95 ${
+            className={`rounded-2xl p-6 sm:p-8 transition-transform duration-200 hover:-translate-y-1 ${
               tier.highlighted
-                ? "bg-gradient-to-br from-prussian-blue-700 to-ink-black-950 dark:from-prussian-blue-600 dark:to-prussian-blue-900 text-white shadow-2xl hover:shadow-2xl relative overflow-hidden"
-                : "border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 hover:shadow-lg"
+                ? "bg-ink-black-950 text-white shadow-2xl"
+                : "border border-alabaster-grey-200 bg-white"
             }`}
             style={!tier.highlighted ? { boxShadow: "0 1px 3px rgba(12,25,39,0.05)" } : undefined}
           >
             {tier.highlighted && (
-              <>
-                <span className="mb-4 inline-block rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-bold text-yellow-200 border border-yellow-400/40">
-                  🎁 LIMITED OFFER
-                </span>
-                <div className="absolute top-0 right-0 w-40 h-40 bg-prussian-blue-600/20 rounded-full blur-2xl -mr-20 -mt-20" />
-              </>
-            )}
-            <h3 className={`text-lg font-bold relative z-10 ${tier.highlighted ? "text-white" : "text-ink-black-950 dark:text-alabaster-grey-50"}`}>{tier.name}</h3>
-            <div className="mt-3">
-              <span className={`text-4xl font-extrabold tracking-tight relative z-10 ${tier.highlighted ? "text-white" : "text-ink-black-950 dark:text-alabaster-grey-50"}`}>
-                {tier.price}
+              <span className="mb-4 inline-block rounded-full bg-prussian-blue-600 px-3 py-1 text-xs font-semibold text-white">
+                Most popular
               </span>
-              <span className={`text-sm relative z-10 ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>{tier.period}</span>
-              {tier.annualSavings && (
-                <div className={`text-xs font-bold relative z-10 mt-1 ${tier.highlighted ? "text-yellow-300" : "text-emerald-600"}`}>
+            )}
+            {tier.outcomeHeading && (
+              <h2 className={`mb-3 text-base font-bold ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>
+                {tier.outcomeHeading}
+              </h2>
+            )}
+            {tier.outcomeSubheading && (
+              <p className={`mb-4 text-xs ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>
+                {tier.outcomeSubheading}
+              </p>
+            )}
+            <h3 className={`text-lg font-bold ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>{tier.name}</h3>
+            <div className="mt-3">
+              <span className={`text-4xl font-extrabold tracking-tight ${tier.highlighted ? "text-white" : "text-ink-black-950"}`}>
+                {isAnnual ? tier.annualPrice : tier.price}
+              </span>
+              {!isAnnual && <span className={tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}>/month</span>}
+              {isAnnual && tier.annualSavings && (
+                <div className={`text-xs font-semibold ${tier.highlighted ? "text-emerald-300" : "text-emerald-600"}`}>
                   {tier.annualSavings}
                 </div>
               )}
             </div>
-            <p className={`mt-3 text-sm relative z-10 ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>{tier.desc}</p>
+            <p className={`mt-3 text-sm ${tier.highlighted ? "text-alabaster-grey-200" : "text-dusty-denim-600"}`}>{tier.desc}</p>
             <Link
               href={tier.ctaHref}
-              className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-all active:scale-95 relative z-10 ${
+              className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
                 tier.highlighted
-                  ? "bg-white text-prussian-blue-700 hover:bg-alabaster-grey-100 font-bold shadow-lg hover:shadow-xl"
-                  : "border border-alabaster-grey-200 dark:border-ink-black-700 text-dusty-denim-700 dark:text-dusty-denim-100 hover:bg-alabaster-grey-50 dark:hover:bg-ink-black-800 transition-colors"
+                  ? "bg-prussian-blue-600 text-white hover:bg-prussian-blue-700"
+                  : "border border-alabaster-grey-200 text-dusty-denim-700 hover:bg-alabaster-grey-50"
               }`}
             >
               {tier.cta}
             </Link>
-            <ul className="mt-8 space-y-3 relative z-10">
+            <ul className="mt-8 space-y-3">
               {tier.features.map((f) => (
-                <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlighted ? "text-alabaster-grey-100" : "text-dusty-denim-600 dark:text-dusty-denim-500"}`}>
-                  <span className={`mt-0.5 shrink-0 ${tier.highlighted ? "text-yellow-300" : "text-prussian-blue-600 dark:text-prussian-blue-400"}`}>✓</span>
+                <li key={f} className={`flex items-start gap-2 text-sm ${tier.highlighted ? "text-alabaster-grey-100" : "text-dusty-denim-600"}`}>
+                  <span className={`mt-0.5 ${tier.highlighted ? "text-prussian-blue-300" : "text-prussian-blue-600"}`}>✓</span>
                   {f}
                 </li>
               ))}
@@ -301,31 +337,23 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
-    <div className="bg-alabaster-grey-50 dark:bg-ink-black-950 transition-colors">
+    <div className="bg-alabaster-grey-50">
       {/* Nav - Frosted glass sticky header */}
-      <nav className="sticky top-0 z-50 border-b border-alabaster-grey-200/60 dark:border-ink-black-800/60 transition-colors" style={{ background: "rgba(243,243,241,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        <style>{`
-          @media (prefers-color-scheme: dark) {
-            nav {
-              background: rgba(8,18,27,0.85) !important;
-            }
-          }
-        `}</style>
+      <nav className="sticky top-0 z-50 border-b border-alabaster-grey-200/60" style={{ background: "rgba(243,243,241,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
         <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900 dark:bg-prussian-blue-600 transition-colors">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900">
               <span className="text-sm font-bold text-white">V</span>
             </div>
-            <span className="font-bold tracking-tight text-ink-black-900 dark:text-alabaster-grey-50 transition-colors">Scantient</span>
+            <span className="font-bold tracking-tight text-ink-black-900">Scantient</span>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100 sm:block">Resources</Link>
-            <Link href="/#pricing" className="hidden text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100 sm:block">Pricing</Link>
-            <Link href="/login" className="text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100">Sign in</Link>
-            <ThemeToggle />
+            <Link href="/security-checklist" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Resources</Link>
+            <Link href="/#pricing" className="hidden text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950 sm:block">Pricing</Link>
+            <Link href="/login" className="text-sm font-medium text-dusty-denim-700 transition-colors hover:text-ink-black-950">Sign in</Link>
             <Link
               href="/signup"
-              className="rounded-full bg-prussian-blue-600 dark:bg-prussian-blue-500 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-prussian-blue-700 dark:hover:bg-prussian-blue-600 hover:shadow-lg active:scale-95"
+              className="rounded-full bg-prussian-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-prussian-blue-700"
             >
               Get started
             </Link>
@@ -336,32 +364,23 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-24 pt-24 sm:pb-32 sm:pt-32" style={{ background: "radial-gradient(ellipse at 50% 0%, #ebf2f9 0%, #f3f3f1 70%)" }}>
         <div className="mx-auto max-w-[1200px] text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 border border-red-300">
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              LIFETIME DEAL — $79 ONLY
-            </span>
-          </div>
-          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink-black-950 dark:text-alabaster-grey-50 sm:text-6xl lg:text-[3.75rem] transition-colors">
+          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink-black-950 sm:text-6xl lg:text-[3.75rem]">
             Ship with confidence. <br />
-            <span className="text-prussian-blue-600 dark:text-prussian-blue-400 transition-colors">Find security holes before your users do.</span>
+            <span className="text-prussian-blue-600">Find security holes before your users do.</span>
           </h1>
-          <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors">
+          <p className="mx-auto mt-8 max-w-[600px] text-lg leading-relaxed text-dusty-denim-700">
             One-click audit. 60 seconds. Zero doubt. $79 lifetime.
-          </p>
-          <p className="mx-auto mt-2 max-w-[600px] text-sm font-semibold text-red-700 dark:text-red-400">
-            Limited-time offer: Lifetime access for $79 (closes in 21 days, only 100 units available)
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/signup"
-              className="rounded-lg bg-prussian-blue-600 dark:bg-prussian-blue-500 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-prussian-blue-600/25 dark:shadow-prussian-blue-500/20 transition-all hover:bg-prussian-blue-700 dark:hover:bg-prussian-blue-600 hover:shadow-xl hover:shadow-prussian-blue-700/40 dark:hover:shadow-prussian-blue-600/40 active:scale-95"
+              className="rounded-lg bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-prussian-blue-600/25 transition-all hover:bg-prussian-blue-700 hover:shadow-xl hover:shadow-prussian-blue-700/25"
             >
               Start free scan
             </Link>
             <Link
               href="#pricing"
-              className="rounded-lg border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 px-8 py-3.5 text-sm font-semibold text-dusty-denim-700 dark:text-dusty-denim-100 transition-all hover:border-alabaster-grey-300 dark:hover:border-ink-black-700 hover:bg-alabaster-grey-50 dark:hover:bg-ink-black-800 active:scale-95"
+              className="rounded-lg border border-alabaster-grey-200 bg-white px-8 py-3.5 text-sm font-semibold text-dusty-denim-700 transition-colors hover:border-alabaster-grey-200 hover:bg-alabaster-grey-50"
             >
               See pricing plans
             </Link>
@@ -425,7 +444,7 @@ export default function LandingPage() {
       <section className="border-b border-alabaster-grey-200 bg-white py-16">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-6 sm:gap-12 px-6 text-center">
           {[
-            { value: "20", label: "security checks per scan" },
+            { value: "20", label: "essential security checks per scan" },
             { value: "<1 min", label: "from paste URL to first results" },
             { value: "$4.88M", label: "avg. cost of one data breach (IBM 2024)" },
             { value: "0", label: "developers or SDK required" },
@@ -445,20 +464,19 @@ export default function LandingPage() {
       <section id="features" className="mx-auto max-w-[1200px] px-6 py-24 sm:py-32">
         <h2 className="mb-3 text-center text-3xl font-extrabold tracking-[-0.02em] text-ink-black-950 sm:text-4xl">20 Security Checks That Keep Your Users Safe</h2>
         <p className="mb-16 text-center text-dusty-denim-600">
-          Each check shows the outcome, not just the feature name. Every scan. Zero setup. No developer required.
+          20 essential security checks. Every scan. Zero setup. No developer required.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {checks.map((check, idx) => (
-            <div 
-              key={check.title} 
-              className="rounded-2xl border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 p-8 transition-all hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-prussian-blue-600/20 hover:-translate-y-1 active:scale-95" 
-              style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-black-50 dark:bg-prussian-blue-600/20 transition-colors">
+          {checks.map((check) => (
+            <div key={check.title} className="rounded-2xl border border-alabaster-grey-200 bg-white p-8 transition-all hover:shadow-lg" style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-black-50">
                 <span className="text-xl">{check.icon}</span>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-ink-black-900 dark:text-alabaster-grey-50 transition-colors">{check.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">{check.desc}</p>
+              <h3 className="mt-5 text-lg font-bold text-ink-black-900">{check.icon} {check.title}</h3>
+              {check.outcome && (
+                <p className="mt-2 text-xs font-semibold text-prussian-blue-600">{check.outcome}</p>
+              )}
+              <p className="mt-2 text-sm leading-relaxed text-dusty-denim-600">{check.desc}</p>
             </div>
           ))}
         </div>
@@ -591,13 +609,13 @@ export default function LandingPage() {
               <a
                 key={item.stat}
                 href={item.href}
-                className="group relative rounded-2xl border border-alabaster-grey-200 dark:border-ink-black-800 bg-white dark:bg-ink-black-900 p-8 transition-all hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-prussian-blue-600/20 hover:-translate-y-0.5 active:scale-95"
+                className="group relative rounded-2xl border border-alabaster-grey-200 bg-white p-8 transition-all hover:shadow-lg hover:-translate-y-0.5"
                 style={{ boxShadow: "0 1px 3px rgba(12,25,39,0.05)" }}
               >
                 <div className="mb-4 text-3xl">{item.icon}</div>
-                <p className="text-4xl font-extrabold tracking-tight text-ink-black-950 dark:text-alabaster-grey-50 transition-colors">{item.stat}</p>
-                <p className="mt-1 text-sm font-semibold text-prussian-blue-600 dark:text-prussian-blue-400 transition-colors">{item.label}</p>
-                <p className="mt-3 text-sm leading-relaxed text-dusty-denim-600 dark:text-dusty-denim-500 transition-colors">{item.detail}</p>
+                <p className="text-4xl font-extrabold tracking-tight text-ink-black-950">{item.stat}</p>
+                <p className="mt-1 text-sm font-semibold text-prussian-blue-600">{item.label}</p>
+                <p className="mt-3 text-sm leading-relaxed text-dusty-denim-600">{item.detail}</p>
               </a>
             ))}
           </div>
@@ -624,14 +642,14 @@ export default function LandingPage() {
       </section>
 
       {/* Footer CTA */}
-      <section className="bg-ink-black-950 dark:bg-ink-black-900 px-6 py-24 text-center sm:py-32 transition-colors">
+      <section className="bg-ink-black-950 px-6 py-24 text-center sm:py-32">
         <h2 className="text-3xl font-extrabold tracking-[-0.02em] text-white sm:text-4xl">Stop finding out about breaches<br />from your CEO.</h2>
-        <p className="mx-auto mt-6 max-w-xl text-alabaster-grey-200 dark:text-dusty-denim-500 transition-colors">
+        <p className="mx-auto mt-6 max-w-xl text-alabaster-grey-200">
           Add your first app URL. We start scanning in 60 seconds.
         </p>
         <Link
           href="/signup"
-          className="mt-10 inline-block rounded-lg bg-white dark:bg-prussian-blue-600 px-8 py-3.5 text-sm font-semibold text-ink-black-950 dark:text-white transition-all hover:bg-alabaster-grey-100 dark:hover:bg-prussian-blue-700 hover:shadow-lg active:scale-95"
+          className="mt-10 inline-block rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-ink-black-950 transition-colors hover:bg-alabaster-grey-100"
         >
           Get started
         </Link>
