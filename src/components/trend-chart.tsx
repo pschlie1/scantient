@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { chartColors } from "@/lib/chart-colors";
 
 interface TrendPoint {
   date: string;
@@ -59,7 +60,7 @@ export function TrendCharts({ appId }: { appId: string }) {
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke="#2563eb"
+                stroke={chartColors.info}
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 name="Score"
@@ -80,10 +81,10 @@ export function TrendCharts({ appId }: { appId: string }) {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
-              <Area type="monotone" dataKey="critical" stackId="1" fill="#dc2626" stroke="#dc2626" name="Critical" />
-              <Area type="monotone" dataKey="high" stackId="1" fill="#f97316" stroke="#f97316" name="High" />
-              <Area type="monotone" dataKey="medium" stackId="1" fill="#eab308" stroke="#eab308" name="Medium" />
-              <Area type="monotone" dataKey="low" stackId="1" fill="#6b7280" stroke="#6b7280" name="Low" />
+              <Area type="monotone" dataKey="critical" stackId="1" fill={chartColors.critical} stroke={chartColors.critical} name="Critical" />
+              <Area type="monotone" dataKey="high" stackId="1" fill={chartColors.high} stroke={chartColors.high} name="High" />
+              <Area type="monotone" dataKey="medium" stackId="1" fill={chartColors.medium} stroke={chartColors.medium} name="Medium" />
+              <Area type="monotone" dataKey="low" stackId="1" fill={chartColors.low} stroke={chartColors.low} name="Low" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

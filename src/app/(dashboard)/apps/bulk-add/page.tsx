@@ -184,6 +184,7 @@ export default function BulkAddPage() {
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-lg border bg-surface-raised p-1">
         <button
+          type="button"
           onClick={() => setActiveTab("paste")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
             activeTab === "paste" ? "bg-surface shadow-sm" : "text-muted hover:text-heading"
@@ -192,6 +193,7 @@ export default function BulkAddPage() {
           Paste URLs
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("csv")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
             activeTab === "csv" ? "bg-surface shadow-sm" : "text-muted hover:text-heading"

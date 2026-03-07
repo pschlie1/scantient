@@ -91,10 +91,11 @@ function ConnectorCard({
   }
 
   return (
-    <div className="rounded-lg border bg-surface">
+    <div className="rounded-lg border border-border bg-surface">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
         className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
         <div className="flex items-center gap-3">
@@ -120,7 +121,7 @@ function ConnectorCard({
       </button>
 
       {expanded && (
-        <div className="border-t px-5 py-4">
+        <div className="border-t border-border px-5 py-4">
           <p className="mb-4 text-sm text-body">{connector.description}</p>
 
           <form onSubmit={handleSave} className="space-y-3">

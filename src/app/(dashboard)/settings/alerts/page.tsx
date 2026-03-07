@@ -102,6 +102,7 @@ export default function AlertsPage() {
                   <td className="py-2 text-xs">{c.minSeverity}</td>
                   <td className="py-2">
                     <button
+                      type="button"
                       onClick={() => handleToggle(c.id, c.enabled)}
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.enabled ? "bg-success/10 text-success" : "bg-surface-raised text-body"}`}
                     >
@@ -110,13 +111,14 @@ export default function AlertsPage() {
                   </td>
                   <td className="py-2 space-x-2">
                     <button
+                      type="button"
                       onClick={() => handleTest(c.id)}
                       disabled={testing === c.id}
                       className="text-xs text-info hover:underline disabled:opacity-50"
                     >
                       {testing === c.id ? "Sending…" : "Test"}
                     </button>
-                    <button onClick={() => handleDelete(c.id)} className="text-xs text-error hover:underline">
+                    <button type="button" onClick={() => handleDelete(c.id)} className="text-xs text-error hover:underline">
                       Remove
                     </button>
                   </td>

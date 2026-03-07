@@ -203,7 +203,7 @@ export function OnboardingWizard() {
               <div className="mt-6 grid grid-cols-5 gap-2">
                 {[
                   { label: "Critical", count: findings.critical, color: "bg-error/10 text-error" },
-                  { label: "High", count: findings.high, color: "bg-orange-50 text-orange-700" },
+                  { label: "High", count: findings.high, color: "bg-warning/10 text-warning" },
                   { label: "Medium", count: findings.medium, color: "bg-warning/10 text-warning" },
                   { label: "Low", count: findings.low, color: "bg-info/10 text-info" },
                   { label: "Info", count: findings.info, color: "bg-surface-raised text-body" },

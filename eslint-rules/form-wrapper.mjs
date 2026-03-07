@@ -44,7 +44,7 @@ export default {
         const hasDisable = comments.some(
           (c) =>
             c.value.includes("eslint-disable") &&
-            c.value.includes("scantient/form-wrapper")
+            c.value.includes("design-system/form-wrapper")
         );
         if (hasDisable) {
           return;
