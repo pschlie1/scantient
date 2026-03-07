@@ -6,9 +6,12 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Hydration guard — must set mounted in effect to avoid SSR mismatch
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const stored = localStorage.getItem("theme");
     if (stored === "light") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLight(true);
       document.documentElement.classList.add("light");
     }
