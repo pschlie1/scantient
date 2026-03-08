@@ -570,7 +570,7 @@ export async function runHttpScanForApp(appId: string, context: ScanContext = {}
   }
 }
 
-export async function runDueHttpScans(limit = 20, options?: { tiers?: SubscriptionTier[] }) {
+export async function runDueHttpScans(limit = 20, options?: { tiers?: SubscriptionTier[]; includeNoSubscription?: boolean }) {
   const deadline = Date.now() + 55_000; // 55s total timeout (5s buffer for Vercel 60s limit)
 
   // Atomic claim: findMany + updateMany inside a single serializable transaction
@@ -582,7 +582,16 @@ export async function runDueHttpScans(limit = 20, options?: { tiers?: Subscripti
         AND: [
           { OR: [{ nextCheckAt: null }, { nextCheckAt: { lte: new Date() } }] },
           ...(options?.tiers
-            ? [{ org: { subscription: { tier: { in: options.tiers } } } }]
+            ? [{
+                OR: [
+                  { org: { subscription: { tier: { in: options.tiers } } } },
+                  // Orgs with no subscription default to FREE — include them
+                  // in the non-premium cron so they aren't silently dropped.
+                  ...(options.includeNoSubscription
+                    ? [{ org: { subscription: null } }]
+                    : []),
+                ],
+              }]
             : []),
         ],
       },

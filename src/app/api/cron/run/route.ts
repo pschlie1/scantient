@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const results = await runDueHttpScans(50, { tiers: NON_PREMIUM_TIERS });
+    const results = await runDueHttpScans(50, { tiers: NON_PREMIUM_TIERS, includeNoSubscription: true });
 
     await logCronHeartbeat(results);
 
