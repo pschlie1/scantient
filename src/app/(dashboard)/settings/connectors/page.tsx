@@ -91,42 +91,43 @@ function ConnectorCard({
   }
 
   return (
-    <div className="rounded-lg border bg-white">
+    <div className="rounded-lg border border-border bg-surface">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
         className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
         <div className="flex items-center gap-3">
           <span className="font-semibold">{connector.name}</span>
           {configured ? (
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+            <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
               Configured
             </span>
           ) : (
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+            <span className="rounded-full bg-surface-raised px-2 py-0.5 text-xs font-medium text-muted">
               Not configured
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {configured && status?.updatedAt && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-muted">
               Updated {new Date(status.updatedAt).toLocaleDateString()}
             </span>
           )}
-          <span className="text-gray-400">{expanded ? "▲" : "▼"}</span>
+          <span className="text-muted">{expanded ? "▲" : "▼"}</span>
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t px-5 py-4">
-          <p className="mb-4 text-sm text-gray-600">{connector.description}</p>
+        <div className="border-t border-border px-5 py-4">
+          <p className="mb-4 text-sm text-body">{connector.description}</p>
 
           <form onSubmit={handleSave} className="space-y-3">
             {connector.fields.map((field) => (
               <div key={field.key}>
-                <label htmlFor={`${connector.id}-${field.key}`} className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor={`${connector.id}-${field.key}`} className="mb-1 block text-sm font-medium text-heading">
                   {field.label}
                 </label>
                 <input
@@ -141,23 +142,23 @@ function ConnectorCard({
                       : field.placeholder
                   }
                   autoComplete="off"
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             ))}
 
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-error">{error}</p>
             )}
             {success && (
-              <p className="text-sm text-green-600">Credentials saved successfully.</p>
+              <p className="text-sm text-success">Credentials saved successfully.</p>
             )}
 
             <div className="flex items-center gap-3 pt-1">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
               >
                 {saving ? "Saving…" : configured ? "Update credentials" : "Save credentials"}
               </button>
@@ -166,7 +167,7 @@ function ConnectorCard({
                   type="button"
                   onClick={handleRemove}
                   disabled={removing}
-                  className="text-sm text-red-500 hover:text-red-700 disabled:opacity-50"
+                  className="text-sm text-error hover:text-error disabled:opacity-50"
                 >
                   {removing ? "Removing…" : "Remove"}
                 </button>
@@ -232,14 +233,14 @@ export default function ConnectorsSettingsPage() {
   }
 
   if (loading) {
-    return <p className="text-sm text-gray-500">Loading connectors…</p>;
+    return <p className="text-sm text-muted">Loading connectors…</p>;
   }
 
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-lg font-semibold">Infrastructure Connectors</h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted">
           Connect Scantient to your infrastructure providers. Connectors run automatically after each
           security scan and surface findings alongside your security results.
         </p>

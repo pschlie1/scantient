@@ -1,47 +1,15 @@
 "use client";
 import Link from "next/link";
-import Footer from "@/components/footer";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function VsCheckmarxPage() {
   return (
     <div className="bg-alabaster-grey-50 dark:bg-ink-black-950 transition-colors">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-alabaster-grey-200/60 dark:border-ink-black-800/60 transition-colors" style={{ background: "rgba(243,243,241,0.85)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
-        <style>{`
-          @media (prefers-color-scheme: dark) {
-            nav {
-              background: rgba(8,18,27,0.85) !important;
-            }
-          }
-        `}</style>
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-black-900 dark:bg-prussian-blue-600 transition-colors">
-              <span className="text-sm font-bold text-white">V</span>
-            </div>
-            <span className="font-bold tracking-tight text-ink-black-900 dark:text-alabaster-grey-50 transition-colors">Scantient</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/pricing" className="hidden text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100 sm:block">Pricing</Link>
-            <Link href="/login" className="text-sm font-medium text-dusty-denim-700 dark:text-dusty-denim-500 transition-colors hover:text-ink-black-950 dark:hover:text-alabaster-grey-100">Sign in</Link>
-            <ThemeToggle />
-            <Link
-              href="/signup"
-              className="rounded-full bg-prussian-blue-600 dark:bg-prussian-blue-500 px-5 py-2 text-sm font-medium text-white transition-all hover:bg-prussian-blue-700 dark:hover:bg-prussian-blue-600 hover:shadow-lg active:scale-95"
-            >
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero */}
       <section className="relative overflow-hidden px-6 pb-24 pt-24 sm:pb-32 sm:pt-32" style={{ background: "radial-gradient(ellipse at 50% 0%, #ebf2f9 0%, #f3f3f1 70%)" }}>
         <div className="mx-auto max-w-[1200px] text-center">
           <div className="mb-6 flex items-center justify-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-300">
-              <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-info/10 px-3 py-1 text-xs font-bold text-info border border-info/30">
+              <span className="h-2 w-2 rounded-full bg-info animate-pulse" />
               SCANTIENT VS CHECKMARX
             </span>
           </div>
@@ -217,7 +185,6 @@ export default function VsCheckmarxPage() {
         </Link>
       </section>
 
-      <Footer />
     </div>
   );
 }

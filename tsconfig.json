@@ -42,6 +42,10 @@
     "src/app/api/__tests__/security-audit-6.test.ts",
     "src/app/api/__tests__/security-audit-7.test.ts",
     "src/app/api/__tests__/tier-gate-audit-2.test.ts",
-    "src/app/api/__tests__/jira-url-construction.test.ts"
+    "src/app/api/__tests__/jira-url-construction.test.ts",
+    "src/app/api/__tests__/endpoint-security.test.ts",
+    "src/lib/__tests__/findings-logic.test.ts",
+    "src/lib/__tests__/remediation-guides.test.ts",
+    "src/lib/__tests__/tier-boundaries.test.ts"
   ]
 }

@@ -8,11 +8,11 @@ type Props = {
 };
 
 const statuses = [
-  { value: "OPEN", label: "Open", color: "text-red-600" },
-  { value: "ACKNOWLEDGED", label: "Acknowledged", color: "text-yellow-600" },
-  { value: "IN_PROGRESS", label: "In Progress", color: "text-blue-600" },
-  { value: "RESOLVED", label: "Resolved", color: "text-green-600" },
-  { value: "IGNORED", label: "Ignored", color: "text-gray-500" },
+  { value: "OPEN", label: "Open", color: "text-error" },
+  { value: "ACKNOWLEDGED", label: "Acknowledged", color: "text-warning" },
+  { value: "IN_PROGRESS", label: "In Progress", color: "text-info" },
+  { value: "RESOLVED", label: "Resolved", color: "text-success" },
+  { value: "IGNORED", label: "Ignored", color: "text-muted" },
 ];
 
 export function FindingActions({ findingId, currentStatus }: Props) {
@@ -49,7 +49,7 @@ export function FindingActions({ findingId, currentStatus }: Props) {
             type="button"
             onClick={() => handleChange("RESOLVED")}
             disabled={updating}
-            className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100 disabled:opacity-50"
+            className="rounded border border-success bg-success/10 px-2 py-0.5 text-xs font-medium text-success transition-colors hover:bg-success/20 disabled:opacity-50"
             title="Mark this finding as fixed"
           >
             ✓ Mark as fixed
@@ -58,7 +58,7 @@ export function FindingActions({ findingId, currentStatus }: Props) {
             type="button"
             onClick={() => handleChange("IGNORED")}
             disabled={updating}
-            className="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
+            className="rounded border border-border bg-surface-raised px-2 py-0.5 text-xs font-medium text-body transition-colors hover:bg-surface-raised disabled:opacity-50"
             title="Accept this as a known risk"
           >
             Accept risk
@@ -72,7 +72,7 @@ export function FindingActions({ findingId, currentStatus }: Props) {
           type="button"
           onClick={() => handleChange("OPEN")}
           disabled={updating}
-          className="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+          className="rounded border border-border bg-surface px-2 py-0.5 text-xs font-medium text-body transition-colors hover:bg-surface-raised disabled:opacity-50"
         >
           Reopen
         </button>

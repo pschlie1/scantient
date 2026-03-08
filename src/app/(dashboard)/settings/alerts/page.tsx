@@ -79,14 +79,14 @@ export default function AlertsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Alert channels</h2>
         {configs.length === 0 ? (
-          <p className="text-sm text-gray-500">No alert channels configured. Add one below.</p>
+          <p className="text-sm text-muted">No alert channels configured. Add one below.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted">
                 <th className="pb-2">Channel</th>
                 <th className="pb-2">Destination</th>
                 <th className="pb-2">Min severity</th>
@@ -98,25 +98,27 @@ export default function AlertsPage() {
               {configs.map((c) => (
                 <tr key={c.id}>
                   <td className="py-2 font-medium">{c.channel}</td>
-                  <td className="py-2 text-gray-600 truncate max-w-[200px]">{c.destination}</td>
+                  <td className="py-2 text-body truncate max-w-[200px]">{c.destination}</td>
                   <td className="py-2 text-xs">{c.minSeverity}</td>
                   <td className="py-2">
                     <button
+                      type="button"
                       onClick={() => handleToggle(c.id, c.enabled)}
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.enabled ? "bg-success/10 text-success" : "bg-surface-raised text-body"}`}
                     >
                       {c.enabled ? "Active" : "Paused"}
                     </button>
                   </td>
                   <td className="py-2 space-x-2">
                     <button
+                      type="button"
                       onClick={() => handleTest(c.id)}
                       disabled={testing === c.id}
-                      className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+                      className="text-xs text-info hover:underline disabled:opacity-50"
                     >
                       {testing === c.id ? "Sending…" : "Test"}
                     </button>
-                    <button onClick={() => handleDelete(c.id)} className="text-xs text-red-500 hover:underline">
+                    <button type="button" onClick={() => handleDelete(c.id)} className="text-xs text-error hover:underline">
                       Remove
                     </button>
                   </td>
@@ -127,7 +129,7 @@ export default function AlertsPage() {
         )}
       </div>
 
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border border-border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Add alert channel</h2>
         <form onSubmit={handleAdd} className="flex flex-wrap gap-3">
           <select
@@ -143,7 +145,7 @@ export default function AlertsPage() {
           <input
             required
             placeholder={form.channel === "EMAIL" ? "alerts@company.com" : form.channel === "TEAMS" ? "https://outlook.webhook.office.com/..." : "https://hooks.slack.com/..."}
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
             value={form.destination}
             onChange={(e) => setForm({ ...form, destination: e.target.value })}
           />
@@ -160,7 +162,7 @@ export default function AlertsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {saving ? "Adding…" : "Add channel"}
           </button>

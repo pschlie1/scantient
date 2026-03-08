@@ -126,15 +126,15 @@ export function OnboardingWizard() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Onboarding wizard">
+      <div className="w-full max-w-lg rounded-2xl bg-surface p-8 shadow-2xl">
         {/* Progress */}
         <div className="mb-8 flex items-center justify-center gap-2">
           {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className={`h-1.5 w-12 rounded-full transition-colors ${
-                s <= step ? "bg-black" : "bg-gray-200"
+                s <= step ? "bg-primary" : "bg-border"
               }`}
             />
           ))}
@@ -144,34 +144,34 @@ export function OnboardingWizard() {
         {step === 1 && (
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Add your first app</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               We&apos;ll scan it for security issues in seconds.
             </p>
             <div className="mt-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">App name</label>
+                <label className="block text-sm font-medium text-heading">App name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="My App"
-                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL</label>
+                <label className="block text-sm font-medium text-heading">URL</label>
                 <input
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com"
-                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-error">{error}</p>}
               <button
                 onClick={handleAddApp}
-                className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+                className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
               >
                 Scan now →
               </button>
@@ -182,9 +182,9 @@ export function OnboardingWizard() {
         {/* Step 2: Scanning */}
         {step === 2 && (
           <div className="text-center">
-            <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
+            <div className="mx-auto mb-6 h-12 w-12 animate-spin rounded-full border-4 border-border border-t-primary" />
             <h2 className="text-xl font-semibold tracking-tight">Running first scan…</h2>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-muted">
               Checking headers, TLS, cookies, and more.
             </p>
           </div>
@@ -194,7 +194,7 @@ export function OnboardingWizard() {
         {step === 3 && (
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Here&apos;s what we found</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               {findings.total === 0
                 ? "No issues detected. Your app looks great!"
                 : `${findings.total} finding${findings.total === 1 ? "" : "s"} across your app.`}
@@ -202,11 +202,11 @@ export function OnboardingWizard() {
             {findings.total > 0 && (
               <div className="mt-6 grid grid-cols-5 gap-2">
                 {[
-                  { label: "Critical", count: findings.critical, color: "bg-red-50 text-red-700" },
-                  { label: "High", count: findings.high, color: "bg-orange-50 text-orange-700" },
-                  { label: "Medium", count: findings.medium, color: "bg-yellow-50 text-yellow-700" },
-                  { label: "Low", count: findings.low, color: "bg-blue-50 text-blue-700" },
-                  { label: "Info", count: findings.info, color: "bg-gray-50 text-gray-600" },
+                  { label: "Critical", count: findings.critical, color: "bg-error/10 text-error" },
+                  { label: "High", count: findings.high, color: "bg-warning/10 text-warning" },
+                  { label: "Medium", count: findings.medium, color: "bg-warning/10 text-warning" },
+                  { label: "Low", count: findings.low, color: "bg-info/10 text-info" },
+                  { label: "Info", count: findings.info, color: "bg-surface-raised text-body" },
                 ].map((s) => (
                   <div key={s.label} className={`rounded-lg px-3 py-3 text-center ${s.color}`}>
                     <p className="text-lg font-bold">{s.count}</p>
@@ -217,7 +217,7 @@ export function OnboardingWizard() {
             )}
             <button
               onClick={() => setStep(4)}
-              className="mt-6 w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+              className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
             >
               Set up alerts →
             </button>
@@ -228,40 +228,40 @@ export function OnboardingWizard() {
         {step === 4 && (
           <div>
             <h2 className="text-xl font-semibold tracking-tight">Set up alerts</h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               Get notified when new issues are found. Optional; you can do this later.
             </p>
             <div className="mt-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Slack webhook URL</label>
+                <label className="block text-sm font-medium text-heading">Slack webhook URL</label>
                 <input
                   type="url"
                   value={slackUrl}
                   onChange={(e) => setSlackUrl(e.target.value)}
                   placeholder="https://hooks.slack.com/services/..."
-                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label className="block text-sm font-medium text-heading">Email</label>
                 <input
                   type="email"
                   value={alertEmail}
                   onChange={(e) => setAlertEmail(e.target.value)}
                   placeholder="alerts@yourteam.com"
-                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleSaveAlerts}
-                  className="flex-1 rounded-lg bg-black py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+                  className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
                 >
                   Save & finish
                 </button>
                 <button
                   onClick={complete}
-                  className="rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="rounded-lg border px-4 py-2.5 text-sm font-medium text-body hover:bg-surface-raised transition-colors"
                 >
                   Skip
                 </button>

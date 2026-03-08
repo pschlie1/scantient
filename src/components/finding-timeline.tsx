@@ -35,12 +35,12 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 const STAGE_COLORS: Record<string, string> = {
-  DETECTED: "bg-red-100 text-red-700",
-  TRIAGED: "bg-yellow-100 text-yellow-700",
-  ASSIGNED: "bg-blue-100 text-blue-700",
-  FIX_IN_PROGRESS: "bg-purple-100 text-purple-700",
-  VERIFICATION: "bg-orange-100 text-orange-700",
-  CLOSED: "bg-green-100 text-green-700",
+  DETECTED: "bg-error/10 text-error",
+  TRIAGED: "bg-warning/10 text-warning",
+  ASSIGNED: "bg-info/10 text-info",
+  FIX_IN_PROGRESS: "bg-primary/20 text-primary",
+  VERIFICATION: "bg-warning/10 text-warning",
+  CLOSED: "bg-success/10 text-success",
 };
 
 function formatTime(iso: string): string {
@@ -97,46 +97,46 @@ export function FindingTimeline({ findingId }: { findingId: string }) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs font-medium text-indigo-600 hover:underline"
+          className="text-xs font-medium text-primary-hover hover:underline"
         >
           {expanded ? "Hide timeline" : "Show timeline"}
         </button>
         <button
           onClick={() => { setShowLinkForm(!showLinkForm); if (!expanded) setExpanded(true); }}
-          className="text-xs font-medium text-green-600 hover:underline"
+          className="text-xs font-medium text-success hover:underline"
         >
           🔗 Link PR
         </button>
       </div>
 
       {expanded && (
-        <div className="mt-3 rounded-lg border bg-gray-50 p-3">
+        <div className="mt-3 rounded-lg border bg-surface-raised p-3">
           {loading ? (
-            <p className="text-xs text-gray-500">Loading timeline...</p>
+            <p className="text-xs text-muted">Loading timeline...</p>
           ) : !data ? (
-            <p className="text-xs text-gray-500">Failed to load timeline.</p>
+            <p className="text-xs text-muted">Failed to load timeline.</p>
           ) : (
             <>
               <div className="mb-3 flex items-center gap-2">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${STAGE_COLORS[data.lifecycleStage] ?? "bg-gray-100 text-gray-700"}`}>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${STAGE_COLORS[data.lifecycleStage] ?? "bg-surface-raised text-heading"}`}>
                   {data.lifecycleStage.replace(/_/g, " ")}
                 </span>
                 {data.priority && (
-                  <span className="text-xs font-medium text-gray-500">{data.priority}</span>
+                  <span className="text-xs font-medium text-muted">{data.priority}</span>
                 )}
               </div>
 
               {/* Linked PRs */}
               {data.linkedPRs.length > 0 && (
                 <div className="mb-3">
-                  <p className="mb-1 text-xs font-semibold text-gray-700">Linked PRs</p>
+                  <p className="mb-1 text-xs font-semibold text-heading">Linked PRs</p>
                   {data.linkedPRs.map((pr, i) => (
                     <a
                       key={i}
                       href={pr.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block text-xs text-blue-600 hover:underline"
+                      className="block text-xs text-info hover:underline"
                     >
                       🔗 {pr.title ?? pr.url}
                     </a>
@@ -150,18 +150,18 @@ export function FindingTimeline({ findingId }: { findingId: string }) {
                   <div key={i} className="flex items-start gap-2">
                     <span className="mt-0.5 text-sm">{ACTION_ICONS[event.action] ?? "•"}</span>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-900">
+                      <p className="text-xs text-heading">
                         <span className="font-medium">{event.action.replace(/_/g, " ")}</span>
-                        {event.details && <span className="text-gray-600"> - {event.details}</span>}
+                        {event.details && <span className="text-body"> - {event.details}</span>}
                       </p>
-                      <p className="text-[10px] text-gray-400">
+                      <p className="text-[10px] text-muted">
                         {formatTime(event.timestamp)} · {event.actor === "system" ? "System" : event.actor}
                       </p>
                     </div>
                   </div>
                 ))}
                 {data.timeline.length === 0 && (
-                  <p className="text-xs text-gray-400">No lifecycle events yet.</p>
+                  <p className="text-xs text-muted">No lifecycle events yet.</p>
                 )}
               </div>
             </>
@@ -169,7 +169,7 @@ export function FindingTimeline({ findingId }: { findingId: string }) {
 
           {/* Link PR form */}
           {showLinkForm && (
-            <div className="mt-3 space-y-2 rounded border bg-white p-2">
+            <div className="mt-3 space-y-2 rounded border bg-surface p-2">
               <input
                 type="url"
                 placeholder="GitHub PR or commit URL"
@@ -188,13 +188,13 @@ export function FindingTimeline({ findingId }: { findingId: string }) {
                 <button
                   onClick={handleLinkPR}
                   disabled={linking || !linkUrl.trim()}
-                  className="rounded bg-green-600 px-3 py-1 text-xs text-white hover:bg-green-700 disabled:opacity-50"
+                  className="rounded bg-success px-3 py-1 text-xs text-white hover:bg-success disabled:opacity-50"
                 >
                   {linking ? "Linking..." : "Link"}
                 </button>
                 <button
                   onClick={() => setShowLinkForm(false)}
-                  className="text-xs text-gray-500 hover:underline"
+                  className="text-xs text-muted hover:underline"
                 >
                   Cancel
                 </button>

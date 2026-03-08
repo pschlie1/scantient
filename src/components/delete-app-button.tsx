@@ -27,7 +27,7 @@ export function DeleteAppButton({ appId, appName }: { appId: string; appName: st
     <button
       onClick={handleDelete}
       disabled={deleting}
-      className="rounded border border-red-200 px-2.5 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+      className="rounded border border-error px-2.5 py-1 text-xs font-medium text-error transition hover:bg-error/10 disabled:opacity-50"
     >
       {deleting ? "Removing…" : "Remove"}
     </button>

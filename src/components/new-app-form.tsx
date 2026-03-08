@@ -54,10 +54,10 @@ export function NewAppForm() {
   }
 
   return (
-    <div className="rounded-lg border bg-white">
+    <div className="rounded-lg border bg-surface">
       <div className="border-b px-4 py-3">
         <h3 className="text-sm font-semibold">Register app</h3>
-        <p className="text-xs text-gray-500">Add an app to start continuous monitoring</p>
+        <p className="text-xs text-muted">Add an app to start continuous monitoring</p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-3 p-4">
@@ -92,9 +92,9 @@ export function NewAppForm() {
         />
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">Criticality</label>
+          <label className="mb-1 block text-xs font-medium text-heading">Criticality</label>
           <select
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
             value={data.criticality}
             onChange={(e) => setData({ ...data, criticality: e.target.value as FormState["criticality"] })}
           >
@@ -104,14 +104,14 @@ export function NewAppForm() {
           </select>
         </div>
 
-        <details className="rounded-md border border-gray-200 bg-gray-50 p-3">
-          <summary className="cursor-pointer text-xs font-medium text-gray-600 hover:text-gray-900">
+        <details className="rounded-md border border-border bg-surface-raised p-3">
+          <summary className="cursor-pointer text-xs font-medium text-body hover:text-heading">
             Advanced: Probe endpoint (optional)
           </summary>
           <div className="mt-3 space-y-3">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted">
               If this app has a{" "}
-              <code className="rounded bg-gray-100 px-1">/api/scantient-probe</code> endpoint,
+              <code className="rounded bg-surface-raised px-1">/api/scantient-probe</code> endpoint,
               provide its URL and secret token so Scantient can bypass bot protection during scans.
             </p>
             <Input
@@ -130,12 +130,12 @@ export function NewAppForm() {
           </div>
         </details>
 
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-error">{error}</p>}
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+          className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-50"
         >
           {saving ? "Adding…" : "Add app to monitoring"}
         </button>
@@ -158,9 +158,9 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-gray-700">{label}</label>
+      <label className="mb-1 block text-xs font-medium text-heading">{label}</label>
       <input
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+        className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
         type={props.type ?? "text"}
         placeholder={props.placeholder}
         value={props.value}

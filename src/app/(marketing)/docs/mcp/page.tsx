@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 function CodeBlock({ children }: { children: string }) {
   return (
-    <pre className="overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100">
+    <pre className="overflow-x-auto rounded-lg bg-surface-raised p-4 text-sm text-heading">
       <code>{children}</code>
     </pre>
   );
@@ -27,16 +27,16 @@ function ToolCard({
   response: string;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="mb-2 font-mono text-lg font-bold text-blue-600 dark:text-blue-400">{name}</h3>
-      <p className="mb-4 text-gray-600 dark:text-gray-300">{description}</p>
+    <div className="rounded-lg border border-border bg-surface p-6">
+      <h3 className="mb-2 font-mono text-lg font-bold text-info">{name}</h3>
+      <p className="mb-4 text-body">{description}</p>
 
       {params.length > 0 && (
         <>
-          <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">Parameters</h4>
+          <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Parameters</h4>
           <table className="mb-4 w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-gray-500">
+              <tr className="border-b text-left text-muted">
                 <th className="pb-2 pr-4">Name</th>
                 <th className="pb-2 pr-4">Type</th>
                 <th className="pb-2 pr-4">Required</th>
@@ -45,11 +45,11 @@ function ToolCard({
             </thead>
             <tbody>
               {params.map((p) => (
-                <tr key={p.name} className="border-b border-gray-100 dark:border-gray-700">
+                <tr key={p.name} className="border-b border-border">
                   <td className="py-2 pr-4 font-mono text-sm">{p.name}</td>
-                  <td className="py-2 pr-4 text-gray-500">{p.type}</td>
+                  <td className="py-2 pr-4 text-muted">{p.type}</td>
                   <td className="py-2 pr-4">{p.required ? "✅" : "—"}</td>
-                  <td className="py-2 text-gray-600 dark:text-gray-400">{p.description}</td>
+                  <td className="py-2 text-body">{p.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -57,10 +57,10 @@ function ToolCard({
         </>
       )}
 
-      <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">Example Request</h4>
+      <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Example Request</h4>
       <CodeBlock>{JSON.stringify(example, null, 2)}</CodeBlock>
 
-      <h4 className="mb-2 mt-4 text-sm font-semibold uppercase tracking-wide text-gray-500">Response</h4>
+      <h4 className="mb-2 mt-4 text-sm font-semibold uppercase tracking-wide text-muted">Response</h4>
       <CodeBlock>{response}</CodeBlock>
     </div>
   );
@@ -167,9 +167,9 @@ export default function McpDocsPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
       <h1 className="mb-4 text-4xl font-bold">MCP API Reference</h1>
-      <p className="mb-8 text-lg text-gray-600 dark:text-gray-300">
+      <p className="mb-8 text-lg text-body">
         Connect AI agents to Scantient using the{" "}
-        <a href="https://modelcontextprotocol.io" className="text-blue-600 underline" target="_blank" rel="noopener">
+        <a href="https://modelcontextprotocol.io" className="text-info underline" target="_blank" rel="noopener">
           Model Context Protocol
         </a>
         . Your agents list apps, check security scores, trigger scans, and manage findings, all via a single JSON-RPC 2.0 endpoint.
@@ -178,14 +178,14 @@ export default function McpDocsPage() {
       {/* Auth */}
       <section className="mb-12">
         <h2 className="mb-4 text-2xl font-bold">Authentication</h2>
-        <p className="mb-4 text-gray-600 dark:text-gray-300">
-          All requests require an API key sent via the <code className="rounded bg-gray-100 px-1 dark:bg-gray-700">Authorization</code> header:
+        <p className="mb-4 text-body">
+          All requests require an API key sent via the <code className="rounded bg-surface-raised px-1">Authorization</code> header:
         </p>
         <CodeBlock>{`curl -X POST https://scantient.com/api/mcp \\
   -H "Authorization: Bearer vs_your_api_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</CodeBlock>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-muted">
           Generate API keys in <strong>Settings → API Keys</strong>. Keys are scoped to your organization.
         </p>
       </section>
@@ -193,13 +193,13 @@ export default function McpDocsPage() {
       {/* Protocol */}
       <section className="mb-12">
         <h2 className="mb-4 text-2xl font-bold">Protocol</h2>
-        <p className="mb-4 text-gray-600 dark:text-gray-300">
+        <p className="mb-4 text-body">
           The endpoint speaks <strong>JSON-RPC 2.0</strong> with MCP methods:
         </p>
-        <ul className="mb-4 list-inside list-disc space-y-1 text-gray-600 dark:text-gray-300">
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">initialize</code>: Handshake, returns server info and capabilities</li>
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/list</code>: List available tools and their schemas</li>
-          <li><code className="rounded bg-gray-100 px-1 dark:bg-gray-700">tools/call</code>: Execute a tool with arguments</li>
+        <ul className="mb-4 list-inside list-disc space-y-1 text-body">
+          <li><code className="rounded bg-surface-raised px-1">initialize</code>: Handshake, returns server info and capabilities</li>
+          <li><code className="rounded bg-surface-raised px-1">tools/list</code>: List available tools and their schemas</li>
+          <li><code className="rounded bg-surface-raised px-1">tools/call</code>: Execute a tool with arguments</li>
         </ul>
         <CodeBlock>{`POST /api/mcp
 Content-Type: application/json
@@ -229,7 +229,7 @@ Authorization: Bearer vs_...
       {/* Scoring */}
       <section className="mt-12">
         <h2 className="mb-4 text-2xl font-bold">Security Score Formula</h2>
-        <p className="mb-2 text-gray-600 dark:text-gray-300">
+        <p className="mb-2 text-body">
           Scores are computed from <strong>open findings</strong> (OPEN, ACKNOWLEDGED, IN_PROGRESS):
         </p>
         <CodeBlock>{`score = 100 - (CRITICAL × 25) - (HIGH × 10) - (MEDIUM × 3) - (LOW × 1)

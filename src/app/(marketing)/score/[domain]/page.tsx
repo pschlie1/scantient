@@ -8,8 +8,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 // ─── Scoring helpers ──────────────────────────────────────────────────────────
 
@@ -187,10 +185,10 @@ export async function generateMetadata({
 
 function SeverityPill({ severity }: { severity: string }) {
   const map: Record<string, string> = {
-    CRITICAL: "bg-red-100 text-red-700",
-    HIGH: "bg-orange-100 text-orange-700",
-    MEDIUM: "bg-yellow-100 text-yellow-700",
-    LOW: "bg-gray-100 text-gray-500",
+    CRITICAL: "bg-error/10 text-error",
+    HIGH: "bg-warning/10 text-warning",
+    MEDIUM: "bg-warning/10 text-warning",
+    LOW: "bg-surface-raised text-muted",
   };
   return (
     <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${map[severity] ?? map.LOW}`}>
@@ -210,9 +208,7 @@ export default async function ScoreCardPage({
   const data = await getScoreData(domain);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <MarketingNav />
-
+    <>
       <main className="mx-auto max-w-xl px-4 py-16 sm:py-24">
         {data ? (
           <FoundCard data={data} />
@@ -221,8 +217,7 @@ export default async function ScoreCardPage({
         )}
       </main>
 
-      <Footer />
-    </div>
+    </>
   );
 }
 
@@ -236,8 +231,8 @@ function FoundCard({ data }: { data: ScoreData }) {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <p className="text-sm font-medium text-gray-500">Security score for</p>
-        <h1 className="mt-1 text-2xl font-bold text-gray-900">{data.domain}</h1>
+        <p className="text-sm font-medium text-muted">Security score for</p>
+        <h1 className="mt-1 text-2xl font-bold text-heading">{data.domain}</h1>
       </div>
 
       {/* Grade circle + score */}
@@ -253,39 +248,39 @@ function FoundCard({ data }: { data: ScoreData }) {
         </div>
         <p className="mt-4 text-4xl font-bold" style={{ color }}>
           {data.score}
-          <span className="text-lg font-normal text-gray-400">/100</span>
+          <span className="text-lg font-normal text-muted">/100</span>
         </p>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-muted">
           Last scanned: {relativeDate(new Date(data.scannedAt))}
         </p>
       </div>
 
       {/* Top findings */}
       {data.findings.length > 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white">
+        <div className="rounded-xl border border-border bg-surface">
           <div className="border-b px-4 py-3">
-            <h2 className="text-sm font-semibold text-gray-700">Top findings</h2>
+            <h2 className="text-sm font-semibold text-heading">Top findings</h2>
           </div>
           <ul className="divide-y">
             {data.findings.map((f, i) => (
               <li key={i} className="flex items-center justify-between gap-3 px-4 py-3">
-                <span className="text-sm text-gray-800">{f.title}</span>
+                <span className="text-sm text-heading">{f.title}</span>
                 <SeverityPill severity={f.severity} />
               </li>
             ))}
           </ul>
         </div>
       ) : (
-        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-center">
-          <p className="text-sm font-medium text-green-700">✅ No open issues found</p>
+        <div className="rounded-xl border border-success/20 bg-success/10 px-4 py-4 text-center">
+          <p className="text-sm font-medium text-success">✅ No open issues found</p>
         </div>
       )}
 
       {/* Powered by badge */}
-      <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 text-center">
-        <p className="text-xs text-gray-400">
+      <div className="rounded-xl border border-border bg-surface px-4 py-4 text-center">
+        <p className="text-xs text-muted">
           Continuously monitored by{" "}
-          <Link href="https://scantient.com" className="font-semibold text-gray-700 hover:underline">
+          <Link href="https://scantient.com" className="font-semibold text-heading hover:underline">
             Scantient
           </Link>
           {" "}· Security monitoring for any web app
@@ -296,7 +291,7 @@ function FoundCard({ data }: { data: ScoreData }) {
       <div className="text-center">
         <Link
           href="/signup"
-          className="inline-block rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+          className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
         >
           Monitor your own app →
         </Link>
@@ -310,34 +305,34 @@ function FoundCard({ data }: { data: ScoreData }) {
 function NotFoundCard({ domain }: { domain: string }) {
   return (
     <div className="space-y-6 text-center">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-4xl">
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-surface-raised text-4xl">
         🔍
       </div>
       <div>
-        <h1 className="text-xl font-bold text-gray-900">
+        <h1 className="text-xl font-bold text-heading">
           {domain} isn&apos;t monitored yet
         </h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-muted">
           This domain isn&apos;t currently monitored by Scantient.
         </p>
       </div>
       <Link
         href={`/score?url=https://${domain}`}
-        className="inline-block rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+        className="inline-block rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
       >
         Scan it free →
       </Link>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted">
         Want permanent monitoring?{" "}
-        <Link href="/signup" className="font-medium text-gray-700 underline">
+        <Link href="/signup" className="font-medium text-heading underline">
           Get started
         </Link>
       </p>
       {/* Powered by */}
-      <div className="rounded-xl border border-gray-100 bg-white px-4 py-4">
-        <p className="text-xs text-gray-400">
+      <div className="rounded-xl border border-border bg-surface px-4 py-4">
+        <p className="text-xs text-muted">
           Powered by{" "}
-          <Link href="https://scantient.com" className="font-semibold text-gray-700 hover:underline">
+          <Link href="https://scantient.com" className="font-semibold text-heading hover:underline">
             Scantient
           </Link>
           {" "}· Security monitoring for any web app

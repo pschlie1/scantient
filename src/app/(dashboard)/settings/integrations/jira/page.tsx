@@ -36,7 +36,7 @@ export default function JiraIntegrationPage() {
     }).catch(() => {});
   }, []);
 
-  if (tier === null) return <div className="p-8 text-center text-gray-500">Loading…</div>;
+  if (tier === null) return <div className="p-8 text-center text-muted">Loading…</div>;
 
   const isPro = tier ? hasFeature(tier, "jira") : false;
   if (!isPro) {
@@ -44,12 +44,12 @@ export default function JiraIntegrationPage() {
       <div>
         <div className="mb-6 flex items-center gap-3">
           <h2 className="text-xl font-semibold">Jira Integration</h2>
-          <span className="rounded-full bg-blue-100 px-3 py-0.5 text-xs font-semibold text-blue-700">Pro</span>
+          <span className="rounded-full bg-info/10 px-3 py-0.5 text-xs font-semibold text-info">Pro</span>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">Available on Pro &amp; Enterprise</h3>
-          <p className="mb-6 text-sm text-gray-600">Connect Scantient to Jira to automatically create tickets from security findings.</p>
-          <Link href="/settings/billing" className="inline-block rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition">Upgrade to Pro</Link>
+        <div className="rounded-lg border border-border bg-surface-raised p-8 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-heading">Available on Pro &amp; Enterprise</h3>
+          <p className="mb-6 text-sm text-body">Connect Scantient to Jira to automatically create tickets from security findings.</p>
+          <Link href="/settings/billing" className="inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition">Upgrade to Pro</Link>
         </div>
       </div>
     );
@@ -91,59 +91,59 @@ export default function JiraIntegrationPage() {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <h2 className="text-xl font-semibold">Jira Integration</h2>
-        {config && <span className="rounded-full bg-green-100 px-3 py-0.5 text-xs font-semibold text-green-700">Connected</span>}
+        {config && <span className="rounded-full bg-success/10 px-3 py-0.5 text-xs font-semibold text-success">Connected</span>}
       </div>
 
       {config && (
-        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+        <div className="mb-6 rounded-lg border border-success/20 bg-success/10 p-4 text-sm text-success">
           <strong>Connected to:</strong> {config.url} | <strong>Email:</strong> {config.email} | <strong>Project:</strong> {config.projectKey} | <strong>Type:</strong> {config.issueType}
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-4 rounded-lg border bg-white p-6">
+      <form onSubmit={handleSave} className="space-y-4 rounded-lg border bg-surface p-6">
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">Jira Domain (e.g. myorg.atlassian.net)</label>
+          <label className="mb-1 block text-xs font-medium text-heading">Jira Domain (e.g. myorg.atlassian.net)</label>
           <input type="text" required placeholder="myorg.atlassian.net" value={form.url}
             onChange={(e) => setForm({ ...form, url: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">Jira Email</label>
+          <label className="mb-1 block text-xs font-medium text-heading">Jira Email</label>
           <input type="email" required placeholder="you@company.com" value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">API Token{config ? " (leave blank to keep existing)" : ""}</label>
+          <label className="mb-1 block text-xs font-medium text-heading">API Token{config ? " (leave blank to keep existing)" : ""}</label>
           <input type="password" required={!config} placeholder={config ? "••••••••" : "Your Jira API token"} value={form.apiToken}
             onChange={(e) => setForm({ ...form, apiToken: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">Project Key</label>
+          <label className="mb-1 block text-xs font-medium text-heading">Project Key</label>
           <input type="text" required placeholder="ENG" value={form.projectKey}
             onChange={(e) => setForm({ ...form, projectKey: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover" />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">Issue Type</label>
+          <label className="mb-1 block text-xs font-medium text-heading">Issue Type</label>
           <select value={form.issueType} onChange={(e) => setForm({ ...form, issueType: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black">
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover">
             <option>Bug</option><option>Task</option><option>Story</option><option>Security</option>
           </select>
         </div>
-        {saveError && <p className="text-xs text-red-600">{saveError}</p>}
-        {saveOk && <p className="text-xs text-green-600">✓ Jira integration saved.</p>}
+        {saveError && <p className="text-xs text-error">{saveError}</p>}
+        {saveOk && <p className="text-xs text-success">✓ Jira integration saved.</p>}
         <div className="flex items-center gap-3 pt-2">
-          <button type="submit" disabled={saving} className="rounded-lg bg-black px-5 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50">
             {saving ? "Saving…" : config ? "Update" : "Save"}
           </button>
           {config && (
             <>
-              <button type="button" onClick={handleTest} disabled={testing} className="rounded-lg border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+              <button type="button" onClick={handleTest} disabled={testing} className="rounded-lg border border-border px-5 py-2 text-sm font-medium text-heading hover:bg-surface-raised disabled:opacity-50">
                 {testing ? "Testing…" : "Test Connection"}
               </button>
-              <button type="button" onClick={handleDisconnect} disabled={deleting} className="ml-auto rounded-lg border border-red-300 px-5 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50">
+              <button type="button" onClick={handleDisconnect} disabled={deleting} className="ml-auto rounded-lg border border-error/30 px-5 py-2 text-sm font-medium text-error hover:bg-error/10 disabled:opacity-50">
                 {deleting ? "Disconnecting…" : "Disconnect"}
               </button>
             </>
@@ -151,7 +151,7 @@ export default function JiraIntegrationPage() {
         </div>
       </form>
       {testResult && (
-        <div className={`mt-4 rounded-lg border p-4 text-sm ${testResult.ok ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-800"}`}>
+        <div className={`mt-4 rounded-lg border p-4 text-sm ${testResult.ok ? "border-success/20 bg-success/10 text-success" : "border-error/20 bg-error/10 text-error"}`}>
           {testResult.ok ? `✓ Connection successful! Signed in as ${testResult.displayName}` : `✗ Connection failed: ${testResult.error}`}
         </div>
       )}

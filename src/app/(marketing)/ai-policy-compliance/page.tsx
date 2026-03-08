@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "AI Policy Compliance Scanner — Detect Shadow AI & Enforce Usage Policies | Scantient",
@@ -170,7 +168,7 @@ const stats = [
 
 export default function AIPolicyCompliancePage() {
   return (
-    <div className="bg-white">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
@@ -184,26 +182,24 @@ export default function AIPolicyCompliancePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <MarketingNav />
-
       {/* Breadcrumb */}
       <div className="mx-auto max-w-6xl px-4 pt-8">
-        <nav className="flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/" className="hover:text-gray-700 transition-colors">Home</Link>
+        <nav className="flex items-center gap-2 text-sm text-muted">
+          <Link href="/" className="hover:text-heading transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-gray-700">AI Policy Compliance Scanner</span>
+          <span className="text-heading">AI Policy Compliance Scanner</span>
         </nav>
       </div>
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 py-20 text-center">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">
           AI Compliance Scanner
         </p>
         <h1 className="mx-auto max-w-4xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
           Your team is using AI tools you don&apos;t know about. That&apos;s a compliance problem.
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-gray-500">
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
           Scantient scans your organization for shadow AI tools, maps usage against your policy, and
           generates audit-ready compliance reports. Know exactly where your AI policy gaps are — before
           your auditors do.
@@ -211,13 +207,13 @@ export default function AIPolicyCompliancePage() {
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/signup"
-            className="rounded-lg bg-black px-8 py-3.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Start Free Scan
           </Link>
           <Link
             href="/blog/ai-policy-compliance-engineering"
-            className="rounded-lg border border-gray-200 px-8 py-3.5 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-heading hover:border-border hover:bg-surface-raised transition-colors"
           >
             Why this matters →
           </Link>
@@ -225,13 +221,13 @@ export default function AIPolicyCompliancePage() {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-gray-100 bg-gray-50">
+      <section className="border-y border-border bg-surface-raised">
         <div className="mx-auto max-w-6xl px-4 py-12">
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {stats.map((stat, i) => (
               <div key={i} className="text-center">
-                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                <p className="mt-2 text-sm leading-snug text-gray-500">{stat.label}</p>
+                <p className="text-3xl font-bold text-heading">{stat.value}</p>
+                <p className="mt-2 text-sm leading-snug text-muted">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -242,11 +238,11 @@ export default function AIPolicyCompliancePage() {
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">The Problem</p>
+            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">The Problem</p>
             <h2 className="text-3xl font-bold leading-tight tracking-tight">
               AI tool governance is the fastest-growing compliance gap in engineering organizations
             </h2>
-            <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+            <div className="mt-6 space-y-4 leading-relaxed text-body">
               <p>
                 Engineers use Copilot, ChatGPT, Claude, Cursor, Codeium, and a dozen other AI tools every day.
                 Most of those tools aren&apos;t in your acceptable-use policy. Many of them process customer
@@ -272,15 +268,15 @@ export default function AIPolicyCompliancePage() {
               { risk: "AI tool sprawl — no approved allowlist", severity: "Medium" },
               { risk: "IP ownership gaps in AI-assisted work", severity: "Medium" },
             ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-5 py-3">
-                <span className="text-sm text-gray-700">{item.risk}</span>
+              <div key={i} className="flex items-center justify-between rounded-xl border border-border bg-surface-raised px-5 py-3">
+                <span className="text-sm text-heading">{item.risk}</span>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
                     item.severity === "Critical"
-                      ? "bg-red-50 text-red-600"
+                      ? "bg-error/10 text-error"
                       : item.severity === "High"
-                      ? "bg-orange-50 text-orange-600"
-                      : "bg-yellow-50 text-yellow-700"
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-warning/10 text-warning"
                   }`}
                 >
                   {item.severity}
@@ -292,10 +288,10 @@ export default function AIPolicyCompliancePage() {
       </section>
 
       {/* How it works */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20">
+      <section className="border-t border-border bg-surface-raised py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center">
-            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">How It Works</p>
+            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">How It Works</p>
             <h2 className="text-3xl font-bold leading-tight tracking-tight">
               From scan to compliant in four steps
             </h2>
@@ -303,9 +299,9 @@ export default function AIPolicyCompliancePage() {
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((step) => (
               <div key={step.step} className="relative">
-                <span className="text-5xl font-bold text-gray-100">{step.step}</span>
-                <h3 className="mt-2 text-lg font-semibold text-gray-900">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{step.desc}</p>
+                <span className="text-5xl font-bold text-muted">{step.step}</span>
+                <h3 className="mt-2 text-lg font-semibold text-heading">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -315,31 +311,31 @@ export default function AIPolicyCompliancePage() {
       {/* Features */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Features</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Features</p>
           <h2 className="text-3xl font-bold leading-tight tracking-tight">
             Everything you need to govern AI tool usage
           </h2>
         </div>
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, i) => (
-            <div key={i} className="rounded-2xl border border-gray-100 p-6">
+            <div key={i} className="rounded-2xl border border-border p-6">
               <span className="text-2xl">{feature.icon}</span>
-              <h3 className="mt-3 text-base font-semibold text-gray-900">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">{feature.desc}</p>
+              <h3 className="mt-3 text-base font-semibold text-heading">{feature.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{feature.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20">
+      <section className="border-t border-border bg-surface-raised py-20">
         <div className="mx-auto max-w-3xl px-4">
           <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
           <div className="mt-10 space-y-10">
             {faqSchema.mainEntity.map((faq, i) => (
               <div key={i}>
-                <h3 className="text-lg font-semibold text-gray-900">{faq.name}</h3>
-                <p className="mt-3 leading-relaxed text-gray-600">{faq.acceptedAnswer.text}</p>
+                <h3 className="text-lg font-semibold text-heading">{faq.name}</h3>
+                <p className="mt-3 leading-relaxed text-body">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>
@@ -348,31 +344,30 @@ export default function AIPolicyCompliancePage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <div className="rounded-2xl bg-gray-50 p-12 text-center">
+        <div className="rounded-2xl bg-surface-raised p-12 text-center">
           <h2 className="text-3xl font-bold">Stop guessing. Start scanning.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-gray-500">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Get a complete picture of AI tool usage across your organization in minutes. Free scan — no
             credit card required. Audit-ready reports from day one.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/signup"
-              className="rounded-lg bg-black px-8 py-3.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+              className="rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
             >
               Start Free Scan
             </Link>
             <Link
               href="/contact"
-              className="rounded-lg border border-gray-200 px-8 py-3.5 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              className="rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-heading hover:border-border hover:bg-surface-raised transition-colors"
             >
               Talk to Sales
             </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-400">Setup in 2 minutes · SOC 2 compliant</p>
+          <p className="mt-4 text-xs text-muted">Setup in 2 minutes · SOC 2 compliant</p>
         </div>
       </section>
 
-      <Footer />
-    </div>
+    </>
   );
 }

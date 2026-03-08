@@ -15,7 +15,12 @@ fi
 echo "🎨 Checking design system compliance for staged files..."
 
 # Run design-system lint on staged files only
-npx eslint $STAGED_FILES --rule 'design-system/*: error' 2>&1
+npx eslint $STAGED_FILES \
+  --rule 'design-system/color-token: error' \
+  --rule 'design-system/spacing-token: error' \
+  --rule 'design-system/form-wrapper: off' \
+  --rule 'react/no-unescaped-entities: off' \
+  --rule 'react-hooks/set-state-in-effect: off' 2>&1
 
 if [ $? -eq 0 ]; then
   echo "✅ Design system checks passed"

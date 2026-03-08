@@ -88,25 +88,25 @@ export default function AppEditPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-        <p className="text-sm text-gray-500">Loading…</p>
+      <main className="mx-auto max-w-2xl py-8">
+        <p className="text-sm text-muted">Loading…</p>
       </main>
     );
   }
 
   if (!app) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-        <p className="text-sm text-red-500">{error ?? "App not found"}</p>
+      <main className="mx-auto max-w-2xl py-8">
+        <p className="text-sm text-error">{error ?? "App not found"}</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-2xl py-8">
       <Link
         href={`/apps/${id}`}
-        className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-muted hover:text-heading"
       >
         ← Back to {app.name}
       </Link>
@@ -115,10 +115,10 @@ export default function AppEditPage() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* General */}
-        <section className="rounded-lg border bg-white p-6">
+        <section className="rounded-lg border bg-surface p-6">
           <h2 className="mb-4 text-base font-semibold">General</h2>
           <div>
-            <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="mb-1 block text-sm font-medium text-heading">
               App name
             </label>
             <input
@@ -126,33 +126,33 @@ export default function AppEditPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
             />
           </div>
 
           <div className="mt-4">
-            <label className="mb-1 block text-sm font-medium text-gray-700">App URL</label>
-            <p className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+            <label className="mb-1 block text-sm font-medium text-heading">App URL</label>
+            <p className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-muted">
               {app.url}
             </p>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-muted">
               URL cannot be changed here — delete and re-add the app to change it.
             </p>
           </div>
         </section>
 
         {/* Probe Endpoint */}
-        <section className="rounded-lg border bg-white p-6">
+        <section className="rounded-lg border bg-surface p-6">
           <h2 className="mb-1 text-base font-semibold">Probe Endpoint</h2>
-          <p className="mb-4 text-sm text-gray-500">
-            Add your app&apos;s <code className="rounded bg-gray-100 px-1 text-xs">/api/scantient-probe</code> URL and
+          <p className="mb-4 text-sm text-muted">
+            Add your app&apos;s <code className="rounded bg-surface-raised px-1 text-xs">/api/scantient-probe</code> URL and
             token to enable subsystem health monitoring. Scantient will call this endpoint after each
             security scan to check your database, auth, payments, email, and other subsystems.
           </p>
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="probeUrl" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="probeUrl" className="mb-1 block text-sm font-medium text-heading">
                 Probe URL
               </label>
               <input
@@ -161,12 +161,12 @@ export default function AppEditPage() {
                 value={probeUrl}
                 onChange={(e) => setProbeUrl(e.target.value)}
                 placeholder="https://your-app.com/api/scantient-probe"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
               />
             </div>
 
             <div>
-              <label htmlFor="probeToken" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="probeToken" className="mb-1 block text-sm font-medium text-heading">
                 Probe Token
               </label>
               <input
@@ -176,16 +176,16 @@ export default function AppEditPage() {
                 onChange={(e) => setProbeToken(e.target.value)}
                 placeholder={app.probeUrl ? "••••••••  (leave blank to keep current)" : "Enter shared secret token"}
                 autoComplete="new-password"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
               />
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-muted">
                 Token is encrypted at rest and never returned by the API. Generate one with:{" "}
-                <code className="rounded bg-gray-100 px-1">openssl rand -hex 32</code>
+                <code className="rounded bg-surface-raised px-1">openssl rand -hex 32</code>
               </p>
             </div>
 
             {app.probeUrl && (
-              <p className="flex items-center gap-1.5 text-xs text-green-600">
+              <p className="flex items-center gap-1.5 text-xs text-success">
                 <span>✓</span>
                 <span>Probe configured — health data will appear after the next scan</span>
               </p>
@@ -195,12 +195,12 @@ export default function AppEditPage() {
 
         {/* Save / feedback */}
         {error && (
-          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-md border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
         {success && (
-          <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="rounded-md border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">
             Settings saved successfully.
           </div>
         )}
@@ -209,13 +209,13 @@ export default function AppEditPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-md bg-info px-4 py-2 text-sm font-medium text-white hover:bg-info disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save settings"}
           </button>
           <Link
             href={`/apps/${id}`}
-            className="text-sm text-gray-500 hover:text-gray-900"
+            className="text-sm text-muted hover:text-heading"
           >
             Cancel
           </Link>

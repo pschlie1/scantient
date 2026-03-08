@@ -43,25 +43,25 @@ export default function ApiKeysPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="mb-2 text-lg font-semibold">API keys</h2>
-        <p className="mb-4 text-sm text-gray-500">
+        <p className="mb-4 text-sm text-muted">
           Use API keys to integrate Scantient with your CI/CD pipeline, agents, or custom tooling.
         </p>
 
         {newKey && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="mb-1 text-sm font-medium text-green-800">Your new API key (copy now; it won&apos;t be shown again):</p>
-            <code className="block rounded bg-white p-2 text-sm font-mono">{newKey}</code>
+          <div className="mb-4 rounded-lg border border-success/20 bg-success/10 p-4">
+            <p className="mb-1 text-sm font-medium text-success">Your new API key (copy now; it won&apos;t be shown again):</p>
+            <code className="block rounded bg-surface p-2 text-sm font-mono">{newKey}</code>
           </div>
         )}
 
         {keys.length === 0 ? (
-          <p className="text-sm text-gray-500">No API keys created yet.</p>
+          <p className="text-sm text-muted">No API keys created yet.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted">
                 <th className="pb-2">Name</th>
                 <th className="pb-2">Key</th>
                 <th className="pb-2">Last used</th>
@@ -73,13 +73,13 @@ export default function ApiKeysPage() {
               {keys.map((k) => (
                 <tr key={k.id}>
                   <td className="py-2 font-medium">{k.name}</td>
-                  <td className="py-2 font-mono text-xs text-gray-500">{k.keyPrefix}…</td>
-                  <td className="py-2 text-xs text-gray-500">
+                  <td className="py-2 font-mono text-xs text-muted">{k.keyPrefix}…</td>
+                  <td className="py-2 text-xs text-muted">
                     {k.lastUsedAt ? new Date(k.lastUsedAt).toLocaleDateString() : "Never"}
                   </td>
-                  <td className="py-2 text-xs text-gray-500">{new Date(k.createdAt).toLocaleDateString()}</td>
+                  <td className="py-2 text-xs text-muted">{new Date(k.createdAt).toLocaleDateString()}</td>
                   <td className="py-2">
-                    <button onClick={() => handleRevoke(k.id)} className="text-xs text-red-500 hover:underline">
+                    <button onClick={() => handleRevoke(k.id)} className="text-xs text-error hover:underline">
                       Revoke
                     </button>
                   </td>
@@ -90,29 +90,29 @@ export default function ApiKeysPage() {
         )}
       </div>
 
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Create API key</h2>
         <form onSubmit={handleCreate} className="flex gap-3">
           <input
             required
             placeholder="Key name (e.g., CI Pipeline)"
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <button
             type="submit"
             disabled={creating}
-            className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {creating ? "Creating…" : "Create key"}
           </button>
         </form>
       </div>
 
-      <div className="rounded-lg border bg-gray-50 p-6">
+      <div className="rounded-lg border bg-surface-raised p-6">
         <h3 className="mb-2 font-semibold">API usage</h3>
-        <pre className="overflow-x-auto rounded bg-gray-900 p-4 text-xs text-green-400">{`# List your monitored apps
+        <pre className="overflow-x-auto rounded bg-page p-4 text-xs text-success">{`# List your monitored apps
 curl -H "Authorization: Bearer vs_YOUR_KEY" \\
   https://your-scantient.vercel.app/api/v1/apps
 

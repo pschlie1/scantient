@@ -29,7 +29,7 @@ export default function NewsletterForm() {
 
   if (status === "success") {
     return (
-      <p className="text-sm font-medium text-gray-700">
+      <p className="text-sm font-medium text-heading">
         You&apos;re subscribed! 🎉
       </p>
     );
@@ -47,17 +47,17 @@ export default function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={status === "loading"}
-        className="w-full max-w-xs rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-black focus:outline-none sm:w-auto disabled:opacity-50"
+        className="w-full max-w-xs rounded-lg border border-border px-4 py-2.5 text-sm focus:border-primary-hover focus:outline-none sm:w-auto disabled:opacity-50"
       />
       <button
         type="submit"
         disabled={status === "loading"}
-        className="rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
+        className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors disabled:opacity-50"
       >
         {status === "loading" ? "Subscribing…" : "Subscribe"}
       </button>
       {status === "error" && (
-        <p className="w-full text-center text-xs text-red-500 sm:w-auto">
+        <p className="w-full text-center text-xs text-error sm:w-auto">
           Something went wrong. Try again
         </p>
       )}

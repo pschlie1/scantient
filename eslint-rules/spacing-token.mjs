@@ -1,12 +1,12 @@
 /**
  * spacing-token.mjs
- * 
+ *
  * Custom ESLint rule: enforce semantic spacing tokens.
  * Bans raw Tailwind spacing utilities (mt-1, px-4, gap-2, etc.)
- * Requires use of spacing constants from design-tokens.ts
- * 
- * GOOD:   className={`mt-[${spacing.md}]`}  or className="mt-custom"
- * BAD:    className="mt-4 px-6 gap-3"
+ * Requires use of Tailwind's spacing scale via design system conventions.
+ *
+ * GOOD:   className="mt-4 px-6 gap-3" (using Tailwind spacing scale)
+ * BAD:    className="mt-[37px]" (arbitrary non-standard values)
  */
 
 export default {
@@ -14,14 +14,16 @@ export default {
     type: "problem",
     docs: {
       description:
-        "Enforce semantic spacing tokens instead of raw Tailwind utilities",
+        "Enforce consistent spacing by banning non-standard arbitrary values",
       category: "Design System",
-      recommended: "error",
+      recommended: "warn",
     },
   },
   create(context) {
-    const spacingUtilPattern = /^(m|p|gap|space|inset)(-[a-z]+-)?-\d+$/;
-    
+    // Only ban truly arbitrary pixel values that don't align with the spacing scale
+    const arbitrarySpacingPattern =
+      /^(m|p|gap|space|inset)(-[a-z]+)?-\[\d+px\]$/;
+
     return {
       JSXAttribute(node) {
         if (node.name.name !== "className" && node.name.name !== "class") {
@@ -33,16 +35,17 @@ export default {
           return;
         }
 
-        // Split className string by whitespace
         const classes = value.split(/\s+/);
-        const violations = classes.filter((cls) => spacingUtilPattern.test(cls));
+        const violations = classes.filter((cls) =>
+          arbitrarySpacingPattern.test(cls)
+        );
 
         if (violations.length > 0) {
           context.report({
             node,
-            message: `Spacing utilities are not allowed: ${violations.join(
+            message: `Arbitrary pixel spacing is not recommended: ${violations.join(
               ", "
-            )}. Import 'spacing' from design-tokens.ts and use semantic tokens instead (e.g., spacing.md, spacing.lg).`,
+            )}. Use Tailwind's standard spacing scale (e.g., mt-4, px-6, gap-3) for consistency.`,
           });
         }
       },

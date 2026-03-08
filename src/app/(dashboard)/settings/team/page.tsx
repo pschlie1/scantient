@@ -38,11 +38,11 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Team members</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted">
               <th className="pb-2">Name</th>
               <th className="pb-2">Email</th>
               <th className="pb-2">Role</th>
@@ -53,11 +53,11 @@ export default function TeamPage() {
             {members.map((m) => (
               <tr key={m.id}>
                 <td className="py-2 font-medium">{m.name ?? "—"}</td>
-                <td className="py-2 text-gray-600">{m.email}</td>
+                <td className="py-2 text-body">{m.email}</td>
                 <td className="py-2">
-                  <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium">{m.role}</span>
+                  <span className="rounded bg-surface-raised px-2 py-0.5 text-xs font-medium">{m.role}</span>
                 </td>
-                <td className="py-2 text-xs text-gray-500">
+                <td className="py-2 text-xs text-muted">
                   {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleDateString() : "Never"}
                 </td>
               </tr>
@@ -66,14 +66,14 @@ export default function TeamPage() {
         </table>
       </div>
 
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Invite team member</h2>
         <form onSubmit={handleInvite} className="flex gap-3">
           <input
             type="email"
             required
             placeholder="colleague@company.com"
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
           />
@@ -89,7 +89,7 @@ export default function TeamPage() {
           <button
             type="submit"
             disabled={sending}
-            className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {sending ? "Inviting…" : "Invite"}
           </button>

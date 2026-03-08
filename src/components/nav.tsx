@@ -27,7 +27,6 @@ export function Nav() {
   }, []);
 
   useEffect(() => {
-    // Check if this org manages any client orgs (MSP mode)
     fetch("/api/msp/client-count")
       .then((r) => (r.ok ? r.json() : { count: 0 }))
       .then((data: { count: number }) => setShowMsp(data.count > 0))
@@ -48,14 +47,14 @@ export function Nav() {
   }
 
   return (
-    <nav className="border-b bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+    <nav className="border-b border-border-subtle bg-surface">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-3">
         <div className="flex items-center gap-6">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black">
-              <span className="text-sm font-bold text-white">V</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-raised">
+              <span className="text-sm font-bold text-heading">V</span>
             </div>
-            <span className="text-sm font-bold">Scantient</span>
+            <span className="text-sm font-bold text-heading">Scantient</span>
           </Link>
 
           <div className="hidden items-center gap-1 sm:flex">
@@ -65,8 +64,8 @@ export function Nav() {
                 href={item.href}
                 className={`rounded-md px-3 py-1.5 text-sm transition ${
                   pathname.startsWith(item.href)
-                    ? "bg-gray-100 font-medium text-gray-900"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "bg-surface-raised font-medium text-heading"
+                    : "text-muted hover:text-heading"
                 }`}
               >
                 {item.label}
@@ -78,13 +77,13 @@ export function Nav() {
         <div className="flex items-center gap-3">
           {user && (
             <>
-              <span className="hidden text-xs text-gray-500 sm:inline">{user.orgName}</span>
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 text-xs font-medium">
+              <span className="hidden text-xs text-muted sm:inline">{user.orgName}</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-raised text-xs font-medium text-heading">
                 {(user.name ?? user.email)[0].toUpperCase()}
               </div>
               <button
                 onClick={handleLogout}
-                className="text-xs text-gray-500 hover:text-gray-900"
+                className="text-xs text-muted hover:text-heading"
               >
                 Sign out
               </button>

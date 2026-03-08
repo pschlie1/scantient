@@ -2,9 +2,9 @@ import { Nav } from "@/components/nav";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-alabaster-grey-50">
+    <div className="min-h-screen overflow-x-hidden bg-page">
       <Nav />
-      {children}
+      <main className="container-page">{children}</main>
     </div>
   );
 }

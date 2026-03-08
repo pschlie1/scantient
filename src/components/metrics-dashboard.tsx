@@ -27,16 +27,16 @@ function MetricCard({
 }) {
   const trendIcon = trend === "down" ? "↓" : trend === "up" ? "↑" : "";
   const trendColor =
-    trend === "down" ? "text-green-600" : trend === "up" ? "text-red-600" : "text-gray-500";
+    trend === "down" ? "text-success" : trend === "up" ? "text-error" : "text-muted";
 
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
+    <div className="rounded-lg border bg-surface p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-gray-900">{value}</span>
+        <span className="text-2xl font-bold text-heading">{value}</span>
         {trendIcon && <span className={`text-sm font-semibold ${trendColor}`}>{trendIcon}</span>}
       </div>
-      {subtext && <p className="mt-1 text-xs text-gray-500">{subtext}</p>}
+      {subtext && <p className="mt-1 text-xs text-muted">{subtext}</p>}
     </div>
   );
 }
@@ -56,7 +56,7 @@ export function MetricsDashboard() {
     return (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-lg border bg-gray-50" />
+          <div key={i} className="h-24 animate-pulse rounded-lg border bg-surface-raised" />
         ))}
       </div>
     );
@@ -89,7 +89,7 @@ export function MetricsDashboard() {
 
   return (
     <div className="mb-6">
-      <h2 className="mb-3 text-sm font-semibold text-gray-700">Remediation Metrics</h2>
+      <h2 className="mb-3 text-sm font-semibold text-heading">Remediation Metrics</h2>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <MetricCard
           label="MTTR"

@@ -53,64 +53,62 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
+    <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-black">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-surface-raised">
             <span className="text-xl font-bold text-white">V</span>
           </div>
           <h1 className="text-2xl font-bold">Set new password</h1>
-          <p className="mt-1 text-sm text-gray-500">Enter a new password for your account</p>
+          <p className="mt-1 text-sm text-muted">Enter a new password for your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-700">New password</label>
+            <label className="mb-1 block text-xs font-medium text-heading">New password</label>
             <input
               type="password"
               required
               minLength={8}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-700">Confirm new password</label>
+            <label className="mb-1 block text-xs font-medium text-heading">Confirm new password</label>
             <input
               type="password"
               required
               minLength={8}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
             />
           </div>
 
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-error">{error}</p>}
 
           <button
             type="submit"
             disabled={loading || !token}
-            className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+            className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-50"
           >
             {loading ? "Updating…" : "Reset password"}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-500">
-          <Link href="/login" className="font-medium text-black hover:underline">
+        <p className="mt-4 text-center text-sm text-muted">
+          <Link href="/login" className="font-medium text-heading hover:underline">
             Back to sign in
           </Link>
         </p>
-      </div>
     </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading…</div>}>
+    <Suspense fallback={<div>Loading…</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

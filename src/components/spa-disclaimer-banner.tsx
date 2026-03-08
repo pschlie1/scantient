@@ -25,7 +25,7 @@ export function SpaBanner() {
   if (!visible) return null;
 
   return (
-    <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
+    <div className="mb-6 flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-xs text-warning">
       <span className="mt-0.5 text-base leading-none">⚠️</span>
       <p className="flex-1 leading-relaxed">
         <strong>Scanner note:</strong> For best results, add public-facing URLs. Single-page apps
@@ -36,7 +36,7 @@ export function SpaBanner() {
       <button
         onClick={dismiss}
         aria-label="Dismiss"
-        className="ml-2 shrink-0 rounded p-0.5 text-amber-600 hover:bg-amber-100 hover:text-amber-900 focus:outline-none"
+        className="ml-2 shrink-0 rounded p-0.5 text-warning hover:bg-warning/20 hover:text-heading focus:outline-none"
       >
         ✕
       </button>

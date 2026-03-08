@@ -1,8 +1,8 @@
 const statusConfig = {
-  HEALTHY: { label: "Healthy", bg: "bg-green-100", text: "text-green-800", dot: "bg-green-500" },
-  WARNING: { label: "Warning", bg: "bg-yellow-100", text: "text-yellow-800", dot: "bg-yellow-500" },
-  CRITICAL: { label: "Critical", bg: "bg-red-100", text: "text-red-800", dot: "bg-red-500" },
-  UNKNOWN: { label: "Pending", bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
+  HEALTHY: { label: "Healthy", bg: "bg-success/10", text: "text-success", dot: "bg-success" },
+  WARNING: { label: "Warning", bg: "bg-warning/10", text: "text-warning", dot: "bg-warning" },
+  CRITICAL: { label: "Critical", bg: "bg-error/10", text: "text-error", dot: "bg-error" },
+  UNKNOWN: { label: "Pending", bg: "bg-surface-raised", text: "text-body", dot: "bg-muted" },
 } as const;
 
 type Status = keyof typeof statusConfig;
@@ -19,10 +19,10 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 const severityConfig = {
-  CRITICAL: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200" },
+  CRITICAL: { bg: "bg-error/10", text: "text-error", border: "border-error" },
   HIGH: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-200" },
-  MEDIUM: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-200" },
-  LOW: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
+  MEDIUM: { bg: "bg-warning/10", text: "text-warning", border: "border-warning" },
+  LOW: { bg: "bg-info/10", text: "text-info", border: "border-info" },
 } as const;
 
 type Severity = keyof typeof severityConfig;

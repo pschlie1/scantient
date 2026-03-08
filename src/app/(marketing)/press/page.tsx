@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Press — Scantient",
@@ -37,17 +35,15 @@ const facts = [
 
 export default function PressPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Press</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Press</p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Media resources
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           For press inquiries, interviews, or to request a briefing, contact{" "}
-          <a href="mailto:press@scantient.com" className="text-black underline hover:no-underline">
+          <a href="mailto:press@scantient.com" className="text-heading underline hover:no-underline">
             press@scantient.com
           </a>.
         </p>
@@ -55,9 +51,9 @@ export default function PressPage() {
         {/* Company snapshot */}
         <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {facts.map((f) => (
-            <div key={f.label} className="rounded-xl border border-gray-100 p-4">
-              <p className="text-xs font-medium uppercase tracking-widest text-gray-400">{f.label}</p>
-              <p className="mt-1 font-semibold text-gray-900">{f.value}</p>
+            <div key={f.label} className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium uppercase tracking-widest text-muted">{f.label}</p>
+              <p className="mt-1 font-semibold text-heading">{f.value}</p>
             </div>
           ))}
         </div>
@@ -65,7 +61,7 @@ export default function PressPage() {
         {/* Boilerplate */}
         <div className="mt-12">
           <h2 className="text-lg font-semibold">About Scantient (boilerplate)</h2>
-          <div className="mt-4 rounded-xl bg-gray-50 p-6 text-sm leading-relaxed text-gray-600">
+          <div className="mt-4 rounded-xl bg-surface-raised p-6 text-sm leading-relaxed text-body">
             <p>
               Scantient is the AI-generated application security platform built for IT Directors and CISOs.
               As AI coding tools enable employees across every department to build and deploy production
@@ -84,12 +80,12 @@ export default function PressPage() {
               <a
                 key={item.headline}
                 href={item.url}
-                className="block rounded-xl border border-gray-100 p-5 transition hover:border-gray-200 hover:bg-gray-50"
+                className="block rounded-xl border border-border p-5 transition hover:border-border hover:bg-surface-raised"
               >
-                <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
+                <p className="text-xs font-medium uppercase tracking-widest text-muted">
                   {item.outlet} · {item.date}
                 </p>
-                <p className="mt-1 text-sm font-medium text-gray-800">{item.headline}</p>
+                <p className="mt-1 text-sm font-medium text-heading">{item.headline}</p>
               </a>
             ))}
           </div>
@@ -98,9 +94,9 @@ export default function PressPage() {
         {/* Brand assets */}
         <div className="mt-12">
           <h2 className="text-lg font-semibold">Brand assets</h2>
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-muted">
             Logos, screenshots, and brand guidelines are available on request. Email{" "}
-            <a href="mailto:press@scantient.com" className="text-black underline hover:no-underline">
+            <a href="mailto:press@scantient.com" className="text-heading underline hover:no-underline">
               press@scantient.com
             </a>{" "}
             and we&apos;ll send a press kit within one business day.
@@ -108,7 +104,6 @@ export default function PressPage() {
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

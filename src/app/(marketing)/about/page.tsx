@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "About Scantient — Security Monitoring for AI-Built Apps",
@@ -32,21 +30,19 @@ const team = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">About</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">About</p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Built by IT leaders,<br />for IT leaders
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           Scantient was founded in 2025 by a team of enterprise IT and security veterans who kept running into the same problem: employees were deploying AI-generated applications faster than IT could track them. By the time security found out, the apps were already processing customer data.
         </p>
 
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">The problem we&apos;re solving</h2>
-          <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-4 leading-relaxed text-body">
             <p>
               The rise of AI coding tools (Cursor, GitHub Copilot, Replit, Bolt) has fundamentally changed how software gets built. Employees across every department now build and deploy functional applications in hours, without any developer involvement.
             </p>
@@ -63,9 +59,9 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold">What we believe</h2>
           <div className="mt-8 space-y-8">
             {values.map((v) => (
-              <div key={v.title} className="border-l-4 border-gray-100 pl-6">
-                <h3 className="font-semibold text-gray-900">{v.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{v.body}</p>
+              <div key={v.title} className="border-l-4 border-border-subtle pl-6">
+                <h3 className="font-semibold text-heading">{v.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{v.body}</p>
               </div>
             ))}
           </div>
@@ -76,33 +72,32 @@ export default function AboutPage() {
           <div className="mt-8 grid gap-8 sm:grid-cols-3">
             {team.map((member) => (
               <div key={member.name}>
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-raised text-sm font-bold text-body">
                   {member.initials}
                 </div>
-                <h3 className="mt-3 font-semibold text-gray-900">{member.name}</h3>
-                <p className="text-xs text-gray-400">{member.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{member.bio}</p>
+                <h3 className="mt-3 font-semibold text-heading">{member.name}</h3>
+                <p className="text-xs text-muted">{member.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{member.bio}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-2xl font-bold">Join us</h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             We&apos;re a small, focused team building security infrastructure for the AI era. If that sounds interesting,{" "}
-            <Link href="/careers" className="text-black underline hover:no-underline">we&apos;re hiring</Link>.
+            <Link href="/careers" className="text-heading underline hover:no-underline">we&apos;re hiring</Link>.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="mt-6 inline-block rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Get started
           </Link>
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

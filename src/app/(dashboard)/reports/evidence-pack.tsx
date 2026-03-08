@@ -24,18 +24,18 @@ export function EvidencePackSection() {
   return (
     <div className="mt-10 rounded-lg border bg-white p-6">
       <h2 className="text-lg font-bold">Evidence Pack</h2>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-muted">
         Audit-ready evidence packs map your security posture to compliance frameworks.
         Share with auditors, include in board presentations.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Framework</label>
+          <label className="block text-xs font-medium text-heading mb-1">Framework</label>
           <select
             value={framework}
             onChange={(e) => setFramework(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:ring-1 focus:ring-primary-hover"
           >
             {FRAMEWORKS.map((fw) => (
               <option key={fw.value} value={fw.value}>
@@ -46,22 +46,22 @@ export function EvidencePackSection() {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">From</label>
+          <label className="block text-xs font-medium text-heading mb-1">From</label>
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:ring-1 focus:ring-primary-hover"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">To</label>
+          <label className="block text-xs font-medium text-heading mb-1">To</label>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm shadow-sm focus:border-primary-hover focus:ring-1 focus:ring-primary-hover"
           />
         </div>
       </div>
@@ -69,7 +69,7 @@ export function EvidencePackSection() {
       <button
         onClick={handleGenerate}
         disabled={!from || !to || loading}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <>

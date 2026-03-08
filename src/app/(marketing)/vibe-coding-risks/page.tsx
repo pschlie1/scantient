@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "The Hidden Security Risks of Vibe Coding | Scantient",
@@ -42,15 +40,13 @@ const risks = [
 
 export default function VibeCodingRisksPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Industry Analysis</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Industry Analysis</p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           The Hidden Security Risks of Vibe Coding
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           Vibe coding (using AI to generate entire applications from natural language prompts) is the fastest-growing trend in software development. Tools like Cursor, Lovable, Bolt, and Replit are enabling non-developers to ship production applications in hours. But with that speed comes a category of security risks that most organizations aren&apos;t prepared for.
         </p>
 
@@ -58,14 +54,14 @@ export default function VibeCodingRisksPage() {
           {risks.map((risk, i) => (
             <div key={i}>
               <h2 className="text-2xl font-semibold">{risk.title}</h2>
-              <p className="mt-4 leading-relaxed text-gray-600">{risk.body}</p>
+              <p className="mt-4 leading-relaxed text-body">{risk.body}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-20">
           <h2 className="text-2xl font-semibold">What IT Leaders Should Do Now</h2>
-          <div className="mt-6 space-y-4 text-gray-600">
+          <div className="mt-6 space-y-4 text-body">
             <p><strong>1. Acknowledge the reality.</strong> Your organization is already vibe coding. The question isn&apos;t whether to allow it; it&apos;s how to govern it.</p>
             <p><strong>2. Create an inventory.</strong> Start by cataloging every AI-generated application deployed in your organization. You won&apos;t secure what you won&apos;t see.</p>
             <p><strong>3. Establish a baseline.</strong> Define minimum security requirements for AI-generated apps: security headers, authentication patterns, secrets management, dependency hygiene.</p>
@@ -74,27 +70,26 @@ export default function VibeCodingRisksPage() {
           </div>
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-2xl font-bold">Get visibility into your AI app portfolio</h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             Scantient continuously monitors every AI-generated application in your organization for security vulnerabilities, misconfigurations, and compliance gaps. No SDK required.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="mt-6 inline-block rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Get started
           </Link>
         </div>
 
         <div className="mt-12 flex gap-4 text-sm">
-          <Link href="/security-checklist" className="text-gray-500 hover:text-black transition-colors">← Security Checklist</Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/compliance" className="text-gray-500 hover:text-black transition-colors">Compliance Monitoring →</Link>
+          <Link href="/security-checklist" className="text-muted hover:text-heading transition-colors">← Security Checklist</Link>
+          <span className="text-muted">|</span>
+          <Link href="/compliance" className="text-muted hover:text-heading transition-colors">Compliance Monitoring →</Link>
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

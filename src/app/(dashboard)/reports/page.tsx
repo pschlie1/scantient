@@ -31,29 +31,29 @@ export default async function ReportsPage() {
   const highCount = allFindings.filter((f) => f.severity === "HIGH").length;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div className="py-8">
       <div className="mb-6 flex items-end justify-between">
         <div>
           <h1 className="text-2xl font-bold">Weekly Governance Report</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted">
             {format(since, "MMM d")} – {format(new Date(), "MMM d, yyyy")}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/reports/executive"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-heading shadow-sm hover:bg-surface-raised transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Executive Report
           </Link>
           <a
             href="/api/reports/pdf"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-white shadow hover:bg-info transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
             </svg>
             Download PDF Report
@@ -65,9 +65,9 @@ export default async function ReportsPage() {
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <StatCard label="Apps monitored" value={apps.length} />
         <StatCard label="Scans run" value={totalRuns} />
-        <StatCard label="Open findings" value={allFindings.length} accent={allFindings.length > 0 ? "text-red-600" : undefined} />
-        <StatCard label="Critical" value={criticalCount} accent={criticalCount > 0 ? "text-red-600" : undefined} />
-        <StatCard label="High" value={highCount} accent={highCount > 0 ? "text-orange-600" : undefined} />
+        <StatCard label="Open findings" value={allFindings.length} accent={allFindings.length > 0 ? "text-error" : undefined} />
+        <StatCard label="Critical" value={criticalCount} accent={criticalCount > 0 ? "text-error" : undefined} />
+        <StatCard label="High" value={highCount} accent={highCount > 0 ? "text-warning" : undefined} />
       </div>
 
       {/* Per-app breakdown */}
@@ -75,13 +75,13 @@ export default async function ReportsPage() {
         {apps.map((app) => {
           const appFindings = app.monitorRuns.flatMap((r) => r.findings);
           return (
-            <div key={app.id} className="rounded-lg border bg-white p-4">
+            <div key={app.id} className="rounded-lg border border-border bg-surface p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h3 className="font-semibold">{app.name}</h3>
                   <StatusBadge status={app.status} />
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted">
                   {app.monitorRuns.length} scans · {appFindings.length} open findings
                 </div>
               </div>
@@ -95,7 +95,7 @@ export default async function ReportsPage() {
                     </div>
                   ))}
                   {appFindings.length > 5 && (
-                    <p className="text-xs text-gray-400">+{appFindings.length - 5} more</p>
+                    <p className="text-xs text-muted">+{appFindings.length - 5} more</p>
                   )}
                 </div>
               )}
@@ -106,15 +106,15 @@ export default async function ReportsPage() {
 
       {/* Evidence Pack */}
       <EvidencePackSection />
-    </main>
+    </div>
   );
 }
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
-    <div className="rounded-lg border bg-white p-4">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent ?? "text-gray-900"}`}>{value}</p>
+    <div className="rounded-lg border border-border bg-surface p-4">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
+      <p className={`mt-1 text-2xl font-bold ${accent ?? "text-heading"}`}>{value}</p>
     </div>
   );
 }

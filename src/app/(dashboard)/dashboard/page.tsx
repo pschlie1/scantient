@@ -45,11 +45,11 @@ export default async function DashboardPage() {
   return (
     <>
       <OnboardingWrapper hasApps={apps.length > 0} />
-    <main className="mx-auto max-w-7xl overflow-x-hidden px-4 py-8 sm:px-6">
+    <div className="py-8">
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink-black-900">Portfolio</h1>
-          <p className="text-sm text-dusty-denim-600">
+          <h1 className="text-2xl font-bold tracking-tight text-heading">Portfolio</h1>
+          <p className="text-sm text-body">
             {apps.length} of {limits.maxApps} apps monitored · {limits.tier} plan
           </p>
         </div>
@@ -70,12 +70,12 @@ export default async function DashboardPage() {
       <SpaBanner />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="min-w-0 rounded-lg border border-alabaster-grey-200 bg-white">
-          <div className="flex items-center justify-between border-b border-alabaster-grey-200 px-4 py-3">
+        <section className="min-w-0 rounded-lg border border-border bg-surface">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="text-sm font-semibold">Monitored apps</h2>
             <Link
               href="/apps/bulk-add"
-              className="rounded-md border border-alabaster-grey-200 px-3 py-1 text-xs font-medium text-dusty-denim-700 transition hover:bg-alabaster-grey-50 hover:text-ink-black-900"
+              className="rounded-md border border-border px-3 py-1 text-xs font-medium text-heading transition hover:bg-surface-raised hover:text-heading"
             >
               + Bulk Add
             </Link>
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
 
           {apps.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-gray-500">Ready to secure your apps? Add your first app to start monitoring. You'll get your first security scan in under 60 seconds — no setup required.</p>
+              <p className="text-sm text-muted">Ready to secure your apps? Add your first app to start monitoring. You'll get your first security scan in under 60 seconds — no setup required.</p>
               <div className="mt-4 flex items-center justify-center gap-3">
                 <Link
                   href="/apps/bulk-add"
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <tr className="border-b bg-surface-raised text-xs font-medium uppercase tracking-wider text-muted">
                     <th className="px-4 py-2">App</th>
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Criticality</th>
@@ -117,38 +117,38 @@ export default async function DashboardPage() {
                       ).length ?? 0;
 
                     return (
-                      <tr key={app.id} className="hover:bg-gray-50">
+                      <tr key={app.id} className="hover:bg-surface-raised">
                         <td className="px-4 py-3">
                           <Link
                             href={`/apps/${app.id}`}
-                            className="font-medium text-gray-900 hover:underline"
+                            className="font-medium text-heading hover:underline"
                           >
                             {app.name}
                           </Link>
-                          <p className="max-w-[200px] truncate text-xs text-gray-400">{app.url}</p>
+                          <p className="max-w-[200px] truncate text-xs text-muted">{app.url}</p>
                         </td>
                         <td className="px-4 py-3">
                           <StatusBadge status={app.status} />
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-xs capitalize text-gray-600">
+                          <span className="text-xs capitalize text-body">
                             {app.criticality}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500">
+                        <td className="px-4 py-3 text-xs text-muted">
                           {relativeTime(app.lastCheckedAt)}
                         </td>
                         <td className="px-4 py-3">
                           {findingsCount > 0 ? (
                             <span className="text-xs">
-                              <span className="font-semibold text-red-600">{critCount}</span>
-                              <span className="text-gray-400"> / {findingsCount}</span>
+                              <span className="font-semibold text-error">{critCount}</span>
+                              <span className="text-muted"> / {findingsCount}</span>
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400">—</span>
+                            <span className="text-xs text-muted">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500">
+                        <td className="px-4 py-3 text-xs text-muted">
                           {run?.responseTimeMs ? `${run.responseTimeMs}ms` : "—"}
                         </td>
                         <td className="px-4 py-3">
@@ -167,7 +167,7 @@ export default async function DashboardPage() {
           <NewAppForm />
         </div>
       </div>
-    </main>
+    </div>
     </>
   );
 }

@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 type ScoreFinding = {
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
@@ -29,30 +27,30 @@ type ScoreResult = {
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
-  CRITICAL: "bg-red-100 text-red-700 border-red-200",
-  HIGH: "bg-orange-100 text-orange-700 border-orange-200",
-  MEDIUM: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  LOW: "bg-blue-100 text-blue-700 border-blue-200",
+  CRITICAL: "bg-error/10 text-error border-error",
+  HIGH: "bg-warning/10 text-warning border-warning/20",
+  MEDIUM: "bg-warning/10 text-warning border-warning/20",
+  LOW: "bg-info/10 text-info border-info/20",
 };
 
 function scoreColor(score: number) {
-  if (score >= 80) return "text-green-600";
-  if (score >= 50) return "text-yellow-600";
-  return "text-red-600";
+  if (score >= 80) return "text-success";
+  if (score >= 50) return "text-warning";
+  return "text-error";
 }
 
 function scoreBg(score: number) {
-  if (score >= 80) return "bg-green-50 border-green-200";
-  if (score >= 50) return "bg-yellow-50 border-yellow-200";
-  return "bg-red-50 border-red-200";
+  if (score >= 80) return "bg-success/10 border-success/20";
+  if (score >= 50) return "bg-warning/10 border-warning/20";
+  return "bg-error/10 border-error";
 }
 
 function gradeColor(grade: string) {
-  if (grade === "A") return "bg-green-100 text-green-700";
-  if (grade === "B") return "bg-emerald-100 text-emerald-700";
-  if (grade === "C") return "bg-yellow-100 text-yellow-700";
-  if (grade === "D") return "bg-orange-100 text-orange-700";
-  return "bg-red-100 text-red-700";
+  if (grade === "A") return "bg-success/10 text-success";
+  if (grade === "B") return "bg-success/10 text-success";
+  if (grade === "C") return "bg-warning/10 text-warning";
+  if (grade === "D") return "bg-warning/10 text-warning";
+  return "bg-error/10 text-error";
 }
 
 function ScorePage() {
@@ -116,21 +114,19 @@ function ScorePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <MarketingNav />
-
+    <>
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         {/* Hero */}
         <div className="mb-10 text-center">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Free · Instant · No account needed
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+          <h1 className="text-4xl font-extrabold tracking-tight text-heading sm:text-5xl">
             Check your AI app&apos;s<br />
-            <span className="text-black">security score</span>
+            <span className="text-heading">security score</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-500">
+          <p className="mt-4 text-lg text-muted">
             Get an instant security assessment of any web app: headers, SSL, scripts, CORS &amp; more.
           </p>
         </div>
@@ -140,7 +136,7 @@ function ScorePage() {
           <div className="flex gap-2">
             <input
               type="url"
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-sm shadow-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black"
+              className="flex-1 rounded-lg border border-border px-4 py-3 text-sm shadow-sm focus:border-primary-hover focus:outline-none focus:ring-2 focus:ring-primary-hover"
               placeholder="https://your-app.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
@@ -149,7 +145,7 @@ function ScorePage() {
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+              className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -164,14 +160,14 @@ function ScorePage() {
               )}
             </button>
           </div>
-          <p className="mt-2 text-center text-xs text-gray-400">
+          <p className="mt-2 text-center text-xs text-muted">
             Scans security headers, SSL, inline scripts, CORS &amp; more. Respects rate limits: 10 scans/hour.
           </p>
         </form>
 
         {/* Error */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-lg border border-error bg-error/10 px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
@@ -183,10 +179,10 @@ function ScorePage() {
             <div className={`rounded-xl border-2 p-6 ${scoreBg(result.score)}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                     Security Score
                   </p>
-                  <p className="truncate text-sm text-gray-500">{result.url}</p>
+                  <p className="truncate text-sm text-muted">{result.url}</p>
                 </div>
                 <div className={`ml-4 flex h-14 w-14 items-center justify-center rounded-xl text-lg font-bold ${gradeColor(result.grade)}`}>
                   {result.grade}
@@ -197,18 +193,18 @@ function ScorePage() {
                 <span className={`text-7xl font-extrabold leading-none ${scoreColor(result.score)}`}>
                   {result.score}
                 </span>
-                <span className="mb-2 text-2xl font-medium text-gray-400">/100</span>
+                <span className="mb-2 text-2xl font-medium text-muted">/100</span>
               </div>
 
               {/* Score bar */}
-              <div className="mt-3 h-3 overflow-hidden rounded-full bg-gray-200">
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-border">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
                     result.score >= 80
-                      ? "bg-green-500"
+                      ? "bg-success"
                       : result.score >= 50
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
+                      ? "bg-warning"
+                      : "bg-error/100"
                   }`}
                   style={{ width: `${result.score}%` }}
                 />
@@ -216,25 +212,25 @@ function ScorePage() {
 
               {/* Summary */}
               <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-heading">
                   {result.findingsCount} issue{result.findingsCount !== 1 ? "s" : ""} found
                 </span>
                 {result.criticalCount > 0 && (
-                  <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                  <span className="rounded-full bg-error/10 px-2 py-0.5 text-xs font-medium text-error">
                     {result.criticalCount} critical
                   </span>
                 )}
                 {result.highCount > 0 && (
-                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
+                  <span className="rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
                     {result.highCount} high
                   </span>
                 )}
                 {result.error && (
-                  <span className="text-red-600">{result.error}</span>
+                  <span className="text-error">{result.error}</span>
                 )}
               </div>
 
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-muted">
                 Scanned at {new Date(result.scannedAt).toLocaleString()}
               </p>
             </div>
@@ -242,10 +238,10 @@ function ScorePage() {
             {/* Findings */}
             {result.findings.length > 0 && (
               <div>
-                <h2 className="mb-3 text-sm font-semibold text-gray-900">
+                <h2 className="mb-3 text-sm font-semibold text-heading">
                   Top issues found
                   {result.findingsCount > 5 && (
-                    <span className="ml-2 text-xs font-normal text-gray-400">
+                    <span className="ml-2 text-xs font-normal text-muted">
                       (showing 5 of {result.findingsCount})
                     </span>
                   )}
@@ -254,7 +250,7 @@ function ScorePage() {
                   {result.findings.map((f, i) => (
                     <div
                       key={i}
-                      className={`rounded-lg border p-4 ${SEVERITY_COLORS[f.severity] ?? "bg-gray-50 border-gray-200 text-gray-700"}`}
+                      className={`rounded-lg border p-4 ${SEVERITY_COLORS[f.severity] ?? "bg-surface-raised border-border text-heading"}`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="rounded px-1.5 py-0.5 text-xs font-bold uppercase">
@@ -270,23 +266,23 @@ function ScorePage() {
             )}
 
             {/* CTA */}
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
-              <h3 className="text-base font-bold text-gray-900">
+            <div className="rounded-xl border border-border bg-surface-raised p-6 text-center">
+              <h3 className="text-base font-bold text-heading">
                 Get the full picture
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 {result.message}
               </p>
               <div className="mt-4 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <Link
                   href="/signup"
-                  className="rounded-lg bg-black px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+                  className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
                 >
                   Get started →
                 </Link>
                 <Link
                   href="/#features"
-                  className="text-sm text-gray-500 hover:text-gray-900"
+                  className="text-sm text-muted hover:text-heading"
                 >
                   See all features
                 </Link>
@@ -294,16 +290,16 @@ function ScorePage() {
             </div>
 
             {/* Share */}
-            <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+            <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
               <div>
-                <p className="text-xs font-medium text-gray-700">Share this score</p>
-                <p className="truncate text-xs text-gray-400">
+                <p className="text-xs font-medium text-heading">Share this score</p>
+                <p className="truncate text-xs text-muted">
                   scantient.com/score?url={encodeURIComponent(result.url)}
                 </p>
               </div>
               <button
                 onClick={copyShareLink}
-                className="ml-4 shrink-0 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
+                className="ml-4 shrink-0 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-body transition hover:bg-surface-raised"
               >
                 {copied ? "✓ Copied!" : "Copy link"}
               </button>
@@ -319,24 +315,23 @@ function ScorePage() {
               { icon: "🔒", title: "SSL & HTTPS", desc: "Validate HTTPS enforcement and certificate issues" },
               { icon: "⚠️", title: "Inline Scripts & CORS", desc: "Detect dangerous inline scripts and CORS misconfigurations" },
             ].map((item) => (
-              <div key={item.title} className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+              <div key={item.title} className="rounded-lg border border-border bg-surface-raised p-4 text-center">
                 <div className="text-2xl">{item.icon}</div>
-                <h3 className="mt-2 text-sm font-semibold text-gray-800">{item.title}</h3>
-                <p className="mt-1 text-xs text-gray-500">{item.desc}</p>
+                <h3 className="mt-2 text-sm font-semibold text-heading">{item.title}</h3>
+                <p className="mt-1 text-xs text-muted">{item.desc}</p>
               </div>
             ))}
           </div>
         )}
       </main>
 
-      <Footer />
-    </div>
+    </>
   );
 }
 
 export default function ScorePageWrapper() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center text-gray-400">Loading…</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center text-muted">Loading…</div>}>
       <ScorePage />
     </Suspense>
   );

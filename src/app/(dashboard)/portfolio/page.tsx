@@ -32,32 +32,32 @@ export default async function PortfolioPage() {
   // Gate behind PRO or ENTERPRISE
   if (!["PRO", "ENTERPRISE"].includes(limits.tier)) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-16 sm:px-6 text-center">
-        <div className="rounded-xl border-2 border-dashed border-gray-200 p-12">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-3xl">
+      <div className="mx-auto max-w-2xl py-16 text-center">
+        <div className="rounded-xl border-2 border-dashed border-border p-12">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-raised text-3xl">
             📊
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Portfolio Risk Overview</h1>
-          <p className="mt-3 text-gray-500">
+          <h1 className="text-2xl font-bold text-heading">Portfolio Risk Overview</h1>
+          <p className="mt-3 text-muted">
             The Portfolio dashboard is available on PRO and ENTERPRISE plans. Upgrade to get
             board-ready risk visibility across all your apps.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/pricing"
-              className="rounded-lg bg-black px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover"
             >
               Upgrade to PRO →
             </Link>
-            <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">
+            <Link href="/dashboard" className="text-sm text-muted hover:text-heading">
               Back to dashboard
             </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-400">
+          <p className="mt-4 text-xs text-muted">
             Current plan: <strong>{limits.tier}</strong>
           </p>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -191,14 +191,14 @@ export default async function PortfolioPage() {
         }
       `}</style>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="py-8">
         {/* Header */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-heading">
               Portfolio Risk Overview
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               {org?.name} · {dateStr}
             </p>
           </div>
@@ -212,36 +212,36 @@ export default async function PortfolioPage() {
           <MetricCard
             label="Total Apps"
             value={String(totalApps)}
-            color="text-gray-900"
+            color="text-heading"
           />
           <MetricCard
             label="Apps at Risk"
             value={String(appsAtRisk)}
-            color={appsAtRisk > 0 ? "text-orange-600" : "text-green-600"}
+            color={appsAtRisk > 0 ? "text-orange-600" : "text-success"}
             sub={appsAtRisk > 0 ? "score < 70" : "All healthy"}
           />
           <MetricCard
             label="Open Critical Findings"
             value={String(openCritical)}
-            color={openCritical > 0 ? "text-red-600" : "text-green-600"}
+            color={openCritical > 0 ? "text-error" : "text-success"}
           />
           <MetricCard
             label="Avg Security Score"
             value={`${avgScore}/100`}
-            color={avgScore >= 80 ? "text-green-600" : avgScore >= 50 ? "text-yellow-600" : "text-red-600"}
+            color={avgScore >= 80 ? "text-success" : avgScore >= 50 ? "text-warning" : "text-error"}
           />
         </div>
 
         {/* Risk Matrix */}
         <section className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Risk Matrix</h2>
-          <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-gray-200">
+          <h2 className="mb-4 text-lg font-semibold text-heading">Risk Matrix</h2>
+          <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border border-border">
             {/* Header row labels */}
             <div className="col-span-2 grid grid-cols-2 border-b">
-              <div className="px-4 py-2 text-center text-xs font-medium text-gray-500 border-r">
+              <div className="px-4 py-2 text-center text-xs font-medium text-muted border-r">
                 ← Low Security Score (&lt;70)
               </div>
-              <div className="px-4 py-2 text-center text-xs font-medium text-gray-500">
+              <div className="px-4 py-2 text-center text-xs font-medium text-muted">
                 High Security Score (≥70) →
               </div>
             </div>
@@ -251,7 +251,7 @@ export default async function PortfolioPage() {
               title="⚠️ High Risk"
               sub="High criticality · Low score"
               apps={quadrants.topLeft}
-              className="border-r border-b bg-red-50"
+              className="border-r border-b bg-error/10"
             />
 
             {/* Top-right: High crit, high score — PROTECTED */}
@@ -259,7 +259,7 @@ export default async function PortfolioPage() {
               title="✅ Well Protected"
               sub="High criticality · High score"
               apps={quadrants.topRight}
-              className="border-b bg-green-50"
+              className="border-b bg-success/10"
             />
 
             {/* Bottom-left: Low crit, low score — MONITOR */}
@@ -267,7 +267,7 @@ export default async function PortfolioPage() {
               title="🔍 Monitor"
               sub="Low criticality · Low score"
               apps={quadrants.bottomLeft}
-              className="border-r bg-yellow-50"
+              className="border-r bg-warning/10"
             />
 
             {/* Bottom-right: Low crit, high score — HEALTHY */}
@@ -275,10 +275,10 @@ export default async function PortfolioPage() {
               title="💚 Healthy"
               sub="Low criticality · High score"
               apps={quadrants.bottomRight}
-              className="bg-gray-50"
+              className="bg-surface-raised"
             />
           </div>
-          <div className="mt-2 flex justify-between text-xs text-gray-400">
+          <div className="mt-2 flex justify-between text-xs text-muted">
             <span>↑ High Criticality</span>
             <span>↓ Low Criticality</span>
           </div>
@@ -286,11 +286,11 @@ export default async function PortfolioPage() {
 
         {/* App Risk Table */}
         <section className="mb-8 print-break">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">App Risk Table</h2>
-          <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+          <h2 className="mb-4 text-lg font-semibold text-heading">App Risk Table</h2>
+          <div className="overflow-x-auto rounded-xl border border-border bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                <tr className="border-b bg-surface-raised text-xs font-semibold uppercase tracking-wider text-muted">
                   <th className="px-4 py-3">App Name</th>
                   <th className="px-4 py-3">URL</th>
                   <th className="px-4 py-3">Status</th>
@@ -301,28 +301,28 @@ export default async function PortfolioPage() {
                   <th className="px-4 py-3">Owner</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {sortedApps.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
+                    <td colSpan={8} className="px-4 py-8 text-center text-muted">
                       No apps registered yet.{" "}
-                      <Link href="/dashboard" className="text-black underline">
+                      <Link href="/dashboard" className="text-heading underline">
                         Add your first app
                       </Link>
                     </td>
                   </tr>
                 ) : (
                   sortedApps.map((app) => (
-                    <tr key={app.id} className="hover:bg-gray-50">
+                    <tr key={app.id} className="hover:bg-surface-raised">
                       <td className="px-4 py-3">
                         <Link
                           href={`/apps/${app.id}`}
-                          className="font-medium text-gray-900 hover:underline"
+                          className="font-medium text-heading hover:underline"
                         >
                           {app.name}
                         </Link>
                       </td>
-                      <td className="max-w-[150px] truncate px-4 py-3 text-xs text-gray-400">
+                      <td className="max-w-[150px] truncate px-4 py-3 text-xs text-muted">
                         {app.url}
                       </td>
                       <td className="px-4 py-3">
@@ -332,34 +332,34 @@ export default async function PortfolioPage() {
                         <span
                           className={`font-semibold ${
                             app.score >= 80
-                              ? "text-green-600"
+                              ? "text-success"
                               : app.score >= 50
-                              ? "text-yellow-600"
-                              : "text-red-600"
+                              ? "text-warning"
+                              : "text-error"
                           }`}
                         >
                           {app.score}
                         </span>
-                        <span className="text-xs text-gray-400">/100</span>
+                        <span className="text-xs text-muted">/100</span>
                       </td>
                       <td className="px-4 py-3">
                         {app.openFindings > 0 ? (
                           <span className="text-xs">
-                            <span className="font-semibold text-red-600">{app.criticalCount}</span>
-                            <span className="text-gray-400"> crit / </span>
+                            <span className="font-semibold text-error">{app.criticalCount}</span>
+                            <span className="text-muted"> crit / </span>
                             <span className="font-medium">{app.openFindings}</span>
-                            <span className="text-gray-400"> total</span>
+                            <span className="text-muted"> total</span>
                           </span>
                         ) : (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-muted">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-600">
+                      <td className="px-4 py-3 text-xs text-body">
                         {app.uptimePercent !== null && app.uptimePercent !== undefined
                           ? `${app.uptimePercent.toFixed(1)}%`
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500">
+                      <td className="px-4 py-3 text-xs text-muted">
                         {app.lastScan
                           ? new Date(app.lastScan).toLocaleDateString("en-US", {
                               month: "short",
@@ -369,7 +369,7 @@ export default async function PortfolioPage() {
                             })
                           : "Never"}
                       </td>
-                      <td className="max-w-[150px] truncate px-4 py-3 text-xs text-gray-500">
+                      <td className="max-w-[150px] truncate px-4 py-3 text-xs text-muted">
                         {app.owner}
                       </td>
                     </tr>
@@ -382,17 +382,17 @@ export default async function PortfolioPage() {
 
         {/* Trend Section */}
         <section className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Trends This Month</h2>
+          <h2 className="mb-4 text-lg font-semibold text-heading">Trends This Month</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <div className="rounded-xl border border-border bg-surface p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                 Findings Resolved
               </p>
-              <p className="mt-2 text-4xl font-bold text-green-600">{resolvedThisMonth}</p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-2 text-4xl font-bold text-success">{resolvedThisMonth}</p>
+              <p className="mt-1 text-xs text-muted">
                 vs {resolvedLastMonth} last month
                 {resolvedLastMonth > 0 && (
-                  <span className={resolvedThisMonth >= resolvedLastMonth ? " text-green-500" : " text-red-500"}>
+                  <span className={resolvedThisMonth >= resolvedLastMonth ? " text-success" : " text-error"}>
                     {" "}
                     ({resolvedThisMonth >= resolvedLastMonth ? "+" : ""}
                     {resolvedThisMonth - resolvedLastMonth})
@@ -400,17 +400,17 @@ export default async function PortfolioPage() {
                 )}
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <div className="rounded-xl border border-border bg-surface p-6">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">
                 New Findings
               </p>
-              <p className={`mt-2 text-4xl font-bold ${newThisMonth > 0 ? "text-orange-600" : "text-green-600"}`}>
+              <p className={`mt-2 text-4xl font-bold ${newThisMonth > 0 ? "text-orange-600" : "text-success"}`}>
                 {newThisMonth}
               </p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-muted">
                 vs {newLastMonth} last month
                 {newLastMonth > 0 && (
-                  <span className={newThisMonth <= newLastMonth ? " text-green-500" : " text-red-500"}>
+                  <span className={newThisMonth <= newLastMonth ? " text-success" : " text-error"}>
                     {" "}
                     ({newThisMonth <= newLastMonth ? "" : "+"}
                     {newThisMonth - newLastMonth})
@@ -421,10 +421,10 @@ export default async function PortfolioPage() {
           </div>
         </section>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted">
           Generated {now.toLocaleString()} · {limits.tier} plan · {totalApps} apps monitored
         </p>
-      </main>
+      </div>
     </>
   );
 }
@@ -441,10 +441,10 @@ function MetricCard({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</p>
       <p className={`mt-2 text-3xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="mt-0.5 text-xs text-gray-400">{sub}</p>}
+      {sub && <p className="mt-0.5 text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -462,21 +462,21 @@ function RiskQuadrant({
 }) {
   return (
     <div className={`min-h-[140px] p-4 ${className ?? ""}`}>
-      <p className="text-xs font-bold text-gray-700">{title}</p>
-      <p className="mb-3 text-xs text-gray-500">{sub}</p>
+      <p className="text-xs font-bold text-heading">{title}</p>
+      <p className="mb-3 text-xs text-muted">{sub}</p>
       {apps.length === 0 ? (
-        <p className="text-xs text-gray-400 italic">No apps</p>
+        <p className="text-xs text-muted italic">No apps</p>
       ) : (
         <ul className="space-y-1">
           {apps.map((a) => (
             <li key={a.id} className="flex items-center justify-between gap-2">
               <Link
                 href={`/apps/${a.id}`}
-                className="truncate text-xs font-medium text-gray-800 hover:underline"
+                className="truncate text-xs font-medium text-heading hover:underline"
               >
                 {a.name}
               </Link>
-              <span className="shrink-0 text-xs text-gray-500">{a.score}/100</span>
+              <span className="shrink-0 text-xs text-muted">{a.score}/100</span>
             </li>
           ))}
         </ul>
@@ -487,10 +487,10 @@ function RiskQuadrant({
 
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    HEALTHY: "bg-green-100 text-green-700",
-    WARNING: "bg-yellow-100 text-yellow-700",
-    CRITICAL: "bg-red-100 text-red-700",
-    UNKNOWN: "bg-gray-100 text-gray-500",
+    HEALTHY: "bg-success/10 text-success",
+    WARNING: "bg-warning/10 text-warning",
+    CRITICAL: "bg-error/10 text-error",
+    UNKNOWN: "bg-surface-raised text-muted",
   };
   return (
     <span

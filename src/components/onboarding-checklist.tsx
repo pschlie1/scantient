@@ -131,7 +131,7 @@ export function OnboardingChecklist() {
   const progressPct = (completedCount / steps.length) * 100;
 
   return (
-    <div className="mb-6 min-w-0 overflow-hidden rounded-lg border border-alabaster-grey-200 bg-white shadow-sm">
+    <div className="mb-6 min-w-0 overflow-hidden rounded-lg border border-alabaster-grey-200 bg-surface shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-3">
@@ -142,14 +142,14 @@ export function OnboardingChecklist() {
             {allComplete ? "🎉 You're all set!" : `Getting started · ${completedCount}/5 complete`}
           </button>
           {!collapsed && !allComplete && (
-            <span className="text-xs text-gray-400">{collapsed ? "Show" : "Hide"}</span>
+            <span className="text-xs text-muted">{collapsed ? "Show" : "Hide"}</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {!allComplete && (
             <button
               onClick={() => setCollapsed((c) => !c)}
-              className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100"
+              className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-raised"
               aria-label={collapsed ? "Expand checklist" : "Collapse checklist"}
             >
               {collapsed ? "▸ Show" : "▾ Hide"}
@@ -157,7 +157,7 @@ export function OnboardingChecklist() {
           )}
           <button
             onClick={dismiss}
-            className="rounded px-2 py-1 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded px-2 py-1 text-xs text-muted hover:bg-surface-raised hover:text-body"
             aria-label="Dismiss checklist"
           >
             Dismiss
@@ -183,15 +183,15 @@ export function OnboardingChecklist() {
               </p>
               <button
                 onClick={dismiss}
-                className="mt-3 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                className="mt-3 rounded-lg bg-success px-4 py-2 text-sm font-medium text-white hover:bg-success transition-colors"
               >
                 Got it, dismiss
               </button>
             </div>
           ) : loading ? (
-            <div className="px-5 pb-5 text-sm text-gray-400">Checking your progress…</div>
+            <div className="px-5 pb-5 text-sm text-muted">Checking your progress…</div>
           ) : (
-            <ul className="divide-y divide-gray-100 border-t border-gray-100">
+            <ul className="divide-y divide-border border-t border-border">
               {steps.map((step) => {
                 const complete = state[step.key];
                 const ctaMatchesCurrentPage = Boolean(step.ctaHref && (pathname === step.ctaHref || pathname.startsWith(`${step.ctaHref}/`)));

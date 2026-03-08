@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Scantient for MSPs — Compliance Confidence Across Every Client | Scantient",
@@ -174,7 +172,7 @@ const testimonials = [
 
 export default function ForMSPsPage() {
   return (
-    <div className="bg-white">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
@@ -184,14 +182,12 @@ export default function ForMSPsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <MarketingNav />
-
       {/* Breadcrumb */}
       <div className="mx-auto max-w-6xl px-4 pt-8">
-        <nav className="flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/" className="hover:text-gray-700 transition-colors">Home</Link>
+        <nav className="flex items-center gap-2 text-sm text-muted">
+          <Link href="/" className="hover:text-heading transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-gray-700">For MSPs</span>
+          <span className="text-heading">For MSPs</span>
         </nav>
       </div>
 
@@ -199,44 +195,44 @@ export default function ForMSPsPage() {
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">
+            <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">
               For Managed Service Providers
             </p>
             <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
               Compliance Confidence Across Every Client
             </h1>
-            <p className="mt-6 text-lg leading-relaxed text-gray-500">
+            <p className="mt-6 text-lg leading-relaxed text-muted">
               Scantient is the compliance layer MSPs deploy across their entire client portfolio. One platform,
               every client, continuous monitoring — from shadow AI detection to full SOC 2 audit trail.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/signup"
-                className="rounded-lg bg-black px-8 py-3.5 text-center text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+                className="rounded-lg bg-primary px-8 py-3.5 text-center text-sm font-medium text-white hover:bg-primary-hover transition-colors"
               >
                 Get started
               </Link>
               <Link
                 href="/contact"
-                className="rounded-lg border border-gray-200 px-8 py-3.5 text-center text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-border px-8 py-3.5 text-center text-sm font-medium text-heading hover:border-border hover:bg-surface-raised transition-colors"
               >
                 MSP Partnership Inquiry
               </Link>
             </div>
           </div>
-          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-8">
-            <p className="text-sm font-semibold uppercase tracking-widest text-gray-400">MSP Dashboard</p>
+          <div className="rounded-2xl border border-border bg-surface-raised p-8">
+            <p className="text-sm font-semibold uppercase tracking-widest text-muted">MSP Dashboard</p>
             <div className="mt-6 space-y-3">
               {[
-                { client: "Acme Corp", status: "Compliant", score: "94", badge: "bg-green-50 text-green-700" },
-                { client: "TechStart Inc", status: "2 Critical Findings", score: "71", badge: "bg-red-50 text-red-700" },
-                { client: "Riverside Health", status: "Audit Ready", score: "88", badge: "bg-green-50 text-green-700" },
-                { client: "Newco (Acquired)", status: "Onboarding", score: "—", badge: "bg-yellow-50 text-yellow-700" },
+                { client: "Acme Corp", status: "Compliant", score: "94", badge: "bg-success/10 text-success" },
+                { client: "TechStart Inc", status: "2 Critical Findings", score: "71", badge: "bg-error/10 text-error" },
+                { client: "Riverside Health", status: "Audit Ready", score: "88", badge: "bg-success/10 text-success" },
+                { client: "Newco (Acquired)", status: "Onboarding", score: "—", badge: "bg-warning/10 text-warning" },
               ].map((row, i) => (
-                <div key={i} className="flex items-center justify-between rounded-xl bg-white border border-gray-100 px-4 py-3">
+                <div key={i} className="flex items-center justify-between rounded-xl bg-surface border border-border px-4 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{row.client}</p>
-                    <p className="text-xs text-gray-400">{row.status}</p>
+                    <p className="text-sm font-medium text-heading">{row.client}</p>
+                    <p className="text-xs text-muted">{row.status}</p>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold ${row.badge}`}>
                     {row.score !== "—" ? `Score: ${row.score}` : "Scanning..."}
@@ -244,23 +240,23 @@ export default function ForMSPsPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-xs text-gray-400 text-center">Illustrative dashboard — actual data from your clients</p>
+            <p className="mt-4 text-xs text-muted text-center">Illustrative dashboard — actual data from your clients</p>
           </div>
         </div>
       </section>
 
       {/* Pain Points */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20">
+      <section className="border-t border-border bg-surface-raised py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">The MSP Reality</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">The MSP Reality</p>
           <h2 className="max-w-2xl text-3xl font-bold leading-tight tracking-tight">
             Managing compliance across a client portfolio is broken
           </h2>
           <div className="mt-12 grid gap-8 sm:grid-cols-2">
             {painPoints.map((point, i) => (
-              <div key={i} className="rounded-2xl border border-gray-200 bg-white p-6">
-                <h3 className="text-base font-semibold text-gray-900">{point.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{point.desc}</p>
+              <div key={i} className="rounded-2xl border border-border bg-surface p-6">
+                <h3 className="text-base font-semibold text-heading">{point.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{point.desc}</p>
               </div>
             ))}
           </div>
@@ -270,7 +266,7 @@ export default function ForMSPsPage() {
       {/* How it works */}
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">How It Works</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">How It Works</p>
           <h2 className="text-3xl font-bold leading-tight tracking-tight">
             Add a client. Set a policy. Monitor everything.
           </h2>
@@ -278,28 +274,28 @@ export default function ForMSPsPage() {
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {howItWorks.map((step) => (
             <div key={step.step}>
-              <span className="text-5xl font-bold text-gray-100">{step.step}</span>
-              <h3 className="mt-2 text-base font-semibold text-gray-900">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">{step.desc}</p>
+              <span className="text-5xl font-bold text-muted">{step.step}</span>
+              <h3 className="mt-2 text-base font-semibold text-heading">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{step.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Use Cases */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20">
+      <section className="border-t border-border bg-surface-raised py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Use Cases</p>
+          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Use Cases</p>
           <h2 className="text-3xl font-bold leading-tight tracking-tight">
             Built for how MSPs actually work
           </h2>
           <div className="mt-12 grid gap-8 lg:grid-cols-3">
             {useCases.map((uc, i) => (
-              <div key={i} className="rounded-2xl border border-gray-200 bg-white p-6">
-                <span className="text-xs font-semibold text-gray-400">{uc.badge}</span>
-                <h3 className="mt-2 text-lg font-semibold text-gray-900">{uc.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-gray-500">{uc.desc}</p>
-                <p className="mt-4 text-xs font-medium text-gray-400">{uc.cta}</p>
+              <div key={i} className="rounded-2xl border border-border bg-surface p-6">
+                <span className="text-xs font-semibold text-muted">{uc.badge}</span>
+                <h3 className="mt-2 text-lg font-semibold text-heading">{uc.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{uc.desc}</p>
+                <p className="mt-4 text-xs font-medium text-muted">{uc.cta}</p>
               </div>
             ))}
           </div>
@@ -308,7 +304,7 @@ export default function ForMSPsPage() {
 
       {/* Social Proof */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400 text-center">
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted text-center">
           From MSPs Using Scantient
         </p>
         <h2 className="text-center text-3xl font-bold leading-tight tracking-tight">
@@ -316,29 +312,29 @@ export default function ForMSPsPage() {
         </h2>
         <div className="mt-12 grid gap-8 sm:grid-cols-3">
           {testimonials.map((t, i) => (
-            <div key={i} className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
-              <p className="text-sm leading-relaxed text-gray-700 italic">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-6 border-t border-gray-200 pt-4">
-                <p className="text-sm font-semibold text-gray-900">{t.author}</p>
-                <p className="text-xs text-gray-400">{t.company}</p>
+            <div key={i} className="rounded-2xl border border-border bg-surface-raised p-6">
+              <p className="text-sm leading-relaxed text-heading italic">&ldquo;{t.quote}&rdquo;</p>
+              <div className="mt-6 border-t border-border pt-4">
+                <p className="text-sm font-semibold text-heading">{t.author}</p>
+                <p className="text-xs text-muted">{t.company}</p>
               </div>
             </div>
           ))}
         </div>
-        <p className="mt-8 text-center text-xs text-gray-400">
+        <p className="mt-8 text-center text-xs text-muted">
           Testimonials are representative of feedback received from MSP partners. Details anonymized.
         </p>
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-gray-100 bg-gray-50 py-20">
+      <section className="border-t border-border bg-surface-raised py-20">
         <div className="mx-auto max-w-3xl px-4">
           <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
           <div className="mt-10 space-y-10">
             {faqSchema.mainEntity.map((faq, i) => (
               <div key={i}>
-                <h3 className="text-lg font-semibold text-gray-900">{faq.name}</h3>
-                <p className="mt-3 leading-relaxed text-gray-600">{faq.acceptedAnswer.text}</p>
+                <h3 className="text-lg font-semibold text-heading">{faq.name}</h3>
+                <p className="mt-3 leading-relaxed text-body">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>
@@ -347,33 +343,32 @@ export default function ForMSPsPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <div className="rounded-2xl bg-gray-50 p-12 text-center">
+        <div className="rounded-2xl bg-surface-raised p-12 text-center">
           <h2 className="text-3xl font-bold">Ready to scale compliance across your client portfolio?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-gray-500">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Ready to get started? Our MSP partnerships team is
             available to discuss volume pricing, white-label options, and onboarding support.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/signup"
-              className="rounded-lg bg-black px-8 py-3.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+              className="rounded-lg bg-primary px-8 py-3.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
             >
               Get started
             </Link>
             <Link
               href="/contact"
-              className="rounded-lg border border-gray-200 px-8 py-3.5 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              className="rounded-lg border border-border px-8 py-3.5 text-sm font-medium text-heading hover:border-border hover:bg-surface-raised transition-colors"
             >
               MSP Partnership Inquiry
             </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-400">
+          <p className="mt-4 text-xs text-muted">
             Multi-tenant · White-label reporting · Volume pricing available
           </p>
         </div>
       </section>
 
-      <Footer />
-    </div>
+    </>
   );
 }

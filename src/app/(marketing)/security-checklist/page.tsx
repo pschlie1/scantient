@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "AI App Security Checklist: 15 Things to Check Before Going Live | Scantient",
@@ -89,15 +87,13 @@ const items = [
 
 export default function SecurityChecklistPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Security Guide</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Security Guide</p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           AI App Security Checklist: 15 Things to Check Before Going Live
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           AI code generators build fast, but they don&apos;t build secure. Whether your team is using Cursor, Lovable, Bolt, or Replit, these 15 checks will catch the most common and most dangerous vulnerabilities before they reach production.
         </p>
 
@@ -105,35 +101,34 @@ export default function SecurityChecklistPage() {
           {items.map((item) => (
             <div key={item.num}>
               <h2 className="text-xl font-semibold">
-                <span className="mr-2 text-gray-300">{item.num}.</span>
+                <span className="mr-2 text-muted">{item.num}.</span>
                 {item.title}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">{item.body}</p>
+              <p className="mt-3 text-sm leading-relaxed text-body">{item.body}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-2xl font-bold">Automate this entire checklist</h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             Scantient runs these checks continuously on every AI-generated app in your organization. No SDK required. Scan your first app in under 2 minutes.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="mt-6 inline-block rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Get started
           </Link>
         </div>
 
         <div className="mt-12 flex gap-4 text-sm">
-          <Link href="/vibe-coding-risks" className="text-gray-500 hover:text-black transition-colors">← The Hidden Risks of Vibe Coding</Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/compliance" className="text-gray-500 hover:text-black transition-colors">Compliance Monitoring →</Link>
+          <Link href="/vibe-coding-risks" className="text-muted hover:text-heading transition-colors">← The Hidden Risks of Vibe Coding</Link>
+          <span className="text-muted">|</span>
+          <Link href="/compliance" className="text-muted hover:text-heading transition-colors">Compliance Monitoring →</Link>
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

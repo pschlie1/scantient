@@ -56,14 +56,14 @@ export default function BillingPage() {
     }
   }
 
-  if (!data) return <div className="text-sm text-gray-500">Loading…</div>;
+  if (!data) return <div className="text-sm text-muted">Loading…</div>;
 
   const { limits } = data.org;
 
   return (
     <div className="space-y-6">
       {/* Current plan */}
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="text-lg font-semibold">Current plan</h2>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Plan" value={limits.tier} />
@@ -72,7 +72,7 @@ export default function BillingPage() {
           <Stat label="Users" value={`${data.org.userCount} / ${limits.maxUsers}`} />
         </div>
         {limits.trialEndsAt && (
-          <p className="mt-3 text-sm text-yellow-600">
+          <p className="mt-3 text-sm text-warning">
             Trial ends {new Date(limits.trialEndsAt).toLocaleDateString()}
           </p>
         )}
@@ -80,7 +80,7 @@ export default function BillingPage() {
           <button
             onClick={handleManage}
             disabled={loading === "portal"}
-            className="mt-4 rounded border px-3 py-1.5 text-sm hover:bg-gray-50 disabled:opacity-50"
+            className="mt-4 rounded border px-3 py-1.5 text-sm hover:bg-surface-raised disabled:opacity-50"
           >
             {loading === "portal" ? "Opening…" : "Manage billing"}
           </button>
@@ -88,25 +88,25 @@ export default function BillingPage() {
       </div>
 
       {/* Plans */}
-      <div className="rounded-lg border bg-white p-6">
+      <div className="rounded-lg border bg-surface p-6">
         <h2 className="mb-4 text-lg font-semibold">Upgrade your plan</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => {
             const isCurrent = plan.key === limits.tier;
             return (
-              <div key={plan.key} className={`rounded-lg border p-4 ${isCurrent ? "border-black" : ""}`}>
+              <div key={plan.key} className={`rounded-lg border p-4 ${isCurrent ? "border-primary" : ""}`}>
                 <h3 className="font-semibold">{plan.name}</h3>
                 <p className="text-2xl font-bold">{plan.price}</p>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-muted">
                   {plan.apps >= 999 ? "Unlimited" : plan.apps} apps · {plan.users >= 999 ? "Unlimited" : plan.users} users
                 </p>
                 {isCurrent ? (
-                  <p className="mt-3 text-xs font-medium text-green-600">Current plan</p>
+                  <p className="mt-3 text-xs font-medium text-success">Current plan</p>
                 ) : plan.talkToSales ? (
                   <a
                     href="mailto:sales@scantient.com"
 
-                    className="mt-3 block w-full rounded border border-black py-1.5 text-center text-sm font-medium text-black hover:bg-gray-50"
+                    className="mt-3 block w-full rounded border border-primary py-1.5 text-center text-sm font-medium text-heading hover:bg-surface-raised"
                   >
                     Talk to sales
                   </a>
@@ -114,7 +114,7 @@ export default function BillingPage() {
                   <button
                     onClick={() => handleUpgrade(plan.key)}
                     disabled={loading === plan.key}
-                    className="mt-3 w-full rounded bg-black py-1.5 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+                    className="mt-3 w-full rounded bg-primary py-1.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
                   >
                     {loading === plan.key ? "Loading…" : "Upgrade"}
                   </button>
@@ -131,7 +131,7 @@ export default function BillingPage() {
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
       <p className="mt-0.5 text-sm font-semibold capitalize">{value}</p>
     </div>
   );

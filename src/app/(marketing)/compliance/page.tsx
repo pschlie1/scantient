@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Continuous Compliance Monitoring for AI-Generated Applications | Scantient",
@@ -39,21 +37,19 @@ const frameworks = [
 
 export default function CompliancePage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Compliance</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Compliance</p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Continuous Compliance Monitoring for AI-Generated Applications
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           Your compliance obligations don&apos;t have a carve-out for AI-generated code. SOC 2, ISO 27001, HIPAA, NIST: every framework requires you to monitor, manage, and secure the applications your organization deploys. When those applications are built by AI and deployed by non-developers, traditional compliance workflows break down.
         </p>
 
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">The AI App Compliance Challenge</h2>
-          <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-4 leading-relaxed text-body">
             <p>
               Traditional compliance relies on controlled development processes: code review, change management, security testing in CI/CD, documented deployment procedures. AI-generated applications bypass every one of these controls.
             </p>
@@ -68,7 +64,7 @@ export default function CompliancePage() {
 
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">Framework Mapping</h2>
-          <p className="mt-4 text-gray-500">
+          <p className="mt-4 text-muted">
             Scantient&apos;s continuous monitoring maps directly to controls across major compliance frameworks.
           </p>
 
@@ -79,8 +75,8 @@ export default function CompliancePage() {
                 <div className="mt-4 space-y-3">
                   {fw.controls.map((c) => (
                     <div key={c.id} className="flex gap-3 rounded-xl border p-4">
-                      <span className="shrink-0 rounded bg-gray-100 px-2 py-0.5 text-xs font-mono font-medium text-gray-600">{c.id}</span>
-                      <p className="text-sm text-gray-600">{c.desc}</p>
+                      <span className="shrink-0 rounded bg-surface-raised px-2 py-0.5 text-xs font-mono font-medium text-body">{c.id}</span>
+                      <p className="text-sm text-body">{c.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -91,42 +87,41 @@ export default function CompliancePage() {
 
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">Audit-Ready Reporting</h2>
-          <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-4 leading-relaxed text-body">
             <p>
               Scantient generates weekly and on-demand compliance reports that document the security posture of every AI-generated application in your organization. Each report includes:
             </p>
             <ul className="ml-4 space-y-2">
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Complete application inventory with security scores</li>
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Open findings with severity classifications</li>
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Remediation tracking with timestamps</li>
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Control mapping to SOC 2, ISO 27001, and NIST CSF</li>
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> Historical trend data showing security posture over time</li>
-              <li className="flex items-start gap-2"><span className="mt-1 text-green-600">✓</span> PDF export for auditor submission</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> Complete application inventory with security scores</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> Open findings with severity classifications</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> Remediation tracking with timestamps</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> Control mapping to SOC 2, ISO 27001, and NIST CSF</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> Historical trend data showing security posture over time</li>
+              <li className="flex items-start gap-2"><span className="mt-1 text-success">✓</span> PDF export for auditor submission</li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-2xl font-bold">Be audit-ready, always</h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             Scantient provides the continuous monitoring and documentation your auditors require, automatically. Generate your first compliance report in minutes.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="mt-6 inline-block rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Get started
           </Link>
         </div>
 
         <div className="mt-12 flex gap-4 text-sm">
-          <Link href="/vibe-coding-risks" className="text-gray-500 hover:text-black transition-colors">← Vibe Coding Risks</Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/security-checklist" className="text-gray-500 hover:text-black transition-colors">Security Checklist →</Link>
+          <Link href="/vibe-coding-risks" className="text-muted hover:text-heading transition-colors">← Vibe Coding Risks</Link>
+          <span className="text-muted">|</span>
+          <Link href="/security-checklist" className="text-muted hover:text-heading transition-colors">Security Checklist →</Link>
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

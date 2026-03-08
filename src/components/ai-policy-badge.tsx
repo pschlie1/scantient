@@ -9,10 +9,10 @@ interface Props {
 }
 
 const policyOptions: { value: AiPolicyStatus; label: string; color: string }[] = [
-  { value: "unclassified", label: "Unclassified", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
-  { value: "approved", label: "Approved", color: "bg-green-100 text-green-800 border-green-300" },
-  { value: "restricted", label: "Restricted", color: "bg-orange-100 text-orange-800 border-orange-300" },
-  { value: "prohibited", label: "Prohibited", color: "bg-red-100 text-red-800 border-red-300" },
+  { value: "unclassified", label: "Unclassified", color: "bg-warning/10 text-warning border-warning" },
+  { value: "approved", label: "Approved", color: "bg-success/10 text-success border-success" },
+  { value: "restricted", label: "Restricted", color: "bg-warning/10 text-warning border-warning/30" },
+  { value: "prohibited", label: "Prohibited", color: "bg-error/10 text-error border-error" },
 ];
 
 export function AiPolicyBadge({ findingId, meta }: Props) {
@@ -44,7 +44,7 @@ export function AiPolicyBadge({ findingId, meta }: Props) {
     <div className="relative inline-block">
       <div className="flex items-center gap-1.5">
         {/* AI tool badge */}
-        <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 border border-purple-200">
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary border border-primary/30">
           <span>🤖</span>
           <span>{meta.aiTool}</span>
         </span>
@@ -66,27 +66,27 @@ export function AiPolicyBadge({ findingId, meta }: Props) {
       </div>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border bg-white shadow-lg">
-          <p className="border-b px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg border bg-surface shadow-lg">
+          <p className="border-b px-3 py-1.5 text-xs font-semibold text-muted uppercase tracking-wider">
             Set Policy
           </p>
           {policyOptions.map((opt) => (
             <button
               key={opt.value}
               onClick={() => handleSetPolicy(opt.value)}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-xs transition hover:bg-gray-50 ${
+              className={`flex w-full items-center gap-2 px-3 py-2 text-xs transition hover:bg-surface-raised ${
                 opt.value === status ? "font-semibold" : ""
               }`}
             >
               <span
                 className={`h-2 w-2 rounded-full ${
                   opt.value === "unclassified"
-                    ? "bg-yellow-400"
+                    ? "bg-warning"
                     : opt.value === "approved"
-                    ? "bg-green-500"
+                    ? "bg-success"
                     : opt.value === "restricted"
                     ? "bg-orange-400"
-                    : "bg-red-500"
+                    : "bg-error"
                 }`}
               />
               {opt.label}

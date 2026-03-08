@@ -21,7 +21,7 @@ export function JiraTicketButton({ findingId }: Props) {
 
   if (ticketUrl) {
     return (
-      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded text-xs font-medium text-blue-600 hover:underline">
+      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded text-xs font-medium text-info hover:underline">
         ✓ Jira ticket ↗
       </a>
     );
@@ -40,10 +40,10 @@ export function JiraTicketButton({ findingId }: Props) {
 
   return (
     <div className="inline-flex flex-col items-end gap-0.5">
-      <button onClick={createTicket} disabled={loading} className="rounded border border-blue-300 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-50 disabled:opacity-50">
+      <button onClick={createTicket} disabled={loading} className="rounded border border-info px-2 py-0.5 text-xs font-medium text-info hover:bg-info/10 disabled:opacity-50">
         {loading ? "Creating…" : "Create Jira Ticket"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-error">{error}</span>}
     </div>
   );
 }

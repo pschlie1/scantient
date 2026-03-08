@@ -45,11 +45,11 @@ function computeComplianceScore(findings: { severity: string }[]): number {
 
 function GradeBadge({ grade }: { grade: string }) {
   const colors: Record<string, string> = {
-    A: "bg-green-100 text-green-800 border-green-300",
-    B: "bg-blue-100 text-blue-800 border-blue-300",
-    C: "bg-yellow-100 text-yellow-800 border-yellow-300",
-    D: "bg-orange-100 text-orange-800 border-orange-300",
-    F: "bg-red-100 text-red-800 border-red-300",
+    A: "bg-success/10 text-success border-success/30",
+    B: "bg-info/10 text-info border-info/30",
+    C: "bg-warning/10 text-warning border-warning/30",
+    D: "bg-warning/10 text-warning border-warning/30",
+    F: "bg-error/10 text-error border-error/30",
   };
   return (
     <span
@@ -147,19 +147,19 @@ export default async function MspOverviewPage() {
   const avgScore = Math.round(clients.reduce((s, c) => s + c.complianceScore, 0) / clients.length);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">
+          <Link href="/dashboard" className="text-sm text-muted hover:text-heading">
             ← Dashboard
           </Link>
         </div>
         <h1 className="text-2xl font-bold tracking-tight">MSP Overview</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted">
           Compliance posture across all {clients.length} client organisation
           {clients.length !== 1 ? "s" : ""} managed by{" "}
-          <span className="font-medium text-gray-700">{session.orgName}</span>
+          <span className="font-medium text-heading">{session.orgName}</span>
         </p>
       </div>
 
@@ -176,17 +176,17 @@ export default async function MspOverviewPage() {
       </div>
 
       {/* Client org table */}
-      <div className="rounded-lg border bg-white overflow-hidden">
+      <div className="rounded-lg border bg-surface overflow-hidden">
         <div className="border-b px-4 py-3">
           <h2 className="text-sm font-semibold">Client Organisations</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-muted mt-0.5">
             Sorted by critical findings. Click a client to open their dashboard.
           </p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500">
+              <tr className="border-b bg-surface-raised text-xs font-medium uppercase tracking-wider text-muted">
                 <th className="px-4 py-2">Organisation</th>
                 <th className="px-4 py-2 text-center">Apps</th>
                 <th className="px-4 py-2 text-right">Critical</th>
@@ -199,32 +199,32 @@ export default async function MspOverviewPage() {
             </thead>
             <tbody className="divide-y">
               {clients.map((client) => (
-                <tr key={client.orgId} className="hover:bg-gray-50 transition-colors">
+                <tr key={client.orgId} className="hover:bg-surface-raised transition-colors">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{client.orgName}</div>
-                    <div className="text-xs text-gray-400">{client.orgSlug}</div>
+                    <div className="font-medium text-heading">{client.orgName}</div>
+                    <div className="text-xs text-muted">{client.orgSlug}</div>
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-600">{client.totalApps}</td>
+                  <td className="px-4 py-3 text-center text-body">{client.totalApps}</td>
                   <td className="px-4 py-3 text-right">
                     {client.criticalFindings > 0 ? (
-                      <span className="font-semibold text-red-600">{client.criticalFindings}</span>
+                      <span className="font-semibold text-error">{client.criticalFindings}</span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-muted">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {client.highFindings > 0 ? (
-                      <span className="font-semibold text-orange-600">{client.highFindings}</span>
+                      <span className="font-semibold text-warning">{client.highFindings}</span>
                     ) : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-muted">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-600">
+                  <td className="px-4 py-3 text-right text-body">
                     {client.totalOpenFindings > 0 ? client.totalOpenFindings : (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-muted">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
+                  <td className="px-4 py-3 text-xs text-muted">
                     {client.lastScanAt ? relativeTime(new Date(client.lastScanAt)) : "Never"}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -233,7 +233,7 @@ export default async function MspOverviewPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/api/msp/switch?orgId=${client.orgId}`}
-                      className="rounded-md border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
+                      className="rounded-md border border-border px-3 py-1 text-xs font-medium text-body transition hover:bg-surface-raised hover:text-heading"
                     >
                       View →
                     </Link>
@@ -246,16 +246,16 @@ export default async function MspOverviewPage() {
       </div>
 
       {/* Info callout */}
-      <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-        <p className="text-sm text-blue-800">
+      <div className="mt-6 rounded-lg border border-info/20 bg-info/10 px-4 py-3">
+        <p className="text-sm text-info">
           <span className="font-semibold">MSP Mode</span> — To add a client organisation, create
           the org and set its{" "}
-          <code className="rounded bg-blue-100 px-1 font-mono text-xs">parentOrgId</code> to{" "}
-          <code className="rounded bg-blue-100 px-1 font-mono text-xs">{session.orgId}</code> via
+          <code className="rounded bg-info/10 px-1 font-mono text-xs">parentOrgId</code> to{" "}
+          <code className="rounded bg-info/10 px-1 font-mono text-xs">{session.orgId}</code> via
           the API. Client orgs appear in this view automatically.
         </p>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -269,9 +269,9 @@ function SummaryCard({
   urgent?: boolean;
 }) {
   return (
-    <div className="rounded-lg border bg-white px-4 py-3">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-0.5 text-2xl font-bold ${urgent ? "text-red-600" : "text-gray-900"}`}>
+    <div className="rounded-lg border bg-surface px-4 py-3">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
+      <p className={`mt-0.5 text-2xl font-bold ${urgent ? "text-error" : "text-heading"}`}>
         {value}
       </p>
     </div>

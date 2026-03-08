@@ -18,36 +18,36 @@ export default async function ExecutiveReportPage() {
 
   if (!hasFeature(limits.tier, "executiveReports")) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <div className="rounded-lg border bg-white p-12 shadow-sm">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl">
+      <div className="mx-auto max-w-3xl py-16 text-center">
+        <div className="rounded-lg border bg-surface p-12 shadow-sm">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-warning/10 text-2xl">
             🔒
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Executive Reports</h1>
-          <p className="mt-3 text-gray-500">
+          <h1 className="text-2xl font-bold text-heading">Executive Reports</h1>
+          <p className="mt-3 text-muted">
             Executive board reports are available on the{" "}
             <strong>Pro or Enterprise</strong> plan.
           </p>
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1 text-sm text-muted">
             You&apos;re currently on the{" "}
             <span className="font-medium capitalize">{limits.tier.toLowerCase()}</span> plan.
           </p>
           <div className="mt-8 flex items-center justify-center gap-4">
             <Link
               href="/settings/billing"
-              className="rounded-lg bg-black px-6 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover transition-colors"
             >
               Upgrade your plan
             </Link>
             <Link
               href="/reports"
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-muted hover:text-heading"
             >
               ← Back to reports
             </Link>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -178,33 +178,33 @@ export default async function ExecutiveReportPage() {
   // Risk score color
   const riskColor =
     overallRiskScore < 30
-      ? "text-green-600"
+      ? "text-success"
       : overallRiskScore <= 60
-        ? "text-yellow-600"
-        : "text-red-600";
+        ? "text-warning"
+        : "text-error";
 
   const trendConfig = {
-    improving: { label: "↓ Improving", className: "bg-green-100 text-green-700" },
-    stable: { label: "→ Stable", className: "bg-yellow-100 text-yellow-700" },
-    degrading: { label: "↑ Degrading", className: "bg-red-100 text-red-700" },
+    improving: { label: "↓ Improving", className: "bg-success/10 text-success" },
+    stable: { label: "→ Stable", className: "bg-warning/10 text-warning" },
+    degrading: { label: "↑ Degrading", className: "bg-error/10 text-error" },
   }[riskTrend];
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 print:px-0">
+    <div className="py-8 print:px-0">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between print:mb-6">
         <div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-black tracking-tight text-black">VibeSafe</span>
-            <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+            <span className="text-2xl font-black tracking-tight text-heading">VibeSafe</span>
+            <span className="rounded bg-surface-raised px-2 py-0.5 text-xs font-medium text-muted">
               Executive Report
             </span>
           </div>
-          <h1 className="mt-1 text-xl font-semibold text-gray-900">{org?.name}</h1>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <h1 className="mt-1 text-xl font-semibold text-heading">{org?.name}</h1>
+          <p className="mt-0.5 text-sm text-muted">
             {format(periodFrom, "MMM d")} – {format(now, "MMM d, yyyy")} · Generated {format(now, "PPP")}
           </p>
-          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-400">
+          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted">
             Confidential - Internal Use Only
           </p>
         </div>
@@ -212,7 +212,7 @@ export default async function ExecutiveReportPage() {
           <PrintButton />
           <Link
             href="/reports"
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm text-muted hover:text-heading"
           >
             ← Back
           </Link>
@@ -221,39 +221,39 @@ export default async function ExecutiveReportPage() {
 
       {/* Risk Score + Trend */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="col-span-1 rounded-lg border bg-white p-6 text-center shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Overall Risk Score</p>
+        <div className="col-span-1 rounded-lg border bg-surface p-6 text-center shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted">Overall Risk Score</p>
           <p className={`mt-2 text-5xl font-extrabold ${riskColor}`}>{overallRiskScore}</p>
-          <p className="mt-1 text-xs text-gray-400">out of 100</p>
+          <p className="mt-1 text-xs text-muted">out of 100</p>
           <span className={`mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${trendConfig.className}`}>
             {trendConfig.label}
           </span>
         </div>
         <MetricCard label="Apps Monitored" value={totalApps} />
-        <MetricCard label="Apps at Risk" value={appsAtRisk} accent={appsAtRisk > 0 ? "text-red-600" : undefined} />
-        <MetricCard label="Open Findings" value={openCountNow} accent={openCountNow > 0 ? "text-orange-600" : undefined} />
+        <MetricCard label="Apps at Risk" value={appsAtRisk} accent={appsAtRisk > 0 ? "text-error" : undefined} />
+        <MetricCard label="Open Findings" value={openCountNow} accent={openCountNow > 0 ? "text-warning" : undefined} />
       </div>
 
       {/* Additional metrics */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Healthy Apps" value={healthyApps} accent="text-green-600" />
-        <MetricCard label="Resolved (30d)" value={resolvedThisPeriod.length} accent="text-blue-600" />
+        <MetricCard label="Healthy Apps" value={healthyApps} accent="text-success" />
+        <MetricCard label="Resolved (30d)" value={resolvedThisPeriod.length} accent="text-info" />
         <MetricCard label="Avg Resolution" value={`${avgResolutionDays}d`} />
-        <MetricCard label="Avg Uptime" value={`${avgUptime}%`} accent={avgUptime >= 99 ? "text-green-600" : avgUptime >= 95 ? "text-yellow-600" : "text-red-600"} />
+        <MetricCard label="Avg Uptime" value={`${avgUptime}%`} accent={avgUptime >= 99 ? "text-success" : avgUptime >= 95 ? "text-warning" : "text-error"} />
       </div>
 
       {/* Top risks table */}
       <section className="mb-8">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">Top Security Risks</h2>
+        <h2 className="mb-3 text-lg font-semibold text-heading">Top Security Risks</h2>
         {topRisks.length === 0 ? (
-          <div className="rounded-lg border bg-white p-6 text-center text-sm text-gray-500">
+          <div className="rounded-lg border bg-surface p-6 text-center text-sm text-muted">
             ✅ No critical or high severity open findings.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border bg-white">
+          <div className="overflow-x-auto rounded-lg border bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <tr className="border-b bg-surface-raised text-xs font-medium uppercase tracking-wider text-muted">
                   <th className="px-4 py-3">Severity</th>
                   <th className="px-4 py-3">Finding</th>
                   <th className="px-4 py-3">App</th>
@@ -262,16 +262,16 @@ export default async function ExecutiveReportPage() {
               </thead>
               <tbody className="divide-y">
                 {topRisks.map((r, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
+                  <tr key={i} className="hover:bg-surface-raised">
                     <td className="px-4 py-3">
                       <SeverityBadge severity={r.severity} />
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-900">{r.title}</td>
+                    <td className="px-4 py-3 font-medium text-heading">{r.title}</td>
                     <td className="px-4 py-3">
                       <span className="font-medium">{r.appName}</span>
-                      <p className="max-w-[180px] truncate text-xs text-gray-400">{r.appUrl}</p>
+                      <p className="max-w-[180px] truncate text-xs text-muted">{r.appUrl}</p>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-muted">
                       {format(r.openSince, "MMM d, yyyy")}
                     </td>
                   </tr>
@@ -284,16 +284,16 @@ export default async function ExecutiveReportPage() {
 
       {/* App inventory table */}
       <section className="mb-8">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">App Inventory</h2>
+        <h2 className="mb-3 text-lg font-semibold text-heading">App Inventory</h2>
         {appInventory.length === 0 ? (
-          <div className="rounded-lg border bg-white p-6 text-center text-sm text-gray-500">
+          <div className="rounded-lg border bg-surface p-6 text-center text-sm text-muted">
             No apps registered yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border bg-white">
+          <div className="overflow-x-auto rounded-lg border bg-surface">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500">
+                <tr className="border-b bg-surface-raised text-xs font-medium uppercase tracking-wider text-muted">
                   <th className="px-4 py-3">App</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Uptime</th>
@@ -303,10 +303,10 @@ export default async function ExecutiveReportPage() {
               </thead>
               <tbody className="divide-y">
                 {appInventory.map((app, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
+                  <tr key={i} className="hover:bg-surface-raised">
                     <td className="px-4 py-3">
-                      <span className="font-medium text-gray-900">{app.name}</span>
-                      <p className="max-w-[200px] truncate text-xs text-gray-400">{app.url}</p>
+                      <span className="font-medium text-heading">{app.name}</span>
+                      <p className="max-w-[200px] truncate text-xs text-muted">{app.url}</p>
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={app.status} />
@@ -316,12 +316,12 @@ export default async function ExecutiveReportPage() {
                     </td>
                     <td className="px-4 py-3">
                       {app.openFindings > 0 ? (
-                        <span className="text-sm font-semibold text-red-600">{app.openFindings}</span>
+                        <span className="text-sm font-semibold text-error">{app.openFindings}</span>
                       ) : (
-                        <span className="text-sm text-gray-400">—</span>
+                        <span className="text-sm text-muted">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-muted">
                       {app.lastScanned ? format(app.lastScanned, "MMM d, yyyy") : "—"}
                     </td>
                   </tr>
@@ -333,11 +333,11 @@ export default async function ExecutiveReportPage() {
       </section>
 
       {/* Footer */}
-      <div className="border-t pt-6 text-center text-xs text-gray-400">
+      <div className="border-t pt-6 text-center text-xs text-muted">
         <p>Generated by VibeSafe · {format(now, "PPPp")} UTC</p>
         <p className="mt-1">Confidential - For internal and board use only</p>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -351,9 +351,9 @@ function MetricCard({
   accent?: string;
 }) {
   return (
-    <div className="rounded-lg border bg-white p-5 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{label}</p>
-      <p className={`mt-2 text-3xl font-bold ${accent ?? "text-gray-900"}`}>{value}</p>
+    <div className="rounded-lg border bg-surface p-5 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
+      <p className={`mt-2 text-3xl font-bold ${accent ?? "text-heading"}`}>{value}</p>
     </div>
   );
 }

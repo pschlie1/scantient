@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Help Center — Scantient",
@@ -68,15 +66,13 @@ const faqs = [
 
 export default function HelpPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">Help Center</p>
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">Help Center</p>
         <h1 className="text-4xl font-bold tracking-tight">How can we help?</h1>
-        <p className="mt-4 text-lg text-gray-500">
+        <p className="mt-4 text-lg text-muted">
           Common questions about Scantient. Can&apos;t find what you&apos;re looking for?{" "}
-          <Link href="/contact" className="text-black underline hover:no-underline">
+          <Link href="/contact" className="text-heading underline hover:no-underline">
             Contact us
           </Link>.
         </p>
@@ -84,12 +80,12 @@ export default function HelpPage() {
         <div className="mt-16 space-y-16">
           {faqs.map((section) => (
             <div key={section.section}>
-              <h2 className="text-xl font-semibold text-gray-900">{section.section}</h2>
+              <h2 className="text-xl font-semibold text-heading">{section.section}</h2>
               <div className="mt-6 space-y-8">
                 {section.items.map((item) => (
                   <div key={item.q}>
-                    <h3 className="font-medium text-gray-900">{item.q}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-500">{item.a}</p>
+                    <h3 className="font-medium text-heading">{item.q}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{item.a}</p>
                   </div>
                 ))}
               </div>
@@ -97,21 +93,21 @@ export default function HelpPage() {
           ))}
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-xl font-bold">Still have questions?</h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-muted">
             Our team typically responds within one business day.
           </p>
           <div className="mt-6 flex justify-center gap-4">
             <Link
               href="/contact"
-              className="rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+              className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
             >
               Contact support
             </Link>
             <Link
               href="/docs"
-              className="rounded-lg border border-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+              className="rounded-lg border border-border px-6 py-2.5 text-sm font-medium text-heading hover:bg-surface-raised transition-colors"
             >
               View API docs
             </Link>
@@ -119,7 +115,6 @@ export default function HelpPage() {
         </div>
       </div>
 
-      <Footer />
-    </div>
+    </>
   );
 }

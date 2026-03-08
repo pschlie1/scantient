@@ -32,12 +32,12 @@ export function ShareScoreButton({ domain }: Props) {
     <button
       type="button"
       onClick={handleShare}
-      className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-heading transition-colors hover:bg-surface-raised"
       title={`Copy shareable score URL for ${domain}`}
     >
       {copied ? (
         <>
-          <span className="text-green-600">✓</span>
+          <span className="text-success">✓</span>
           Copied!
         </>
       ) : (

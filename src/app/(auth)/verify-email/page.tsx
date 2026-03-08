@@ -44,23 +44,22 @@ function VerifyEmailContent() {
   }, [token, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-black">
+    <div className="w-full max-w-sm text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-surface-raised">
           <span className="text-xl font-bold text-white">V</span>
         </div>
 
         {status === "loading" && (
           <>
             <h1 className="text-2xl font-bold">Verifying your email…</h1>
-            <p className="mt-2 text-sm text-gray-500">Please wait</p>
+            <p className="mt-2 text-sm text-muted">Please wait</p>
           </>
         )}
 
         {status === "success" && (
           <>
-            <h1 className="text-2xl font-bold text-green-600">Email verified!</h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-success">Email verified!</h1>
+            <p className="mt-2 text-sm text-muted">
               Your email has been verified. Redirecting to dashboard…
             </p>
           </>
@@ -68,24 +67,23 @@ function VerifyEmailContent() {
 
         {status === "error" && (
           <>
-            <h1 className="text-2xl font-bold text-red-600">Verification failed</h1>
-            <p className="mt-2 text-sm text-gray-500">{errorMessage}</p>
+            <h1 className="text-2xl font-bold text-error">Verification failed</h1>
+            <p className="mt-2 text-sm text-muted">{errorMessage}</p>
             <Link
               href="/login"
-              className="mt-4 inline-block text-sm font-medium text-black hover:underline"
+              className="mt-4 inline-block text-sm font-medium text-heading hover:underline"
             >
               Back to sign in
             </Link>
           </>
         )}
-      </div>
     </div>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading…</div>}>
+    <Suspense fallback={<div>Loading…</div>}>
       <VerifyEmailContent />
     </Suspense>
   );

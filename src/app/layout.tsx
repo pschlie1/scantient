@@ -68,7 +68,7 @@ export default async function RootLayout({
   const nonce = headersList.get("x-nonce") ?? undefined;
 
   return (
-    <html lang="en">
+    <html lang="en" className="bg-page">
       <head>
         <script
           type="application/ld+json"

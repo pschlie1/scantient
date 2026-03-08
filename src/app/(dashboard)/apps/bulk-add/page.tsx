@@ -172,29 +172,31 @@ export default function BulkAddPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-3xl py-8">
       <div className="mb-6">
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900">
+        <Link href="/dashboard" className="text-sm text-muted hover:text-heading">
           ← Back to dashboard
         </Link>
         <h1 className="mt-2 text-2xl font-bold tracking-tight">Bulk Add Apps</h1>
-        <p className="text-sm text-gray-500">Import multiple apps at once via URL list or CSV upload</p>
+        <p className="text-sm text-muted">Import multiple apps at once via URL list or CSV upload</p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-lg border bg-gray-50 p-1">
+      <div className="mb-6 flex gap-1 rounded-lg border bg-surface-raised p-1">
         <button
+          type="button"
           onClick={() => setActiveTab("paste")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
-            activeTab === "paste" ? "bg-white shadow-sm" : "text-gray-500 hover:text-gray-900"
+            activeTab === "paste" ? "bg-surface shadow-sm" : "text-muted hover:text-heading"
           }`}
         >
           Paste URLs
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("csv")}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
-            activeTab === "csv" ? "bg-white shadow-sm" : "text-gray-500 hover:text-gray-900"
+            activeTab === "csv" ? "bg-surface shadow-sm" : "text-muted hover:text-heading"
           }`}
         >
           CSV Upload
@@ -203,15 +205,15 @@ export default function BulkAddPage() {
 
       {/* Paste URLs Tab */}
       {activeTab === "paste" && (
-        <div className="rounded-lg border bg-white p-6">
+        <div className="rounded-lg border bg-surface p-6">
           <form onSubmit={handlePasteSubmit} className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-heading">
                 App URLs
               </label>
-              <p className="mb-2 text-xs text-gray-500">Enter one URL per line. Max 50 at a time.</p>
+              <p className="mb-2 text-xs text-muted">Enter one URL per line. Max 50 at a time.</p>
               <textarea
-                className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-md border border-border px-3 py-2 font-mono text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 rows={8}
                 placeholder={"https://app.company.com\nhttps://portal.company.com\nhttps://tool.company.com"}
                 value={pasteText}
@@ -222,23 +224,23 @@ export default function BulkAddPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700">
+                <label className="mb-1 block text-xs font-medium text-heading">
                   Default owner email (optional)
                 </label>
                 <input
                   type="email"
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                   placeholder={userEmail}
                   value={defaultEmail}
                   onChange={(e) => setDefaultEmail(e.target.value)}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-700">
+                <label className="mb-1 block text-xs font-medium text-heading">
                   Default criticality
                 </label>
                 <select
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                   value={defaultCriticality}
                   onChange={(e) => setDefaultCriticality(e.target.value)}
                 >
@@ -251,12 +253,12 @@ export default function BulkAddPage() {
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+              <div className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">{error}</div>
             )}
 
             {result && (
-              <div className="rounded-md bg-green-50 px-4 py-3">
-                <p className="text-sm font-medium text-green-800">
+              <div className="rounded-md bg-success/10 px-4 py-3">
+                <p className="text-sm font-medium text-success">
                   {result.created} app{result.created !== 1 ? "s" : ""} added
                   {result.skipped > 0 && `, ${result.skipped} skipped (already exist)`}
                   {result.errors.length > 0 && `, ${result.errors.length} error${result.errors.length !== 1 ? "s" : ""}`}
@@ -264,7 +266,7 @@ export default function BulkAddPage() {
                 {result.errors.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {result.errors.map((e) => (
-                      <li key={e.url} className="text-xs text-red-700">
+                      <li key={e.url} className="text-xs text-error">
                         <span className="font-mono">{e.url}</span>: {e.reason}
                       </li>
                     ))}
@@ -273,7 +275,7 @@ export default function BulkAddPage() {
                 {result.created > 0 && (
                   <Link
                     href="/dashboard"
-                    className="mt-2 inline-block text-xs font-medium text-green-700 underline"
+                    className="mt-2 inline-block text-xs font-medium text-success underline"
                   >
                     View dashboard →
                   </Link>
@@ -284,7 +286,7 @@ export default function BulkAddPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-50"
             >
               {submitting ? "Adding apps…" : "Add apps"}
             </button>
@@ -294,19 +296,19 @@ export default function BulkAddPage() {
 
       {/* CSV Upload Tab */}
       {activeTab === "csv" && (
-        <div className="rounded-lg border bg-white p-6">
+        <div className="rounded-lg border bg-surface p-6">
           <div className="mb-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-body">
               Upload a CSV file with your apps. Columns:{" "}
-              <code className="rounded bg-gray-100 px-1 text-xs">url</code> (required),{" "}
-              <code className="rounded bg-gray-100 px-1 text-xs">name</code>,{" "}
-              <code className="rounded bg-gray-100 px-1 text-xs">owner_email</code>,{" "}
-              <code className="rounded bg-gray-100 px-1 text-xs">criticality</code>
+              <code className="rounded bg-surface-raised px-1 text-xs">url</code> (required),{" "}
+              <code className="rounded bg-surface-raised px-1 text-xs">name</code>,{" "}
+              <code className="rounded bg-surface-raised px-1 text-xs">owner_email</code>,{" "}
+              <code className="rounded bg-surface-raised px-1 text-xs">criticality</code>
             </p>
             <a
               href={SAMPLE_CSV}
               download="scantient-bulk-import-template.csv"
-              className="mt-1 inline-block text-xs text-blue-600 hover:underline"
+              className="mt-1 inline-block text-xs text-info hover:underline"
             >
               ↓ Download sample CSV template
             </a>
@@ -314,44 +316,44 @@ export default function BulkAddPage() {
 
           <form onSubmit={handleCsvSubmit} className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">CSV File</label>
+              <label className="mb-1 block text-sm font-medium text-heading">CSV File</label>
               <input
                 type="file"
                 accept=".csv"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-black file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-gray-800"
+                className="block w-full text-sm text-muted file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary-hover"
               />
             </div>
 
             {csvError && (
-              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{csvError}</div>
+              <div className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">{csvError}</div>
             )}
 
             {csvRows.length > 0 && (
               <div>
-                <p className="mb-2 text-xs font-medium text-gray-700">
+                <p className="mb-2 text-xs font-medium text-heading">
                   Preview — {csvRows.length} row{csvRows.length !== 1 ? "s" : ""} found
                   {csvRows.length > 10 && " (showing first 10)"}
                 </p>
                 <div className="overflow-x-auto rounded-md border">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-surface-raised">
                       <tr>
-                        <th className="px-3 py-2 font-medium text-gray-600">URL</th>
-                        <th className="px-3 py-2 font-medium text-gray-600">Name</th>
-                        <th className="px-3 py-2 font-medium text-gray-600">Owner Email</th>
-                        <th className="px-3 py-2 font-medium text-gray-600">Criticality</th>
+                        <th className="px-3 py-2 font-medium text-body">URL</th>
+                        <th className="px-3 py-2 font-medium text-body">Name</th>
+                        <th className="px-3 py-2 font-medium text-body">Owner Email</th>
+                        <th className="px-3 py-2 font-medium text-body">Criticality</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {csvRows.slice(0, 10).map((row, i) => (
-                        <tr key={i} className="hover:bg-gray-50">
-                          <td className="max-w-[160px] truncate px-3 py-2 font-mono text-gray-800">
+                        <tr key={i} className="hover:bg-surface-raised">
+                          <td className="max-w-40 truncate px-3 py-2 font-mono text-heading">
                             {row.url}
                           </td>
-                          <td className="px-3 py-2 text-gray-600">{row.name || "—"}</td>
-                          <td className="px-3 py-2 text-gray-600">{row.owner_email || "—"}</td>
-                          <td className="px-3 py-2 capitalize text-gray-600">
+                          <td className="px-3 py-2 text-body">{row.name || "—"}</td>
+                          <td className="px-3 py-2 text-body">{row.owner_email || "—"}</td>
+                          <td className="px-3 py-2 capitalize text-body">
                             {row.criticality || "medium"}
                           </td>
                         </tr>
@@ -363,8 +365,8 @@ export default function BulkAddPage() {
             )}
 
             {csvResult && (
-              <div className="rounded-md bg-green-50 px-4 py-3">
-                <p className="text-sm font-medium text-green-800">
+              <div className="rounded-md bg-success/10 px-4 py-3">
+                <p className="text-sm font-medium text-success">
                   {csvResult.created} app{csvResult.created !== 1 ? "s" : ""} added
                   {csvResult.skipped > 0 && `, ${csvResult.skipped} skipped (already exist)`}
                   {csvResult.errors.length > 0 &&
@@ -373,7 +375,7 @@ export default function BulkAddPage() {
                 {csvResult.errors.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {csvResult.errors.map((e) => (
-                      <li key={e.url} className="text-xs text-red-700">
+                      <li key={e.url} className="text-xs text-error">
                         <span className="font-mono">{e.url}</span>: {e.reason}
                       </li>
                     ))}
@@ -382,7 +384,7 @@ export default function BulkAddPage() {
                 {csvResult.created > 0 && (
                   <Link
                     href="/dashboard"
-                    className="mt-2 inline-block text-xs font-medium text-green-700 underline"
+                    className="mt-2 inline-block text-xs font-medium text-success underline"
                   >
                     View dashboard →
                   </Link>
@@ -393,13 +395,13 @@ export default function BulkAddPage() {
             <button
               type="submit"
               disabled={csvSubmitting || csvRows.length === 0}
-              className="w-full rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+              className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-50"
             >
               {csvSubmitting ? "Importing…" : `Import ${csvRows.length > 0 ? csvRows.length : ""} apps`}
             </button>
           </form>
         </div>
       )}
-    </main>
+    </div>
   );
 }

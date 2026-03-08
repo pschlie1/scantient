@@ -5,7 +5,7 @@ const footerColumns = [
     header: "Product",
     links: [
       { label: "Overview", href: "/#features" },
-      { label: "Pricing", href: "/#pricing" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Compliance", href: "/compliance" },
       { label: "API Docs", href: "/docs" },
     ],
@@ -42,19 +42,19 @@ const footerColumns = [
 
 export default function Footer() {
   return (
-    <footer className="bg-ink-black-950">
+    <footer className="bg-surface">
       {/* Top section */}
       <div className="mx-auto max-w-[1200px] px-6">
         <div className="grid grid-cols-1 gap-12 py-20 sm:grid-cols-2 lg:grid-cols-5">
           {/* Col 1 — Brand (2/5 width on lg) */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
-                <span className="text-sm font-bold text-ink-black-950">V</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-raised">
+                <span className="text-sm font-bold text-heading">V</span>
               </div>
-              <span className="text-xl font-bold text-white">Scantient</span>
+              <span className="text-xl font-bold text-heading">Scantient</span>
             </div>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-alabaster-grey-400">
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">
               Complete visibility into your AI-built app portfolio.
             </p>
           </div>
@@ -62,7 +62,7 @@ export default function Footer() {
           {/* Cols 2–5 — Link columns */}
           {footerColumns.map((col) => (
             <div key={col.header}>
-              <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-white">
+              <h4 className="mb-6 text-xs font-bold uppercase tracking-widest text-heading">
                 {col.header}
               </h4>
               <ul className="space-y-3">
@@ -70,7 +70,7 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-alabaster-grey-400 transition-colors hover:text-white"
+                      className="text-sm text-muted transition-colors hover:text-heading"
                     >
                       {link.label}
                     </Link>
@@ -83,17 +83,23 @@ export default function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-ink-black-800">
+      <div className="border-t border-border-subtle">
         <div className="mx-auto max-w-[1200px] px-6">
           <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
-            <p className="text-sm text-alabaster-grey-600">
-              © 2026 Scantient Inc. All rights reserved.
+            <p className="text-sm text-muted">
+              &copy; 2026 Scantient Inc. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link href="/status" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">
+              <Link
+                href="/status"
+                className="text-sm text-muted transition-colors hover:text-heading"
+              >
                 Status
               </Link>
-              <Link href="/security-checklist" className="text-sm text-alabaster-grey-400 transition-colors hover:text-white">
+              <Link
+                href="/security-checklist"
+                className="text-sm text-muted transition-colors hover:text-heading"
+              >
                 Security
               </Link>
             </div>

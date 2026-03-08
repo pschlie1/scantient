@@ -28,10 +28,10 @@ export default function GlobalError({ error, reset }: ErrorBoundaryProps) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page p-8 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-error/10">
         <svg
-          className="h-6 w-6 text-red-600"
+          className="h-6 w-6 text-error"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -46,24 +46,24 @@ export default function GlobalError({ error, reset }: ErrorBoundaryProps) {
         </svg>
       </div>
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Something went wrong</h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-heading">Something went wrong</h1>
+        <p className="mt-2 text-sm text-muted">
           An unexpected error occurred. Our team has been notified.
         </p>
         {error.digest && (
-          <p className="mt-1 font-mono text-xs text-gray-400">Error ID: {error.digest}</p>
+          <p className="mt-1 font-mono text-xs text-muted">Error ID: {error.digest}</p>
         )}
       </div>
       <div className="flex gap-3">
         <button
           onClick={reset}
-          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
         >
           Try again
         </button>
         <a
           href="/dashboard"
-          className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-heading hover:bg-surface-raised"
         >
           Go to dashboard
         </a>

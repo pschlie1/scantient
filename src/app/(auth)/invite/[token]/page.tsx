@@ -64,20 +64,19 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
+    <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-black">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-surface-raised">
             <span className="text-xl font-bold text-white">V</span>
           </div>
 
           {fetchError ? (
             <>
-              <h1 className="text-2xl font-bold text-red-600">Invite unavailable</h1>
-              <p className="mt-1 text-sm text-gray-500">{fetchError}</p>
+              <h1 className="text-2xl font-bold text-error">Invite unavailable</h1>
+              <p className="mt-1 text-sm text-muted">{fetchError}</p>
               <Link
                 href="/login"
-                className="mt-4 inline-block text-sm font-medium text-black hover:underline"
+                className="mt-4 inline-block text-sm font-medium text-heading hover:underline"
               >
                 Back to sign in
               </Link>
@@ -85,11 +84,11 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
           ) : invite ? (
             <>
               <h1 className="text-2xl font-bold">You&apos;ve been invited!</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Join <strong>{invite.orgName}</strong> as{" "}
                 <span className="capitalize">{invite.role.toLowerCase()}</span>
               </p>
-              <p className="mt-1 text-xs text-gray-400">{invite.email}</p>
+              <p className="mt-1 text-xs text-muted">{invite.email}</p>
             </>
           ) : (
             <h1 className="text-2xl font-bold">Loading invite…</h1>
@@ -97,42 +96,41 @@ export default function InviteAcceptPage({ params }: { params: Promise<{ token: 
         </div>
 
         {invite && !fetchError && (
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">Your name</label>
+              <label className="mb-1 block text-xs font-medium text-heading">Your name</label>
               <input
                 type="text"
                 required
                 minLength={2}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-700">Password</label>
+              <label className="mb-1 block text-xs font-medium text-heading">Password</label>
               <input
                 type="password"
                 required
                 minLength={8}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-hover focus:outline-none focus:ring-1 focus:ring-primary-hover"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {error && <p className="text-xs text-error">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+              className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-50"
             >
               {loading ? "Creating account…" : "Accept invite & join"}
             </button>
           </form>
         )}
-      </div>
     </div>
   );
 }

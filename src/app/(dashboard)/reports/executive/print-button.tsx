@@ -4,11 +4,11 @@ export function PrintButton() {
   return (
     <button
       onClick={() => window.print()}
-      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors print:hidden"
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm font-medium text-heading shadow-sm hover:bg-surface-raised transition-colors print:hidden"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-4 w-4 text-gray-500"
+        className="h-4 w-4 text-muted"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

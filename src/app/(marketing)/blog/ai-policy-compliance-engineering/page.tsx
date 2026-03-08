@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import MarketingNav from "@/components/marketing-nav";
-import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Your Engineering Team Probably Has No AI Usage Policy (And Why That's a Security Problem) | Scantient",
@@ -105,22 +103,20 @@ const checklist = [
 
 export default function AIPolicyComplianceBlogPage() {
   return (
-    <div className="bg-white">
-      <MarketingNav />
-
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       <article className="mx-auto max-w-3xl px-4 py-16">
-        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-gray-400">
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted">
           AI Compliance · March 2026
         </p>
         <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Your Engineering Team Probably Has No AI Usage Policy (And Why That&apos;s a Security Problem)
         </h1>
-        <p className="mt-6 text-lg leading-relaxed text-gray-500">
+        <p className="mt-6 text-lg leading-relaxed text-muted">
           Ask your engineers how many AI tools they use daily. GitHub Copilot, ChatGPT, Claude, Cursor, Codeium,
           Tabnine, Gemini, Perplexity — the list adds up fast. The average engineering team is running 10 or more.
           Now ask how many of those tools are covered by a formal usage policy. For most organizations, the answer is zero.
@@ -128,7 +124,7 @@ export default function AIPolicyComplianceBlogPage() {
 
         <div className="mt-16">
           <h2 className="text-2xl font-semibold">The Shadow AI Problem Is Already Here</h2>
-          <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-4 leading-relaxed text-body">
             <p>
               Shadow IT — employees using unapproved software — has been a compliance headache for decades. But
               shadow AI is shadow IT on steroids. The barrier to using a new AI tool is a browser tab, not a
@@ -150,9 +146,9 @@ export default function AIPolicyComplianceBlogPage() {
 
         <div className="mt-14">
           <h2 className="text-2xl font-semibold">The Real Risks: Data Exposure, Compliance Failures, Audit Nightmares</h2>
-          <div className="mt-6 space-y-6 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-6 leading-relaxed text-body">
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Data Exposure</h3>
+              <h3 className="text-lg font-semibold text-heading">Data Exposure</h3>
               <p className="mt-2">
                 Engineers routinely paste proprietary code, internal documentation, and customer data into AI
                 tools to get better answers. Most AI providers use this data to improve their models unless you
@@ -161,7 +157,7 @@ export default function AIPolicyComplianceBlogPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Compliance Failures</h3>
+              <h3 className="text-lg font-semibold text-heading">Compliance Failures</h3>
               <p className="mt-2">
                 SOC 2 requires you to maintain controls over where data goes. GDPR requires data processing
                 agreements with any service that touches EU personal data. HIPAA requires Business Associate
@@ -171,7 +167,7 @@ export default function AIPolicyComplianceBlogPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Audit Nightmares</h3>
+              <h3 className="text-lg font-semibold text-heading">Audit Nightmares</h3>
               <p className="mt-2">
                 When a SOC 2 auditor asks how you govern AI tool usage across your engineering team, &ldquo;we
                 trust our engineers&rdquo; is not a control. Auditors want policy documentation, training
@@ -184,19 +180,19 @@ export default function AIPolicyComplianceBlogPage() {
 
         <div className="mt-14">
           <h2 className="text-2xl font-semibold">What an AI Usage Policy Actually Needs</h2>
-          <p className="mt-4 text-gray-500">
+          <p className="mt-4 text-muted">
             A good AI usage policy isn&apos;t a legal wall — it&apos;s a practical guide that enables engineers
             to work efficiently while protecting the organization. Here&apos;s the checklist:
           </p>
           <div className="mt-8 space-y-4">
             {checklist.map((item, i) => (
-              <div key={i} className="flex gap-4 rounded-xl border border-gray-100 p-4">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+              <div key={i} className="flex gap-4 rounded-xl border border-border p-4">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                   {i + 1}
                 </span>
                 <div>
-                  <p className="font-semibold text-gray-900">{item.item}</p>
-                  <p className="mt-1 text-sm text-gray-500">{item.detail}</p>
+                  <p className="font-semibold text-heading">{item.item}</p>
+                  <p className="mt-1 text-sm text-muted">{item.detail}</p>
                 </div>
               </div>
             ))}
@@ -205,31 +201,31 @@ export default function AIPolicyComplianceBlogPage() {
 
         <div className="mt-14">
           <h2 className="text-2xl font-semibold">How to Enforce It (Without Becoming the Policy Police)</h2>
-          <div className="mt-6 space-y-4 leading-relaxed text-gray-600">
+          <div className="mt-6 space-y-4 leading-relaxed text-body">
             <p>
               Writing a policy is the easy part. Enforcement without surveillance theater is harder. Nobody
               wants to work at a company that monitors every browser tab. Here&apos;s what actually works:
             </p>
             <p>
-              <strong className="text-gray-800">Start with visibility, not control.</strong> Before you can
+              <strong className="text-heading">Start with visibility, not control.</strong> Before you can
               enforce anything, you need to know what&apos;s being used. Automated scanning tools can detect
               AI tool usage patterns across your organization — which domains are being accessed, from which
               endpoints, using what credentials. This gives you a baseline without invasive monitoring.
             </p>
             <p>
-              <strong className="text-gray-800">Make compliance the path of least resistance.</strong> If
+              <strong className="text-heading">Make compliance the path of least resistance.</strong> If
               getting an approved AI tool takes three weeks of IT tickets, engineers will use unapproved tools.
               Set up a streamlined approval process. Build a curated list of pre-approved tools that engineers
               can use immediately. Make the approved path easier than the workaround.
             </p>
             <p>
-              <strong className="text-gray-800">Automate audit trails.</strong> Continuous monitoring means you
+              <strong className="text-heading">Automate audit trails.</strong> Continuous monitoring means you
               don&apos;t need point-in-time audits. Tools like Scantient can continuously scan for AI tool
               usage, flag policy gaps, and generate the audit evidence your compliance team needs — without
               requiring manual data collection or self-reported surveys (which are useless).
             </p>
             <p>
-              <strong className="text-gray-800">Pair detection with education.</strong> When the scanner flags
+              <strong className="text-heading">Pair detection with education.</strong> When the scanner flags
               an unapproved tool, the response shouldn&apos;t be a disciplinary action — it should be a
               conversation and a faster path to getting the tool approved. Most policy violations happen
               because engineers don&apos;t know the policy exists, not because they&apos;re trying to
@@ -238,15 +234,15 @@ export default function AIPolicyComplianceBlogPage() {
           </div>
         </div>
 
-        <div className="mt-20 rounded-2xl bg-gray-50 p-8 text-center">
+        <div className="mt-20 rounded-2xl bg-surface-raised p-8 text-center">
           <h2 className="text-2xl font-bold">Find out what AI tools your team is actually using</h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-gray-500">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
             Scantient scans your organization for AI tool usage, policy gaps, and compliance risks. Get your
             first report in minutes — no agents, no IT tickets, no disruption.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-lg bg-black px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            className="mt-6 inline-block rounded-lg bg-primary px-8 py-3 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
           >
             Start Free Scan
           </Link>
@@ -257,21 +253,20 @@ export default function AIPolicyComplianceBlogPage() {
           <div className="mt-8 space-y-8">
             {faqSchema.mainEntity.map((faq, i) => (
               <div key={i}>
-                <h3 className="text-lg font-semibold text-gray-900">{faq.name}</h3>
-                <p className="mt-2 leading-relaxed text-gray-600">{faq.acceptedAnswer.text}</p>
+                <h3 className="text-lg font-semibold text-heading">{faq.name}</h3>
+                <p className="mt-2 leading-relaxed text-body">{faq.acceptedAnswer.text}</p>
               </div>
             ))}
           </div>
         </div>
 
         <div className="mt-12 flex gap-4 text-sm">
-          <Link href="/vibe-coding-risks" className="text-gray-500 hover:text-black transition-colors">← Vibe Coding Risks</Link>
-          <span className="text-gray-300">|</span>
-          <Link href="/ai-policy-compliance" className="text-gray-500 hover:text-black transition-colors">AI Policy Scanner →</Link>
+          <Link href="/vibe-coding-risks" className="text-muted hover:text-heading transition-colors">← Vibe Coding Risks</Link>
+          <span className="text-muted">|</span>
+          <Link href="/ai-policy-compliance" className="text-muted hover:text-heading transition-colors">AI Policy Scanner →</Link>
         </div>
       </article>
 
-      <Footer />
-    </div>
+    </>
   );
 }

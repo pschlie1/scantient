@@ -11,9 +11,9 @@ export default async function OpsPage() {
   const kpis = await getOrgOpsKpis(session.orgId);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div className="py-8">
       <h1 className="text-2xl font-bold tracking-tight">Ops health</h1>
-      <p className="mt-1 text-sm text-gray-500">Org-scoped reliability KPIs for the last 24h / 7d.</p>
+      <p className="mt-1 text-sm text-muted">Org-scoped reliability KPIs for the last 24h / 7d.</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Scan success rate" value={`${kpis.scanSuccessRatePct}%`} />
@@ -34,18 +34,18 @@ export default async function OpsPage() {
         />
       </div>
 
-      <p className="mt-6 text-xs text-gray-400">
+      <p className="mt-6 text-xs text-muted">
         Generated at {new Date(kpis.generatedAt).toLocaleString()} · Alerts sent (7d): {kpis.alertsSentLast7d}
       </p>
-    </main>
+    </div>
   );
 }
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border bg-white p-4">
-      <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
+    <div className="rounded-lg border bg-surface p-4">
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+      <p className="mt-2 text-2xl font-semibold text-heading">{value}</p>
     </div>
   );
 }
