@@ -182,11 +182,12 @@ describe("runDueHttpScans — tier filtering", () => {
 
     expect(txFindMany).toHaveBeenCalledOnce();
     const [query] = txFindMany.mock.calls[0];
-    expect(query.where.AND).toEqual(
+    // Tier filter is wrapped in an OR clause
+    const tierCondition = query.where.AND.find((c: Record<string, unknown>) => c.OR !== undefined && c.OR !== query.where.AND[0]?.OR);
+    expect(tierCondition).toBeDefined();
+    expect(tierCondition.OR).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          org: { subscription: { tier: { in: ["ENTERPRISE", "ENTERPRISE_PLUS"] } } },
-        }),
+        { org: { subscription: { tier: { in: ["ENTERPRISE", "ENTERPRISE_PLUS"] } } } },
       ]),
     );
   });
@@ -211,12 +212,40 @@ describe("runDueHttpScans — tier filtering", () => {
     await runDueHttpScans(50, { tiers: ["FREE", "STARTER", "PRO", "EXPIRED"] });
 
     const [query] = txFindMany.mock.calls[0];
-    expect(query.where.AND).toEqual(
+    const tierCondition = query.where.AND.find((c: Record<string, unknown>) => Array.isArray(c.OR) && c.OR.some((o: Record<string, unknown>) => o.org !== undefined));
+    expect(tierCondition).toBeDefined();
+    expect(tierCondition.OR).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          org: { subscription: { tier: { in: ["FREE", "STARTER", "PRO", "EXPIRED"] } } },
-        }),
+        { org: { subscription: { tier: { in: ["FREE", "STARTER", "PRO", "EXPIRED"] } } } },
       ]),
     );
+  });
+
+  it("includes no-subscription fallback when includeNoSubscription is true", async () => {
+    txFindMany.mockResolvedValueOnce([]);
+    const { runDueHttpScans } = await import("@/lib/scanner-http");
+    await runDueHttpScans(50, { tiers: ["FREE"], includeNoSubscription: true });
+
+    const [query] = txFindMany.mock.calls[0];
+    const tierCondition = query.where.AND.find((c: Record<string, unknown>) => Array.isArray(c.OR) && c.OR.some((o: Record<string, unknown>) => o.org !== undefined));
+    expect(tierCondition.OR).toEqual(
+      expect.arrayContaining([
+        { org: { subscription: { tier: { in: ["FREE"] } } } },
+        { org: { subscription: null } },
+      ]),
+    );
+  });
+
+  it("excludes no-subscription fallback when includeNoSubscription is not set", async () => {
+    txFindMany.mockResolvedValueOnce([]);
+    const { runDueHttpScans } = await import("@/lib/scanner-http");
+    await runDueHttpScans(50, { tiers: ["ENTERPRISE"] });
+
+    const [query] = txFindMany.mock.calls[0];
+    const tierCondition = query.where.AND.find((c: Record<string, unknown>) => Array.isArray(c.OR) && c.OR.some((o: Record<string, unknown>) => o.org !== undefined));
+    const hasNullSub = tierCondition.OR.some(
+      (o: Record<string, unknown>) => o.org && (o.org as Record<string, unknown>).subscription === null,
+    );
+    expect(hasNullSub).toBe(false);
   });
 });
